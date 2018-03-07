@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+  <h1 class="heading">Registrering</h1>
+  {% from 'includes/_formhelpers.html' import render_field %}
+  <form method="POST" action="">
+    <div class="form-group">
+      {{ render_field(form.name, class_="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ render_field(form.username, class_="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ render_field(form.password, class_="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ render_field(form.confirm, class_="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ render_field(form.users_union, class_="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ render_field(form.union_password, class_="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ render_field(form.authority, class_="form_control" )}}
+    </div>
+    <p>
+      <input type="submit" value="Registrer konto" class="btn btn-primary">
+      <a href="/register-union" class="btn btn-info">Opret ny union</a>
+    </p>
+  </form>
+{% endblock %}

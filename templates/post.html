@@ -1,0 +1,65 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+  <h1 class="heading">{{post.title}}</h1>
+  {% from 'includes/_formhelpers.html' import render_field %}
+  <p>{{post.body}}</p>
+  <hr>
+  {% if phase == 1 and session['authority'] == False %}
+  {% if post.voted %}
+  <a href="/unvote/{{ post.id }}">Cancel vote</a>
+  {% else %}
+  <a href="/vote/{{ post.id }}">Vote up</a>
+  {% endif %}
+  {% endif %}
+  <br><br>
+
+  {% if phase == 2 %} <!-- if phase 2 -->
+  <h2>Solution proposals</h2>
+  {% from 'includes/_formhelpers.html' import render_field %}
+  <form method="POST" action="">
+    <div class="form-group">
+      {{ render_field(form.body, class_="form-control") }}
+    </div>
+    <p><input class="btn btn-primary" type="submit" value="Submit"></p>
+  </form>
+  {% if comments %} <!-- if comments -->
+  {% for comment in comments %}
+  <ul class="list-group">
+    <li class="list-group-item author">{{ comment['author'] }}</li>
+    <li class="list-group-item body">{{ comment['body'] }}</li>
+    {% if not comment['voted'] %} <!-- if user already voted on this comment -->
+    <li class="list-group-item vote">{{ comment['votes'] }} votes{% if session['authority'] == False %} - <a href="/post/vote/{{ comment['id'] }}/{{ post.id }}">Vote up</a>{% endif %}</li>
+    {% else %}
+    <li class="list-group-item unvote">{{ comment['votes'] }} votes - <a href="/post/unvote/{{ comment['id'] }}/{{ post.id }}">Cancel vote</a>
+    {% endif %} <!-- end if user already voted on this comment -->
+  </ul>
+  <br>
+  {% endfor %}
+  {% else %}
+  <ul class="list-group">
+    <li class="list-group-item">No proposals yet</li>
+  </ul>
+  {% endif %} <!-- end if comments -->
+  {% endif %} <!-- end if phase 2 -->
+
+  {% if phase == 3 %} <!-- if phase 3 -->
+  <div class="jumbotron">
+    <h2>Final solution</h2>
+    <p class="lead">{{ post.solution }}</p>
+    {% if not post.vetoed_by and session['authority'] == False %}
+    <a href="/veto/confirm/{{ post.id }}" class="btn btn-default">Place a veto</a>
+    {% elif post.vetoed_by %}
+    <p>Blocked by {{ post.vetoed_by }}</p>
+    {% endif %}
+  </div>
+  {% endif %} <!-- end if phase 3 -->
+
+  {% if phase == 4 %} <!-- if phase 4 -->
+  <div class="jumbotron">
+    <h2>Final solution</h2>
+    <p class="lead">{{ post.solution }}</p>
+  </div>
+  {% endif %} <!-- end if phase 4 -->
+
+{% endblock %}

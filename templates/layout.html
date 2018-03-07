@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Konsent</title>
+    <link rel="stylesheet" href="{{ url_for('static',filename='styles/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='styles/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='styles/bootstrap-grid.min.css') }}">
+  </head>
+  <body>
+    {% include 'includes/_navbar.html' %}
+    <div class="container">
+      {% include 'includes/_messages.html' %}
+      {% block body %}{% endblock %}
+    </div>
+    {% include 'includes/_footer.html' %}
+
+    <script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/jquery-3.3.1.min.js') }}"></script>
+    <script>
+      $('#submitSendMail').click(function(){
+        $(this).val('Dine filer sendes, vent venligst...')
+      });
+    </script>
+  </body>
+</html>

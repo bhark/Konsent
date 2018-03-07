@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+{% block body %}
+<div class="flex-center" id="index">
+  <div class="jumbotron text-center lonely">
+
+    <h1 class="heading">Konsent</h1>
+    <h2 id="version">v. 1.0a</h2>
+    {% if session %}
+    <h2 class="subheading">Welcome {{session.name}}, member of {{session.connected_union}}</h2>
+    {% endif %}
+    <p class="lead">Decisions without hierarchy.</p>
+    <br><br>
+    {% if session and session['authority'] == False %}
+    <a href="/new_post" class="btn btn-success">Post a new issue</a>
+    {% elif not session %}
+    <a href="/login" class="btn btn-success">Login</a>
+    <a href="/register" class="btn btn-info">New Account</a>
+    <a href="/about" class="btn btn-primary">About Konsent</a>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+  <h1 class="heading">Løsninger</h1>
+  <ul class="list-group">
+    {% for post in posts %}
+      <li class="list-group-item"><a href="phase3/post/{{ post.id }}">{{post.title}}</a><span> - {% if post.vetoed_by %}blokeret af {% if post.vetoed_by == session['name'] %}dig{% else %}{{ post.vetoed_by }} {% endif %}{% else %}ikke blokeret{% endif %}</span></li>
+    {% endfor %}
+  </ul>
+{% endblock %}

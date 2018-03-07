@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+  <h1 class="heading">Gennemførte løsninger</h1>
+  <ul class="list-group">
+    {% for post in posts %}
+      <li class="list-group-item"><a href="completed/post/{{ post.id }}">{{post.title}}</a> - gennemført {{ post.create_date }}</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

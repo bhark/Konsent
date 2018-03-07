@@ -1,0 +1,11 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+  <div class="jumbotron text-center">
+    <h1 class="heading">Vent et øjeblik...</h1>
+    <p class="lead">Er du sikker på at du vil nedlægge en blokering?</p>
+    <p>Du har forsøgt at nedlægge en blokering, der vil stoppe denne løsning fra at gå i gennem. Husk at blokeringer kun bør benyttes yderst sjældent, og udelukkende hvis du er imod denne løsning med hele din sjæl.</p>
+    <p><b>Blokeringer er åbne!</b> alle vil kunne se at du har blokeret denne løsning.</p>
+    <a href="/veto/{{ id }}" class="btn btn-danger">Jeg er indforstået med konsekvenserne, og ønsker alligevel at nedlægge en blokering</a>
+  </div>
+{% endblock %}

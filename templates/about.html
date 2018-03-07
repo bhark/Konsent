@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+  <h1 class="heading">Om Konsent</h1>
+  <h2 class="subheading">Something about hierarchy and the freedom to make decisions</h2>
+  <div class="jumbotron center">
+    <p class="lead">
+      It's easy to leave your choices to others; to give up free will in order to avoid the difficult decisions.
+    </p>
+    <p>
+      It's easy to let others take a weight from your shoulders; to elect a president, vote for a politician or donate to a non-profit.
+      It means escaping from the scary possibility that you might make a choice that results in an unwanted outcome.
+    </p>
+    <p>
+      It also means giving up your freedom. Giving up your ability to develop your self, learn from your mistakes and shape your own life
+      on the fundaments of your own beliefs. It is my opinion that it is of vital importance that we have the strength to carry our own
+      decisions on our own shoulders - and, perhaps of even greater importance, that we realize and truly believe the fact that nobody
+      can take decisions on our behalf better than ourselves.
+    </p>
+    <p>
+      The inevitable truth is that we are more or less stuck here, on planet earth, with our fellow humans, animals and nature,
+      and therefore have to respect these entities in order to ensure our own welfare. The systems and structures that currently
+      rule our society, are based on the belief that humans are not able to respect anything but themselves - with the exception of
+      a few chosen individuals, who are somehow morally superior in every way, and therefore have the ability to righteously rule
+      the masses. They are based on the idea that chaos, death and abuse will erupt if society is left without hierarchy.
+    </p>
+    <p>
+      Konsent is my proposal for how these destructive power structures can be abolished in smaller communities, in order to
+      establish equal freedom for every individual. Konsent is based on old concepts such as concensus, direct democracy, flat
+      decision-making and anarchism. Konsent is proof that communities can thrive without hierarchy.
+    </p>
+    <p><i>- Adrian E. Bratlann</i></p>
+    <div class="symbolism">
+      <div>
+        <img class="rounded-img centered-img medium-img" alt="Anarkisme" src="{{ url_for('static', filename='images/anarchism-symbol-modern.png') }}">
+        <img class="rounded-img centered-img medium-img" alt="Anarcho-syndikalisme" src="{{ url_for('static', filename='images/anarcho-syndicalist-flag.png') }}">
+        <img class="rounded-img centered-img medium-img" alt="Iron Front anti-fascisme" src="{{ url_for('static', filename='images/iron-front-symbol.png') }}">
+      </div>
+    </div>
+  </div>
+{% endblock %}
