@@ -2,7 +2,6 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, PasswordField, SelectField, HiddenField, SubmitField, BooleanField, validators
-from wtforms.validators import InputRequired, Optional
 from passlib.hash import sha256_crypt
 from functools import wraps
 import datetime
@@ -16,10 +15,10 @@ app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 mysql = MySQL(app)
 
-# settings
-resting_time = 1 # resting time in phase 2 and 3 - 1440 = 2 days
+# settings and config
+resting_time = 1 # resting time in phase 2 and 3 in minutes - 1440 = 2 days
 required_votes_divisor = 2 # number of members in the union divided by this number is required in order to make the issue progress to stage 2
-
+no_results_error = 'Nothing to show.'
 
 # index
 @app.route('/')
@@ -58,93 +57,41 @@ def phase1():
 
     # find post
     result = cur.execute('SELECT * FROM posts WHERE belongs_to_union = "%s" AND phase = "1"' % session['connected_union'])
-
     posts = cur.fetchall()
+    # close connection to database
+    cur.close()
 
-    if result > 0:
+    if result:
         for post in posts:
-
-            # tilskriv værdier
-            now = datetime.datetime.now()
-            create_date = post['create_date']
-            time_since = str(now - create_date)[:-10]
-            hours = int(time_since[:1])
-            minutes = time_since[2:4]
-            post['time_since_create_hours'] = hours
-            post['time_since_create_minutes'] = minutes
-
-        mysql.connection.commit()
-        cur.close()
-
+            post = assignTimeValues(post)
         return render_template('phase1.html', posts=posts)
     else:
-        msg = 'Ingen opslag at vise'
-        return render_template('phase1.html', msg=msg)
+        return render_template('phase1.html', msg=no_results_error)
 
 # phase 2, solution proposals
 @app.route('/phase2')
 @is_logged_in
 def phase2():
 
+    updatePhases()
+
     # create cursor
     cur = mysql.connection.cursor()
 
+
     # find posts
     result = cur.execute('SELECT * FROM posts WHERE belongs_to_union = "{0}" AND phase = "2"'.format(session['connected_union']))
-
     posts = cur.fetchall()
 
-    if result > 0:
+
+    if result:
         for post in posts:
-
-            # assign "posted x minutes ago" values
-            now = datetime.datetime.now()
-            create_date = post['create_date']
-            time_since = str(now - create_date)[:10]
-            hours = int(time_since[:1])
-            minutes = time_since[2:4]
-
-            try:
-                if int(minutes) >= resting_time: # if the issue is ready to progress
-                    # find comment with the most votes
-                    data = cur.execute('SELECT body FROM comments WHERE post_id = "{0}" ORDER BY votes DESC LIMIT 1'.format(post['id'], session['connected_union']))
-                    comment = cur.fetchone()
-                    if comment:
-                        cur.execute('UPDATE posts SET phase = "3" WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-                        cur.execute('UPDATE posts SET create_date = NOW() WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-                        cur.execute('UPDATE posts SET solution = "{0}" WHERE id = "{1}" AND belongs_to_union = "{2}"'.format(comment['body'], post['id'], session['connected_union']))
-                        app.logger.info('Flytter opslag med id {0} til fase 3'.format(post['id']))
-                        posts = cur.fetchall()
-                    else:
-                        app.logger.info('Post with id {0} didnt get a proposal in time. Resetting.'.format(post['id']))
-                        cur.execute('UPDATE posts SET create_date = NOW() WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-            except ValueError:
-                days = time_since[:1]
-                if int(days) >= 2:
-                    # find proposal with most votes
-                    data = cur.execute('SELECT body FROM comments WHERE post_id = "{0}" ORDER BY votes DESC LIMIT 1'.format(post['id'], session['connected_union']))
-                    comment = cur.fetchone()
-                    if comment:
-                        cur.execute('UPDATE posts SET phase = "3" WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-                        cur.execute('UPDATE posts SET create_date = NOW() WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-                        cur.execute('UPDATE posts SET solution = "{0}" WHERE id = "{1}" AND belongs_to_union = "{2}"'.format(comment['body'], post['id'], session['connected_union']))
-                        app.logger.info('Flytter opslag med id {0} til fase 3'.format(post['id']))
-                        posts = cur.fetchall()
-                    else:
-                        app.logger.info('Opslag med id {0} fik ikke et løsningsforslag i tide. Nulstiller.'.format(post['id']))
-                        cur.execute('UPDATE posts SET create_date = NOW() WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-
-            post['time_since_create_hours'] = hours
-            post['time_since_create_minutes'] = minutes
-
-        # commit changes to database and close connection
-        mysql.connection.commit()
+            post = assignTimeValues(post)
         cur.close()
 
         return render_template('phase2.html', posts=posts)
     else:
-        msg = 'Ingen opslag at vise'
-        return render_template('phase2.html', msg=msg)
+        return render_template('phase2.html', msg=no_results_error)
 
 # phase 3, solutions
 @app.route('/phase3')
@@ -154,79 +101,18 @@ def phase3():
     cur = mysql.connection.cursor()
 
     # check if posts from phase 2 should be moved to phase 3
+    updatePhases()
     # find posts
-    result = cur.execute('SELECT * FROM posts WHERE belongs_to_union = "{0}" AND phase = "2"'.format(session['connected_union']))
+    result = cur.execute('SELECT * FROM posts WHERE belongs_to_union = "{0}" AND phase = 3 AND vetoed_by IS NULL'.format(session['connected_union']))
     posts = cur.fetchall()
 
-    if result > 0:
+    if result:
         for post in posts:
-
-            # assign "posted x minutes/hours ago" values
-            now = datetime.datetime.now()
-            create_date = post['create_date']
-            time_since = str(now - create_date)[:10]
-            hours = int(time_since[:1])
-            minutes = time_since[2:4]
-
-            try:
-                if int(minutes) >= resting_time:
-                    # find comment with most votes
-                    data = cur.execute('SELECT body FROM comments WHERE post_id = "{0}" ORDER BY votes DESC LIMIT 1'.format(post['id'], session['connected_union']))
-                    comment = cur.fetchone()
-                    cur.execute('UPDATE posts SET phase = "3" WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-                    cur.execute('UPDATE posts SET create_date = NOW() WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-                    cur.execute('UPDATE posts SET solution = "{0}" WHERE id = "{1}" AND belongs_to_union = "{2}"'.format(comment['body'], post['id'], session['connected_union']))
-                    app.logger.info('Flytter opslag med id {0} til fase 3 i union {1}'.format(post['id'], session['connected_union']))
-            except ValueError:
-                days = time_since[:1]
-                app.logger.info(days)
-                if int(days) >= 2:
-                    # find comment with most votes
-                    data = cur.execute('SELECT body FROM comments WHERE post_id = "{0}" ORDER BY votes DESC LIMIT 1'.format(post['id'], session['connected_union']))
-                    comment = cur.fetchone()
-                    cur.execute('UPDATE posts SET phase = "3" WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-                    cur.execute('UPDATE posts SET create_date = NOW() WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-                    cur.execute('UPDATE posts SET solution = "{0}" WHERE id = "{1}" AND belongs_to_union = "{2}"'.format(comment['body'], post['id'], session['connected_union']))
-                    app.logger.info('Flytter opslag med id {0} til fase 3 i union {1}'.format(post['id'], session['connected_union']))
-
-
-    # check if solutions from phase 3 should be moved to "finished solutions"
-    # find posts
-    result = cur.execute('SELECT * FROM posts WHERE belongs_to_union = "{0}" AND phase = "3" AND vetoed_by IS NULL'.format(session['connected_union']))
-    posts = cur.fetchall()
-
-    if result > 0:
-        for post in posts:
-
-            # assign "posted x minutes/hours ago" values
-            now = datetime.datetime.now()
-            create_date = post['create_date']
-            time_since = str(now - create_date)[:10]
-            hours = time_since[:1]
-            minutes = time_since[2:4]
-            post['time_since_create_hours'] = hours
-            post['time_since_create_minutes'] = minutes
-
-            try:
-                if int(minutes) >= resting_time:
-                    cur.execute('UPDATE posts SET phase = "4" WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-                    cur.execute('UPDATE posts SET create_date = NOW() WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-                    app.logger.info('Problemet med id {0} i union {1} er nu løst!'.format(post['id'], session['connected_union']))
-            except ValueError:
-                days = time_since[:1]
-                if int(days) >= 2:
-                    cur.execute('UPDATE posts SET phase = "4" WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-                    cur.execute('UPDATE posts SET create_date = NOW() WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-                    app.logger.info('Problemet med id {0} i union {1} er nu løst!'.format(post['id'], session['connected_union']))
-
-        # commit to database and close connection
-        mysql.connection.commit()
+            post = assignTimeValues(post)
         cur.close()
-
         return render_template('phase3.html', posts=posts)
     else:
-        msg = 'No posts.'
-        return render_template('phase3.html', msg=msg)
+        return render_template('phase3.html', msg=no_results_error)
 
 # single post, phase 1
 @app.route('/phase1/post/<string:id>', methods=['GET', 'POST'])
@@ -290,7 +176,7 @@ def post2(id):
 
     return render_template('post.html', post=post, form=form, comments=listComments(id, session['username']), phase=2)
 
-# single issue, phase 3
+# single post, phase 3
 @app.route('/phase3/post/<string:id>', methods=['GET'])
 @is_logged_in
 def post3(id):
@@ -594,8 +480,7 @@ def vetoed():
     if result:
         return render_template('vetoed.html', posts=posts)
     else:
-        msg = 'No posts.'
-        return render_template('vetoed.html', msg=msg)
+        return render_template('vetoed.html', msg=no_results_error)
 
 
 
@@ -690,12 +575,54 @@ def completed():
         cur.close()
         return render_template('completed.html', posts=posts)
     else:
-        msg = 'Ingen opslag at vise'
-        return render_template('completed.html', msg=msg)
+        return render_template('completed.html', msg=no_results_error)
 
 @app.route('/about')
 def about():
     return render_template('about.html')
+
+# assign "posted x minutes/hours ago" values
+def assignTimeValues(post):
+    now = datetime.datetime.now()
+    create_date = post['create_date']
+    time_since = str(now - create_date)[:-10]
+    hours = int(time_since[:1])
+    minutes = time_since[2:4]
+    post['time_since_create_hours'] = hours
+    post['time_since_create_minutes'] = minutes
+    return post
+
+def updatePhases():
+    # create cursor
+    cur = mysql.connection.cursor()
+
+    # find all posts to be moved
+    cur.execute('SELECT * FROM posts WHERE belongs_to_union = "{0}" AND create_date < (NOW() - INTERVAL {1} MINUTE)'.format(session['connected_union'], resting_time))
+    posts = cur.fetchall()
+
+    for post in posts:
+
+        post_id = post['id']
+        post_phase = post['phase']
+
+        # phase 2
+        if post_phase == 2:
+            try:
+                cur.execute('SELECT * FROM comments WHERE post_id = "{0}" ORDER BY votes DESC'.format( post_id ))
+                solution = cur.fetchone()
+                cur.execute('UPDATE posts SET create_date = NOW(), solution = "{0}", phase = 3 WHERE id = {1}'.format( solution['body'], post_id ))
+                app.logger.info('Moved post with id {0} from phase 2 to phase 3, with solution "{1}"'.format( post_id, solution['body'] ))
+            except TypeError:
+                cur.execute('UPDATE posts SET create_date = NOW() WHERE id = "{0}"'.format( post_id ))
+                app.logger.info('Post with id {0} didnt find a solution in time'.format( post_id ))
+
+        # phase 3
+        elif post_phase == 3:
+            cur.execute('UPDATE posts SET create_date = NOW(), phase = 4')
+
+    mysql.connection.commit()
+    cur.close()
+
 
 # list unions for use somewhere else
 def listUnions():
@@ -733,7 +660,7 @@ def listComments(post_id, username):
         result.append(comment)
 
         # se om brugeren har stemt
-        voted_on = _cur.execute('SELECT * FROM votes WHERE post_id = "{0}" AND username = "{1}"'.format(data['id'], username))
+        voted_on = _cur.execute('SELECT * FROM votes WHERE post_id = "{0}" AND username = "{1}" AND type = "comment"'.format(data['id'], username))
         _cur.fetchone()
         if voted_on:
             comment['voted'] = True

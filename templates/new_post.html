@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-  <h1 class="heading">Slå et problem op</h1>
+  <h1 class="heading">Post a new issue</h1>
   {% from 'includes/_formhelpers.html' import render_field %}
   <form method="POST" action="">
     <div class="form-group">
@@ -10,7 +10,7 @@
     <div class="form-group">
       {{ render_field(form.body, class_="form-control", id="editor") }}
     </div>
-    <p><input class="btn btn-primary" type="submit" value="Slå op"></p>
+    <p><input class="btn btn-primary" type="submit" value="Submit"></p>
   </form>
 
 {% endblock %}
