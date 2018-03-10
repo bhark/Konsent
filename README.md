@@ -18,7 +18,7 @@ The concept works roughly like this:
 
 - In the case of online communities, users could have the option to vote on banning another member from partaking in decision-making. This could be used to avoid trolls and such.
 
-Konsent was originally designed for physical communities, such as a student council, and needs some work before it's ready for online communities, since online communities are typically very open to new members, and doesn't have the same integrity as a physical community. 
+Konsent was originally designed for physical communities, such as a student council, and needs some work before it's ready for online communities, since online communities are typically very open to new members, and doesn't have the same integrity as a physical community.
 
 ## Installation
 
@@ -34,10 +34,8 @@ When everything is ready to go, open up a command line (terminal, konsole, comma
 
 ## How to contribute
 
-Contributing is easy if you know Python and the basics of Git, and there's lots to be done. Simply install all the dependencies, as explained in the chapter above, grab your favorite code editor, take a look at the open issues and fire away. We're following the branching model explained [here](https://nvie.com/posts/a-successful-git-branching-model/) loosely.
+You don't have to know anything about programming or the likes to contribute to Konsent - developing the concept further is currently just as important. In the future, discussion and concept development will probably happen on the subraddle /f/konsent, on Raddle.me. Until then we can use GitHub's issues.
+
+Contributing to the code-base is easy if you know Python and the basics of Git, and there's lots to be done. Simply install all the dependencies, as explained in the chapter above, grab your favorite code editor, take a look at the open issues and fire away. We're following the branching model explained [here](https://nvie.com/posts/a-successful-git-branching-model/) loosely.
 
 You can ship your changes pretty much however you want, although a good old pull-request is preferred.
-
-## Changelog
-
-Nothing here yet :(
