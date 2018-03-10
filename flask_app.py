@@ -164,14 +164,6 @@ def post2(id):
 
     post = cur.fetchone()
 
-    # check if user is an authority
-    result = cur.execute('SELECT authority FROM users WHERE username = "{0}"'.format(session['username']))
-    authority = cur.fetchone()
-    if authority['authority'] == True:
-        post['authority'] = True
-    else:
-        post['authority'] = False
-
     cur.close()
 
     return render_template('post.html', post=post, form=form, comments=listComments(id, session['username']), phase=2)
@@ -223,8 +215,6 @@ def register():
         username = form.username.data
         users_union = form.users_union.data
         password = sha256_crypt.encrypt(str(form.password.data))
-        authority = form.authority.data
-        app.logger.info(authority)
 
         union_password_candidate = form.union_password.data
 
@@ -241,7 +231,7 @@ def register():
 
             if sha256_crypt.verify(union_password_candidate, union_password):
                 # password matches hash
-                cur.execute('INSERT INTO users(name, username, connected_union, password, authority) VALUES(%s, %s, %s, %s, %s)', (name, username, users_union, password, authority))
+                cur.execute('INSERT INTO users(name, username, connected_union, password) VALUES(%s, %s, %s, %s, %s)', (name, username, users_union, password))
                 # send to database
                 mysql.connection.commit()
                 # close connection
@@ -304,7 +294,6 @@ def login():
             name = data['name']
             username = data['username']
             connected_union = data['connected_union']
-            authority = data['authority']
 
             # compare password to hash
             if sha256_crypt.verify(password_candidate, password):
@@ -313,7 +302,6 @@ def login():
                 session['name'] = name
                 session['username'] = username
                 session['connected_union'] = connected_union
-                session['authority'] = authority
                 flash('Youve been logged in.', 'success')
                 return redirect(url_for('index'))
             else:
@@ -341,10 +329,6 @@ def vote(id):
         error = 'Youve already voted on this post'
         return render_template('index.html', error=error)
     else:
-        # check if user is an authority
-        if session['authority'] == True:
-            error = 'You dont have permission to vote, stop messing with things.'
-            return render_template('index.html', error=error)
 
         cur.execute('UPDATE posts SET votes = votes + 1 WHERE id = "{0}"'.format(id))
         cur.execute('INSERT INTO votes(username, post_id) VALUES("{0}", "{1}")'.format(session['username'], id))
@@ -381,10 +365,6 @@ def vote_comment(id, post_id):
         error = 'Youve already voted.'
         return render_template('index.html', error=error)
     else:
-        # check if user is an authority
-        if session['authority'] == True:
-            error = 'You dont have permission to vote, stop messing with things!'
-            return render_template('index.html', error=error)
         data = cur.execute('UPDATE comments SET votes = votes + 1 WHERE id = "{0}"'.format(id))
         cur.execute('INSERT INTO votes(username, post_id, type) VALUES("{0}", "{1}", "comment")'.format(session['username'], id))
 
@@ -451,7 +431,7 @@ def logout():
 @is_logged_in
 def new_post():
     form = ArticleForm(request.form)
-    if request.method == 'POST' and form.validate() and session['authority'] == False:
+    if request.method == 'POST' and form.validate():
         title = form.title.data
         body = form.body.data
 
@@ -488,11 +468,6 @@ def vetoed():
 @app.route('/veto/<string:id>')
 @is_logged_in
 def veto(id):
-
-    # if user is an authority trying to veto, all sneaky-beaky like
-    if session['authority'] == True:
-        error = 'Du har ikke rettigheder til at blokere'
-        return render_template('index.html', error=error)
 
     # create cursor
     cur = mysql.connection.cursor()
@@ -726,7 +701,6 @@ class RegisterForm(Form):
         validators.EqualTo('confirm', message='The passwords doesnt match')
     ])
     confirm = PasswordField('Confirm password')
-    authority = BooleanField('Register as authority')
     users_union = SelectField('Union', choices=[('kristensamfundet', 'Kristensamfundet')])
     union_password = PasswordField('Password for union', [validators.DataRequired()])
 
