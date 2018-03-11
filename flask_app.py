@@ -6,6 +6,12 @@ from passlib.hash import sha256_crypt
 from functools import wraps
 import datetime
 
+# CURRENT VERSION: 0.2a
+# config
+resting_time = 1 # resting time in phase 2 and 3 in minutes - 1440 = 2 days
+required_votes_divisor = 2 # number of members in the union divided by this number is required in order to make the issue progress to stage 2
+no_results_error = 'Nothing to show.'
+
 app = Flask(__name__)
 app.config['MYSQL_HOST'] = '127.0.0.1'
 app.config['MYSQL_USER'] = 'root'
@@ -15,10 +21,7 @@ app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 mysql = MySQL(app)
 
-# settings and config
-resting_time = 1 # resting time in phase 2 and 3 in minutes - 1440 = 2 days
-required_votes_divisor = 2 # number of members in the union divided by this number is required in order to make the issue progress to stage 2
-no_results_error = 'Nothing to show.'
+
 
 # index
 @app.route('/')
