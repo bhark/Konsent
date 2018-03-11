@@ -672,6 +672,11 @@ class ArticleForm(Form):
 class CommentForm(Form):
     body = TextAreaField('', [validators.length(min=1, max=1000)])
 
-if __name__ == '__main__':
+
+def main():
     app.secret_key='Ka,SkqNs//'
     app.run(debug=True)
+
+
+if __name__ == '__main__':
+    main()
