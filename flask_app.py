@@ -505,7 +505,7 @@ def completed():
     if result:
         for post in posts:
             post = assignTimeValues(post)
-            
+
         return render_template('completed.html', posts=posts)
     else:
         return render_template('completed.html', msg=no_results_error)
@@ -652,8 +652,8 @@ class RegisterUnionForm(Form):
     confirm = PasswordField('Enter your password again')
 
 class RegisterForm(Form):
-    name = StringField('Display name', [validators.Length(min=1, max=50)])
-    username = StringField('Username', [validators.Length(min=4, max=50)])
+    name = StringField('Display name', [validators.Length(min=1, max=50), validators.Regexp("^[a-zA-Z0-9-_]+$", message='Display name may only contain alphanumerics, numbers, underscores and dashes')])
+    username = StringField('Username', [validators.Length(min=4, max=50), validators.Regexp("^[a-zA-Z0-9-_]+$", message='Username may only contain alphanumerics, numbers, underscores and dashes')])
     password = PasswordField('Password', [
         validators.DataRequired(),
         validators.EqualTo('confirm', message='The passwords doesnt match')
