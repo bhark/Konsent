@@ -29,7 +29,7 @@
     <li class="list-group-item author">{{ comment['author'] }}</li>
     <li class="list-group-item body">{{ comment['body'] }}</li>
     {% if not comment['voted'] %} <!-- if user already voted on this comment -->
-    <li class="list-group-item vote">{{ comment['votes'] }} votes - <a href="/post/vote/{{ comment['id'] }}/{{ post.id }}">Vote up</a>{% endif %}</li>
+    <li class="list-group-item vote">{{ comment['votes'] }} votes - <a href="/post/vote/{{ comment['id'] }}/{{ post.id }}">Vote up</a></li>
     {% else %}
     <li class="list-group-item unvote">{{ comment['votes'] }} votes - <a href="/post/unvote/{{ comment['id'] }}/{{ post.id }}">Cancel vote</a>
     {% endif %} <!-- end if user already voted on this comment -->
