@@ -52,6 +52,8 @@ def is_not_logged_in(f):
 @is_logged_in
 def phase1():
 
+    updatePhases()
+
     # create cursor
     cur = mysql.connection.cursor()
 
@@ -97,11 +99,12 @@ def phase2():
 @app.route('/phase3')
 @is_logged_in
 def phase3():
+
+    updatePhases()
+
     # create cursor
     cur = mysql.connection.cursor()
 
-    # check if posts from phase 2 should be moved to phase 3
-    updatePhases()
     # find posts
     result = cur.execute('SELECT * FROM posts WHERE belongs_to_union = "{0}" AND phase = 3 AND vetoed_by IS NULL'.format(session['connected_union']))
     posts = cur.fetchall()
@@ -453,6 +456,9 @@ def new_post():
 @app.route('/vetoed')
 @is_logged_in
 def vetoed():
+
+    updatePhases()
+
     cur = mysql.connection.cursor()
     result = cur.execute('SELECT * FROM posts WHERE vetoed_by IS NOT NULL AND belongs_to_union = "{0}"'.format(session['connected_union']))
     posts = cur.fetchall()
@@ -493,61 +499,13 @@ def completed():
     # create cursor and find posts
     cur = mysql.connection.cursor()
 
-    # check if issues from phase 3 should be moved here
-    result = cur.execute('SELECT * FROM posts WHERE phase = "3" AND belongs_to_union = "{0}"'.format(session['connected_union']))
-    posts = cur.fetchall()
-    if result:
-        for post in posts:
-            # assign values... again (this should really be optimized)
-            now = datetime.datetime.now()
-            create_date = post['create_date']
-            time_since = str(now - create_date)[:10]
-            minutes = time_since[2:4]
-
-            app.logger.info(time_since)
-            try:
-                if int(minutes) >= resting_time:
-                    cur.execute('UPDATE posts SET phase = "4" WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-                    cur.execute('UPDATE posts SET create_date = NOW() WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-                    app.logger.info('Problemet med id {0} i union {1} er nu løst!'.format(post['id'], session['connected_union']))
-            except ValueError:
-                days = time_since[:1]
-                app.logger.info(days)
-                if int(days) >= 2:
-                    cur.execute('UPDATE posts SET phase = "4" WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-                    cur.execute('UPDATE posts SET create_date = NOW() WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-                    app.logger.info('Problemet med id {0} i union {1} er nu løst!'.format(post['id'], session['connected_union']))
-
-
-        mysql.connection.commit()
-
-
     result = cur.execute('SELECT * FROM posts WHERE phase = "4" AND belongs_to_union = "{0}" AND vetoed_by IS NULL'.format(session['connected_union']))
     posts = cur.fetchall()
 
     if result:
         for post in posts:
-            # A S S I G N  M O R E  V A L U E S
-            now = datetime.datetime.now()
-            create_date = post['create_date']
-            time_since = str(now - create_date)[:10]
-            minutes = time_since[2:4]
-
-            try:
-                if int(minutes) >= resting_time:
-                    cur.execute('UPDATE posts SET phase = "4" WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-                    cur.execute('UPDATE posts SET create_date = NOW() WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-                    app.logger.info('Problemet med id {0} i union {1} er nu løst!'.format(post['id'], session['connected_union']))
-            except ValueError:
-                days = time_since[:1]
-                app.logger.info(days)
-                if int(days) >= 2:
-                    cur.execute('UPDATE posts SET phase = "4" WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-                    cur.execute('UPDATE posts SET create_date = NOW() WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(post['id'], session['connected_union']))
-                    app.logger.info('Problemet med id {0} i union {1} er nu løst!'.format(post['id'], session['connected_union']))
-
-        mysql.connection.commit()
-        cur.close()
+            post = assignTimeValues(post)
+            
         return render_template('completed.html', posts=posts)
     else:
         return render_template('completed.html', msg=no_results_error)
