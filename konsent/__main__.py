@@ -2,9 +2,9 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, PasswordField, SelectField, HiddenField, SubmitField, BooleanField, validators
-from passlib.hash import sha256_crypt
 from functools import wraps
 import datetime
+import hashlib
 
 # CURRENT VERSION: 0.2a
 # config
@@ -220,7 +220,7 @@ def register():
         name = form.name.data
         username = form.username.data
         users_union = form.users_union.data
-        password = sha256_crypt.encrypt(str(form.password.data))
+        password = hashlib.sha256(str(form.password.data).encode('utf-8')).hexdigest()
 
         union_password_candidate = form.union_password.data
 
@@ -235,7 +235,7 @@ def register():
             data = cur.fetchone()
             union_password = data['password']
 
-            if sha256_crypt.verify(union_password_candidate, union_password):
+            if hashlib.sha256(union_password_candidate.encode('utf-8')).hexdigest() == union_password:
                 # password matches hash
                 cur.execute('INSERT INTO users(name, username, connected_union, password) VALUES(%s, %s, %s, %s)', (name, username, users_union, password))
                 # send to database
@@ -261,7 +261,7 @@ def register_union():
     form = RegisterUnionForm(request.form)
     if request.method == 'POST':
         union_name = form.union_name.data
-        password = sha256_crypt.encrypt(str(form.password.data))
+        password = hashlib.sha256(str(form.password.data).encode('utf-8')).hexdigest()
 
         # create cursor
         cur = mysql.connection.cursor()
@@ -302,7 +302,7 @@ def login():
             connected_union = data['connected_union']
 
             # compare password to hash
-            if sha256_crypt.verify(password_candidate, password):
+            if hashlib.sha256(password_candidate.encode('utf-8')).hexdigest() == password:
                 # that's a match, set session variables
                 session['logged_in'] = True
                 session['name'] = name
