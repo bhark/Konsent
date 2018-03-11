@@ -5,7 +5,7 @@
   {% from 'includes/_formhelpers.html' import render_field %}
   <p>{{post.body}}</p>
   <hr>
-  {% if phase == 1 and session['authority'] == False %}
+  {% if phase == 1 %}
   {% if post.voted %}
   <a href="/unvote/{{ post.id }}">Cancel vote</a>
   {% else %}
@@ -29,7 +29,7 @@
     <li class="list-group-item author">{{ comment['author'] }}</li>
     <li class="list-group-item body">{{ comment['body'] }}</li>
     {% if not comment['voted'] %} <!-- if user already voted on this comment -->
-    <li class="list-group-item vote">{{ comment['votes'] }} votes{% if session['authority'] == False %} - <a href="/post/vote/{{ comment['id'] }}/{{ post.id }}">Vote up</a>{% endif %}</li>
+    <li class="list-group-item vote">{{ comment['votes'] }} votes - <a href="/post/vote/{{ comment['id'] }}/{{ post.id }}">Vote up</a>{% endif %}</li>
     {% else %}
     <li class="list-group-item unvote">{{ comment['votes'] }} votes - <a href="/post/unvote/{{ comment['id'] }}/{{ post.id }}">Cancel vote</a>
     {% endif %} <!-- end if user already voted on this comment -->
@@ -47,7 +47,7 @@
   <div class="jumbotron">
     <h2>Final solution</h2>
     <p class="lead">{{ post.solution }}</p>
-    {% if not post.vetoed_by and session['authority'] == False %}
+    {% if not post.vetoed_by %}
     <a href="/veto/confirm/{{ post.id }}" class="btn btn-default">Place a veto</a>
     {% elif post.vetoed_by %}
     <p>Blocked by {{ post.vetoed_by }}</p>

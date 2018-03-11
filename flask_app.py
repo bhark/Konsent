@@ -231,7 +231,7 @@ def register():
 
             if sha256_crypt.verify(union_password_candidate, union_password):
                 # password matches hash
-                cur.execute('INSERT INTO users(name, username, connected_union, password) VALUES(%s, %s, %s, %s, %s)', (name, username, users_union, password))
+                cur.execute('INSERT INTO users(name, username, connected_union, password) VALUES(%s, %s, %s, %s)', (name, username, users_union, password))
                 # send to database
                 mysql.connection.commit()
                 # close connection

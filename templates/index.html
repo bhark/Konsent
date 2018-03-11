@@ -10,7 +10,7 @@
     {% endif %}
     <p class="lead">Decisions without hierarchy.</p>
     <br><br>
-    {% if session and session['authority'] == False %}
+    {% if session %}
     <a href="/new_post" class="btn btn-success">Post a new issue</a>
     {% elif not session %}
     <a href="/login" class="btn btn-success">Login</a>
