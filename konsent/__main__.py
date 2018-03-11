@@ -1,16 +1,17 @@
 # coding=iso-8859-1
+from functools import wraps
+import datetime
+
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, PasswordField, SelectField, HiddenField, SubmitField, BooleanField, validators
 from passlib.hash import sha256_crypt
-from functools import wraps
-import datetime
 
 # CURRENT VERSION: 0.2a
 # config
-resting_time = 1 # resting time in phase 2 and 3 in minutes - 1440 = 2 days
-required_votes_divisor = 2 # number of members in the union divided by this number is required in order to make the issue progress to stage 2
-no_results_error = 'Nothing to show.'
+RESTING_TIME = 1 # resting time in phase 2 and 3 in minutes - 1440 = 2 days
+REQUIRED_VOTES_DIVISOR = 2 # number of members in the union divided by this number is required in order to make the issue progress to stage 2
+NO_RESULTS_ERROR = 'Nothing to show.'
 
 app = Flask(__name__)
 app.config['MYSQL_HOST'] = '127.0.0.1'
@@ -22,22 +23,23 @@ app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 mysql = MySQL(app)
 
 
-
 # index
 @app.route('/')
 def index():
     return render_template('index.html')
 
+
 # check if logged in
-def is_logged_in(f):
-    @wraps(f)
+def is_logged_in(func):
+    @wraps(func)
     def wrap(*args, **kwargs):
         if 'logged_in' in session:
-            return f(*args, **kwargs)
+            return func(*args, **kwargs)
         else:
             flash('Du har ikke adgang til dette område', 'danger')
             return redirect(url_for('index'))
     return wrap
+
 
 # check if not logged in
 def is_not_logged_in(f):
@@ -50,12 +52,13 @@ def is_not_logged_in(f):
             return redirect(url_for('index'))
     return wrap
 
+
 # phase 1, issues
 @app.route('/phase1')
 @is_logged_in
 def phase1():
 
-    updatePhases()
+    update_phases()
 
     # create cursor
     cur = mysql.connection.cursor()
@@ -68,17 +71,18 @@ def phase1():
 
     if result:
         for post in posts:
-            post = assignTimeValues(post)
+            post = assign_time_values(post)
         return render_template('phase1.html', posts=posts)
     else:
-        return render_template('phase1.html', msg=no_results_error)
+        return render_template('phase1.html', msg=NO_RESULTS_ERROR)
+
 
 # phase 2, solution proposals
 @app.route('/phase2')
 @is_logged_in
 def phase2():
 
-    updatePhases()
+    update_phases()
 
     # create cursor
     cur = mysql.connection.cursor()
@@ -91,19 +95,20 @@ def phase2():
 
     if result:
         for post in posts:
-            post = assignTimeValues(post)
+            post = assign_time_values(post)
         cur.close()
 
         return render_template('phase2.html', posts=posts)
     else:
-        return render_template('phase2.html', msg=no_results_error)
+        return render_template('phase2.html', msg=NO_RESULTS_ERROR)
+
 
 # phase 3, solutions
 @app.route('/phase3')
 @is_logged_in
 def phase3():
 
-    updatePhases()
+    update_phases()
 
     # create cursor
     cur = mysql.connection.cursor()
@@ -114,11 +119,12 @@ def phase3():
 
     if result:
         for post in posts:
-            post = assignTimeValues(post)
+            post = assign_time_values(post)
         cur.close()
         return render_template('phase3.html', posts=posts)
     else:
-        return render_template('phase3.html', msg=no_results_error)
+        return render_template('phase3.html', msg=NO_RESULTS_ERROR)
+
 
 # single post, phase 1
 @app.route('/phase1/post/<string:id>', methods=['GET', 'POST'])
@@ -141,14 +147,13 @@ def post1(id):
 
     # check if user already voted
     result = cur.execute('SELECT * FROM votes WHERE username = "{0}" AND post_id = "{1}" AND type = "post"'.format(session['username'], id))
-    if result:
-        post['voted'] = True
-    else:
-        post['voted'] = False
+
+    post['voted'] = bool(result)
 
     cur.close()
 
     return render_template('post.html', post=post, form=form, phase=1)
+
 
 # single post, phase 2
 @app.route('/phase2/post/<string:id>', methods=['GET', 'POST'])
@@ -166,13 +171,14 @@ def post2(id):
         mysql.connection.commit()
 
     # find posts
-    result = cur.execute('SELECT * FROM posts WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(id, session['connected_union']))
+    cur.execute('SELECT * FROM posts WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(id, session['connected_union']))
 
     post = cur.fetchone()
 
     cur.close()
 
-    return render_template('post.html', post=post, form=form, comments=listComments(id, session['username']), phase=2)
+    return render_template('post.html', post=post, form=form, comments=list_comments(id, session['username']), phase=2)
+
 
 # single post, phase 3
 @app.route('/phase3/post/<string:id>', methods=['GET'])
@@ -190,7 +196,8 @@ def post3(id):
 
     cur.close()
 
-    return render_template('post.html', post=post, form=form, comments=listComments(id, session['username']), phase=3)
+    return render_template('post.html', post=post, form=form, comments=list_comments(id, session['username']), phase=3)
+
 
 # view a single solution that's been confirmed (phase 4)
 @app.route('/completed/post/<string:id>', methods=['GET'])
@@ -207,7 +214,7 @@ def post_completed(id):
 
     cur.close()
 
-    return render_template('post.html', post=post, form=form, comments=listComments(id, session['username']), phase=4)
+    return render_template('post.html', post=post, form=form, comments=list_comments(id, session['username']), phase=4)
 
 
 # user registration
@@ -215,7 +222,7 @@ def post_completed(id):
 @is_not_logged_in
 def register():
     form = RegisterForm(request.form)
-    form.users_union.choices = listUnions()
+    form.users_union.choices = list_unions()
     if request.method == 'POST' and form.validate():
         name = form.name.data
         username = form.username.data
@@ -252,7 +259,8 @@ def register():
             error = 'Something mysterious happened. If youre seeing this, go beat up the developers.'
             return render_template('register.html', error=error, form=form)
 
-    return render_template('register.html', form=form, unions=listUnions())
+    return render_template('register.html', form=form, unions=list_unions())
+
 
 # register new unions
 @app.route('/register-union', methods = ['GET', 'POST'])
@@ -276,7 +284,8 @@ def register_union():
 
         msg = 'Your union is now registered, and can be accessed by other users'
         return render_template('index.html', msg=msg)
-    return render_template('register-union.html', form=form, unions=printUnions())
+    return render_template('register-union.html', form=form, unions=print_unions())
+
 
 # bruger login
 @app.route('/login', methods=['GET', 'POST'])
@@ -321,6 +330,7 @@ def login():
 
     return render_template('login.html')
 
+
 # vote on a post
 @app.route('/vote/<string:id>')
 def vote(id):
@@ -347,7 +357,7 @@ def vote(id):
         result = cur.execute('SELECT COUNT(*) AS "count" FROM users WHERE connected_union = "{0}"'.format(session['connected_union']))
         union_members = cur.fetchone()
 
-        if votes >= union_members['count']/required_votes_divisor:
+        if votes >= union_members['count']/REQUIRED_VOTES_DIVISOR:
             app.logger.info('{0} out of {1} members in the union {2} voted on issue with id {3}, sending issue to phase 2'.format(union_members['count']/2, union_members['count'], session['connected_union'], id))
             cur.execute('UPDATE posts SET create_date = NOW() WHERE id = "{0}"'.format(id))
             cur.execute('UPDATE posts SET phase = phase + 1 WHERE id = "{0}"'.format(id))
@@ -356,6 +366,7 @@ def vote(id):
     cur.close()
 
     return redirect(url_for('phase1'))
+
 
 # vote on comment
 @app.route('/post/vote/<string:id>/<string:post_id>')
@@ -379,6 +390,7 @@ def vote_comment(id, post_id):
 
     return redirect("/phase2/post/{0}".format(post_id))
 
+
 # remove vote on post
 @app.route('/unvote/<string:id>')
 def unvote(id):
@@ -400,6 +412,7 @@ def unvote(id):
     cur.close()
 
     return redirect(url_for('phase1'))
+
 
 # remove vote on comments
 @app.route('/post/unvote/<string:id>/<string:post_id>')
@@ -432,6 +445,7 @@ def logout():
     flash('Du er logget ud', 'success')
     return redirect(url_for('login'))
 
+
 # new post
 @app.route('/new_post', methods=['GET', 'POST'])
 @is_logged_in
@@ -455,12 +469,13 @@ def new_post():
         return redirect(url_for('phase1'))
     return render_template('new_post.html', form=form)
 
+
 # blocked solutions
 @app.route('/vetoed')
 @is_logged_in
 def vetoed():
 
-    updatePhases()
+    update_phases()
 
     cur = mysql.connection.cursor()
     result = cur.execute('SELECT * FROM posts WHERE vetoed_by IS NOT NULL AND belongs_to_union = "{0}"'.format(session['connected_union']))
@@ -469,8 +484,7 @@ def vetoed():
     if result:
         return render_template('vetoed.html', posts=posts)
     else:
-        return render_template('vetoed.html', msg=no_results_error)
-
+        return render_template('vetoed.html', msg=NO_RESULTS_ERROR)
 
 
 # veto a solution
@@ -495,6 +509,7 @@ def veto(id):
 def veto_confirm(id):
     return render_template('veto.html', id=id)
 
+
 # finished solutions
 @app.route('/completed')
 @is_logged_in
@@ -507,18 +522,20 @@ def completed():
 
     if result:
         for post in posts:
-            post = assignTimeValues(post)
+            post = assign_time_values(post)
 
         return render_template('completed.html', posts=posts)
     else:
-        return render_template('completed.html', msg=no_results_error)
+        return render_template('completed.html', msg=NO_RESULTS_ERROR)
+
 
 @app.route('/about')
 def about():
     return render_template('about.html')
 
+
 # assign "posted x minutes/hours ago" values
-def assignTimeValues(post):
+def assign_time_values(post):
     now = datetime.datetime.now()
     create_date = post['create_date']
     time_since = str(now - create_date)[:-10]
@@ -528,12 +545,12 @@ def assignTimeValues(post):
     post['time_since_create_minutes'] = minutes
     return post
 
-def updatePhases():
+def update_phases():
     # create cursor
     cur = mysql.connection.cursor()
 
     # find all posts to be moved
-    cur.execute('SELECT * FROM posts WHERE belongs_to_union = "{0}" AND create_date < (NOW() - INTERVAL {1} MINUTE)'.format(session['connected_union'], resting_time))
+    cur.execute('SELECT * FROM posts WHERE belongs_to_union = "{0}" AND create_date < (NOW() - INTERVAL {1} MINUTE)'.format(session['connected_union'], RESTING_TIME))
     posts = cur.fetchall()
 
     for post in posts:
@@ -561,7 +578,7 @@ def updatePhases():
 
 
 # list unions for use somewhere else
-def listUnions():
+def list_unions():
     # create cursor
     cur = mysql.connection.cursor()
 
@@ -578,8 +595,9 @@ def listUnions():
         i+=1
     return result
 
+
 # find solution proposals for a certain post
-def listComments(post_id, username):
+def list_comments(post_id, username):
     # create cursor
     cur = mysql.connection.cursor()
     _cur = mysql.connection.cursor()
@@ -609,8 +627,9 @@ def listComments(post_id, username):
 
     return result
 
+
 # list unions for pretty-printing
-def printUnions():
+def print_unions():
     # create cursor
     cur = mysql.connection.cursor()
 
@@ -626,6 +645,7 @@ def printUnions():
         result.append(_union)
         i+=1
     return result
+
 
 # csrf (WIP - not implemented yet, and probably doesnt work)
 def wrap_requires_csrf(*methods):
@@ -654,6 +674,7 @@ class RegisterUnionForm(Form):
     ])
     confirm = PasswordField('Enter your password again')
 
+
 class RegisterForm(Form):
     name = StringField('Display name', [validators.Length(min=1, max=50), validators.Regexp("^[a-zA-Z0-9-_]+$", message='Display name may only contain alphanumerics, numbers, underscores and dashes')])
     username = StringField('Username', [validators.Length(min=4, max=50), validators.Regexp("^[a-zA-Z0-9-_]+$", message='Username may only contain alphanumerics, numbers, underscores and dashes')])
@@ -665,16 +686,18 @@ class RegisterForm(Form):
     users_union = SelectField('Union', choices=[('kristensamfundet', 'Kristensamfundet')])
     union_password = PasswordField('Password for union', [validators.DataRequired()])
 
+
 class ArticleForm(Form):
     title = StringField('Title', [validators.Length(min=1, max=150)])
     body = TextAreaField('Body', [validators.Length(min=20, max=1000, message='Your post body should contain between 20 and 1000 characters.')])
+
 
 class CommentForm(Form):
     body = TextAreaField('', [validators.length(min=1, max=1000)])
 
 
 def main():
-    app.secret_key='Ka,SkqNs//'
+    app.secret_key = 'Ka,SkqNs//'
     app.run(debug=True)
 
 
