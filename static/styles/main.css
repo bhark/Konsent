@@ -130,3 +130,7 @@ a.btn:hover {
   padding:20px;
   border-bottom:none;
 }
+
+.requirements {
+  color:grey;
+}
