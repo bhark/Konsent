@@ -20,6 +20,7 @@
   <form method="POST" action="">
     <div class="form-group">
       {{ render_field(form.body, class_="form-control") }}
+      {{ form.csrf_token }}
     </div>
     <p><input class="btn btn-primary" type="submit" value="Submit"></p>
   </form>

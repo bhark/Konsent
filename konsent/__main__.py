@@ -1,12 +1,14 @@
 # coding=iso-8859-1
 from functools import wraps
 import datetime
-from wtforms.csrf.core import CSRF
 from flask import Flask, g, render_template, flash, redirect, url_for, session, logging, request
 from flask_mysqldb import MySQL
+from wtforms.csrf.core import CSRF
+from wtforms.csrf.session import SessionCSRF
 from wtforms import Form, StringField, TextAreaField, PasswordField, SelectField, HiddenField, SubmitField, BooleanField, validators
 from functools import wraps
 import datetime
+from datetime import timedelta
 import hashlib
 
 # CURRENT VERSION: 0.2a
@@ -129,7 +131,7 @@ def phase3():
 
 
 # single post, phase 1
-@app.route('/phase1/post/<string:id>', methods=['GET', 'POST'])
+@app.route('/phase1/post/<string:id>')
 @is_logged_in
 def post1(id):
     # create cursor
@@ -153,7 +155,7 @@ def post1(id):
 @app.route('/phase2/post/<string:id>', methods=['GET', 'POST'])
 @is_logged_in
 def post2(id):
-    form = CommentForm(request.form)
+    form = CommentForm(request.form, meta={'csrf_context': session})
 
     # create cursor
     cur = mysql.connection.cursor()
@@ -175,7 +177,7 @@ def post2(id):
 
 
 # single post, phase 3
-@app.route('/phase3/post/<string:id>', methods=['GET'])
+@app.route('/phase3/post/<string:id>')
 @is_logged_in
 def post3(id):
     form = CommentForm(request.form)
@@ -197,7 +199,6 @@ def post3(id):
 @app.route('/completed/post/<string:id>', methods=['GET'])
 @is_logged_in
 def post_completed(id):
-    form = CommentForm(request.form)
 
     # create cursor
     cur = mysql.connection.cursor()
@@ -208,7 +209,7 @@ def post_completed(id):
 
     cur.close()
 
-    return render_template('post.html', post=post, form=form, comments=list_comments(id, session['username']), phase=4)
+    return render_template('post.html', post=post, comments=list_comments(id, session['username']), phase=4)
 
 
 # user registration
@@ -399,7 +400,7 @@ def unvote(id):
         cur.execute('UPDATE posts SET votes = votes - 1 WHERE id = "{0}"'.format(id))
         cur.execute('DELETE FROM votes WHERE username = "{0}" AND post_id = "{1}"'.format(session['username'], id))
     else:
-        error = 'Du har ikke stemt, og kan derfor ikke trække din stemme tilbage'
+        error = 'You havent voted on this post before, and thus cannot cancel your vote.'
         return render_template('index.html', error=error)
 
     mysql.connection.commit()
@@ -640,6 +641,16 @@ def print_unions():
         i+=1
     return result
 
+class BaseForm(Form):
+    class Meta:
+        # enable csrf
+        csrf = True
+        # choose a CSRF implementation
+        csrf_class = SessionCSRF
+        # secret key
+        csrf_secret = b'jkasjl123nm,nxm#6'
+        # time limit
+        csrf_time_limit = timedelta(minutes=20)
 
 class RegisterUnionForm(Form):
     union_name = StringField('Name', [validators.Length(min=1, max=50)])
@@ -667,7 +678,7 @@ class ArticleForm(Form):
     body = TextAreaField('Body', [validators.Length(min=20, max=1000, message='Your post body should contain between 20 and 1000 characters.')])
 
 
-class CommentForm(Form):
+class CommentForm(BaseForm):
     body = TextAreaField('', [validators.length(min=1, max=1000)])
 
 
