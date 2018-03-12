@@ -131,9 +131,11 @@ def phase3():
 
 
 # single post, phase 1
-@app.route('/phase1/post/<string:id>')
+@app.route('/phase1/post/<string:id>', methods=['GET', 'POST'])
 @is_logged_in
 def post1(id):
+    form = UpvoteForm(request.form, meta={'csrf_context': session})
+
     # create cursor
     cur = mysql.connection.cursor()
 
@@ -143,12 +145,58 @@ def post1(id):
 
     # check if user already voted
     result = cur.execute('SELECT * FROM votes WHERE username = "{0}" AND post_id = "{1}" AND type = "post"'.format(session['username'], id))
-
     post['voted'] = bool(result)
+
+    # count total votes
+    result = cur.execute('SELECT votes FROM posts WHERE id = "{0}"'.format(id))
+    data = cur.fetchone()
+    post['votes'] = data['votes']
+
+    # if user submitted a vote request
+    if request.method == 'POST' and form.validate():
+
+        # if user has already voted, remove his vote
+        if post['voted']:
+            # decrement vote value
+            cur.execute('UPDATE posts SET votes = votes - 1 WHERE id = "{0}"'.format(id))
+            # delete relevant entry in votes
+            cur.execute('DELETE FROM votes WHERE username = "{0}" AND post_id = "{1}"'.format(session['username'], id))
+
+            # commit to database
+            mysql.connection.commit()
+
+            # redirect user
+            return redirect(url_for('phase1'))
+
+        # if user hasnt already voted, count his vote
+        else:
+            # increment vote value
+            cur.execute('UPDATE posts SET votes = votes + 1 WHERE id = "{0}"'.format(id))
+            # count that this user has now voted
+            cur.execute('INSERT INTO votes(username, post_id) VALUES("{0}", "{1}")'.format(session['username'], id))
+
+            # count union members
+            result = cur.execute('SELECT COUNT(*) AS "count" FROM users WHERE connected_union = "{0}"'.format(session['connected_union']))
+            union_members = cur.fetchone()
+
+            # if enough union members have voted, move this post to phase 2
+            if post['votes'] >= union_members['count']/REQUIRED_VOTES_DIVISOR:
+                # reset create_date
+                cur.execute('UPDATE posts SET create_date = NOW() WHERE id = "{0}"'.format(id))
+                # increment phase value
+                cur.execute('UPDATE posts SET phase = phase + 1 WHERE id = "{0}"'.format(id))
+
+            # commit changes to database
+            mysql.connection.commit()
+
+            # redirect user
+            return redirect(url_for('phase1'))
+
+
 
     cur.close()
 
-    return render_template('post.html', post=post, phase=1)
+    return render_template('post.html', post=post, phase=1, form=form)
 
 
 # single post, phase 2
@@ -326,41 +374,6 @@ def login():
     return render_template('login.html')
 
 
-# vote on a post
-@app.route('/vote/<string:id>')
-def vote(id):
-
-    # create cursor
-    cur = mysql.connection.cursor()
-
-    # check if user voted
-    result = cur.execute('SELECT * FROM votes WHERE username = "{0}" AND post_id = "{1}" AND type = "post"'.format(session['username'], id))
-
-    if result:
-        error = 'Youve already voted on this post'
-        return render_template('index.html', error=error)
-    else:
-
-        cur.execute('UPDATE posts SET votes = votes + 1 WHERE id = "{0}"'.format(id))
-        cur.execute('INSERT INTO votes(username, post_id) VALUES("{0}", "{1}")'.format(session['username'], id))
-
-        result = cur.execute('SELECT votes FROM posts WHERE id = "{0}"'.format(id))
-        data = cur.fetchone()
-        votes = data['votes']
-
-        # count union members
-        result = cur.execute('SELECT COUNT(*) AS "count" FROM users WHERE connected_union = "{0}"'.format(session['connected_union']))
-        union_members = cur.fetchone()
-
-        if votes >= union_members['count']/REQUIRED_VOTES_DIVISOR:
-            app.logger.info('{0} out of {1} members in the union {2} voted on issue with id {3}, sending issue to phase 2'.format(union_members['count']/2, union_members['count'], session['connected_union'], id))
-            cur.execute('UPDATE posts SET create_date = NOW() WHERE id = "{0}"'.format(id))
-            cur.execute('UPDATE posts SET phase = phase + 1 WHERE id = "{0}"'.format(id))
-
-    mysql.connection.commit()
-    cur.close()
-
-    return redirect(url_for('phase1'))
 
 
 # vote on comment
@@ -680,6 +693,9 @@ class ArticleForm(Form):
 
 class CommentForm(BaseForm):
     body = TextAreaField('', [validators.length(min=1, max=1000)])
+
+class UpvoteForm(BaseForm):
+    vote = BooleanField('') # this field is hidden, and can work both as upvote and downvote
 
 
 def main():

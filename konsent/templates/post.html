@@ -6,11 +6,16 @@
   <p>{{post.body}}</p>
   <hr>
   {% if phase == 1 %}
-  {% if post.voted %}
-  <a href="/unvote/{{ post.id }}">Cancel vote</a>
-  {% else %}
-  <a href="/vote/{{ post.id }}">Vote up</a>
-  {% endif %}
+
+  <form method="POST" action="">
+    <div class="form-group">
+      {{ render_field(form.vote, type="hidden", class_="form-control") }}
+      {{ form.csrf_token }}
+      <p>{{ post.votes }} votes</p>
+      <input class="btn btn-primary" type="submit" value={% if post.voted %}"Cancel vote"{% else %}"Vote up"{% endif %}>
+    </div>
+  </form>
+
   {% endif %}
   <br><br>
 
