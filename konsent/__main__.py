@@ -1,8 +1,8 @@
 # coding=iso-8859-1
 from functools import wraps
 import datetime
-
-from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
+from wtforms.csrf.core import CSRF
+from flask import Flask, g, render_template, flash, redirect, url_for, session, logging, request
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, PasswordField, SelectField, HiddenField, SubmitField, BooleanField, validators
 from functools import wraps
@@ -132,16 +132,8 @@ def phase3():
 @app.route('/phase1/post/<string:id>', methods=['GET', 'POST'])
 @is_logged_in
 def post1(id):
-    form = CommentForm(request.form)
-
     # create cursor
     cur = mysql.connection.cursor()
-
-    if request.method == 'POST' and form.validate():
-        body = form.body.data
-        author = session['name']
-        cur.execute('INSERT INTO comments(body, author, post_id) VALUES("{0}", "{1}", "{2}")'.format(body, author, id))
-        mysql.connection.commit()
 
     # find posts
     result = cur.execute('SELECT * FROM posts WHERE id = %s', [id])
@@ -154,7 +146,7 @@ def post1(id):
 
     cur.close()
 
-    return render_template('post.html', post=post, form=form, phase=1)
+    return render_template('post.html', post=post, phase=1)
 
 
 # single post, phase 2
@@ -649,25 +641,6 @@ def print_unions():
     return result
 
 
-# csrf (WIP - not implemented yet, and probably doesnt work)
-def wrap_requires_csrf(*methods):
-    def wrapper(fn):
-        @wraps(fn)
-        def wrapped(*args, **kwargs):
-            if request.method in methods:
-                if request.method == 'POST':
-                    csrf = request.form.get('csrf')
-                elif request.method == 'GET':
-                    csrf = request.args.get('csrf')
-                if not csrf or csrf != session.get('csrf'):
-                    abort(400)
-                session['csrf'] = generate_csrf_token()
-            return fn(*args, **kwargs)
-        return wrapped
-    return wrapper
-
-
-# FORMS
 class RegisterUnionForm(Form):
     union_name = StringField('Name', [validators.Length(min=1, max=50)])
     password = PasswordField('Password (hand this out to all members of your union)', [
