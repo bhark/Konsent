@@ -54,7 +54,7 @@
     <h2>Final solution</h2>
     <p class="lead">{{ post.solution }}</p>
     {% if not post.vetoed_by %}
-    <a href="/veto/confirm/{{ post.id }}" class="btn btn-default">Place a veto</a>
+    <a href="/veto/{{ post.id }}" class="btn btn-default">Place a veto</a>
     {% elif post.vetoed_by %}
     <p>Blocked by {{ post.vetoed_by }}</p>
     {% endif %}

@@ -228,7 +228,6 @@ def post2(id):
 @app.route('/phase3/post/<string:id>')
 @is_logged_in
 def post3(id):
-    form = CommentForm(request.form)
 
     # create cursor
     cur = mysql.connection.cursor()
@@ -240,7 +239,7 @@ def post3(id):
 
     cur.close()
 
-    return render_template('post.html', post=post, form=form, comments=list_comments(id, session['username']), phase=3)
+    return render_template('post.html', post=post, comments=list_comments(id, session['username']), phase=3)
 
 
 # view a single solution that's been confirmed (phase 4)
@@ -398,30 +397,6 @@ def vote_comment(id, post_id):
 
     return redirect("/phase2/post/{0}".format(post_id))
 
-
-# remove vote on post
-@app.route('/unvote/<string:id>')
-def unvote(id):
-
-    # create cursor
-    cur = mysql.connection.cursor()
-
-    # check if user voted
-    result = cur.execute('SELECT * FROM votes WHERE username = "{0}" AND post_id = "{1}"'.format(session['username'], id))
-
-    if result:
-        cur.execute('UPDATE posts SET votes = votes - 1 WHERE id = "{0}"'.format(id))
-        cur.execute('DELETE FROM votes WHERE username = "{0}" AND post_id = "{1}"'.format(session['username'], id))
-    else:
-        error = 'You havent voted on this post before, and thus cannot cancel your vote.'
-        return render_template('index.html', error=error)
-
-    mysql.connection.commit()
-    cur.close()
-
-    return redirect(url_for('phase1'))
-
-
 # remove vote on comments
 @app.route('/post/unvote/<string:id>/<string:post_id>')
 def unvote_comment(id, post_id):
@@ -496,26 +471,27 @@ def vetoed():
 
 
 # veto a solution
-@app.route('/veto/<string:id>')
+@app.route('/veto/<string:id>', methods=['GET', 'POST'])
 @is_logged_in
 def veto(id):
 
-    # create cursor
-    cur = mysql.connection.cursor()
+    form = VetoForm(request.form, meta={'csrf_context': session})
 
-    # find and update post
-    cur.execute('UPDATE posts SET vetoed_by = "{0}" WHERE id = "{1}"'.format(session['name'], id))
+    if request.method == 'POST' and form.validate():
+        # create cursor
+        cur = mysql.connection.cursor()
 
-    # commit to database and close connection
-    mysql.connection.commit()
-    cur.close()
+        # find and update post
+        cur.execute('UPDATE posts SET vetoed_by = "{0}" WHERE id = "{1}" AND phase = 3'.format(session['name'], id))
 
-    msg = 'Youve successfully blocked the solution'
-    return render_template('phase3.html', msg=msg)
-@app.route('/veto/confirm/<string:id>')
-@is_logged_in
-def veto_confirm(id):
-    return render_template('veto.html', id=id)
+        # commit to database and close connection
+        mysql.connection.commit()
+        cur.close()
+
+        msg = 'Youve successfully blocked the solution'
+        return redirect(url_for("vetoed"))
+
+    return render_template('veto.html', id=id, form=form)
 
 
 # finished solutions
@@ -542,6 +518,8 @@ def about():
     return render_template('about.html')
 
 
+# FUNCTIONS
+
 # assign "posted x minutes/hours ago" values
 def assign_time_values(post):
     now = datetime.datetime.now()
@@ -553,6 +531,7 @@ def assign_time_values(post):
     post['time_since_create_minutes'] = minutes
     return post
 
+# move posts on to next phase if ready
 def update_phases():
     # create cursor
     cur = mysql.connection.cursor()
@@ -579,7 +558,7 @@ def update_phases():
 
         # phase 3
         elif post_phase == 3:
-            cur.execute('UPDATE posts SET create_date = NOW(), phase = 4')
+            cur.execute('UPDATE posts SET create_date = NOW(), phase = 4 WHERE id = {0}'.format(post['id']))
 
     mysql.connection.commit()
     cur.close()
@@ -695,8 +674,10 @@ class CommentForm(BaseForm):
     body = TextAreaField('', [validators.length(min=1, max=1000)])
 
 class UpvoteForm(BaseForm):
-    vote = BooleanField('') # this field is hidden, and can work both as upvote and downvote
+    vote = BooleanField('') # this field is hidden, is true by default and can work both as upvote and downvote
 
+class VetoForm(BaseForm):
+    veto = BooleanField('') # this field is hidden, and is true by default
 
 def main():
     app.secret_key = 'Ka,SkqNs//'
