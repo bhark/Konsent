@@ -1,61 +1,56 @@
 # coding: utf-8
-from sqlalchemy import Column, DateTime, Integer, String, Text, text
-from sqlalchemy.ext.declarative import declarative_base
+from flask_app import db
 
 
-Base = declarative_base()
-metadata = Base.metadata
-
-
-class Comment(Base):
+class Comment(db.Model):
     __tablename__ = 'comments'
 
-    author = Column(String(100, u'utf8_unicode_ci'), nullable=False)
-    votes = Column(Integer, nullable=False, server_default=text("'0'"))
-    body = Column(Text(collation=u'utf8_unicode_ci'), nullable=False)
-    id = Column(Integer, primary_key=True)
-    parent = Column(Integer, nullable=False, server_default=text("'0'"))
-    post_id = Column(Integer, nullable=False)
+    author = db.Column(db.String(100, u'utf8_unicode_ci'), nullable=False)
+    votes = db.Column(db.Integer, nullable=False, server_default=db.Text("'0'"))
+    body = db.Column(db.Text(collation=u'utf8_unicode_ci'), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    parent = db.Column(db.Integer, nullable=False, server_default=db.Text("'0'"))
+    post_id = db.Column(db.Integer, nullable=False)
 
 
-class Post(Base):
+class Post(db.Model):
     __tablename__ = 'posts'
 
-    author = Column(String(100, u'utf8_unicode_ci'), nullable=False)
-    belongs_to_union = Column(String(100, u'utf8_unicode_ci'), nullable=False)
-    body = Column(Text(collation=u'utf8_unicode_ci'), nullable=False)
-    create_date = Column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
-    id = Column(Integer, primary_key=True)
-    phase = Column(Integer, nullable=False, server_default=text("'1'"))
-    title = Column(Text(collation=u'utf8_unicode_ci'), nullable=False)
-    votes = Column(Integer, nullable=False, server_default=text("'0'"))
-    solution = Column(Text(collation=u'utf8_unicode_ci'))
-    vetoed_by = Column(String(100, u'utf8_unicode_ci'))
+    author = db.Column(db.String(100, u'utf8_unicode_ci'), nullable=False)
+    belongs_to_union = db.Column(db.String(100, u'utf8_unicode_ci'), nullable=False)
+    body = db.Column(db.Text(collation=u'utf8_unicode_ci'), nullable=False)
+    create_date = db.Column(DateTime, nullable=False, server_default=db.Text("CURRENT_TIMESTAMP"))
+    id = db.Column(db.Integer, primary_key=True)
+    phase = db.Column(db.Integer, nullable=False, server_default=db.Text("'1'"))
+    title = db.Column(db.Text(collation=u'utf8_unicode_ci'), nullable=False)
+    votes = db.Column(db.Integer, nullable=False, server_default=db.Text("'0'"))
+    solution = db.Column(db.Text(collation=u'utf8_unicode_ci'))
+    vetoed_by = db.Column(db.String(100, u'utf8_unicode_ci'))
 
 
-class Union(Base):
+class Union(db.Model):
     __tablename__ = 'unions'
 
-    id = Column(Integer, primary_key=True)
-    union_name = Column(String(255, u'utf8_unicode_ci'), nullable=False)
-    password = Column(String(255, u'utf8_unicode_ci'), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    union_name = db.Column(db.String(255, u'utf8_unicode_ci'), nullable=False)
+    password = db.Column(db.String(255, u'utf8_unicode_ci'), nullable=False)
 
 
-class User(Base):
+class User(db.Model):
     __tablename__ = 'users'
 
-    connected_union = Column(String(255, u'utf8_unicode_ci'), nullable=False)
-    id = Column(Integer, primary_key=True)
-    name = Column(String(255, u'utf8_unicode_ci'), nullable=False)
-    password = Column(String(255, u'utf8_unicode_ci'), nullable=False)
-    username = Column(String(255, u'utf8_unicode_ci'), nullable=False)
-    authority = Column(Integer, server_default=text("'0'"))
+    connected_union = db.Column(db.String(255, u'utf8_unicode_ci'), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255, u'utf8_unicode_ci'), nullable=False)
+    password = db.Column(db.String(255, u'utf8_unicode_ci'), nullable=False)
+    username = db.Column(db.String(255, u'utf8_unicode_ci'), nullable=False)
+    authority = db.Column(db.Integer, server_default=db.Text("'0'"))
 
 
-class Vote(Base):
+class Vote(db.Model):
     __tablename__ = 'votes'
 
-    id = Column(Integer, primary_key=True)
-    post_id = Column(Integer, nullable=False)
-    username = Column(String(255, u'utf8_unicode_ci'), nullable=False)
-    type = Column(String(100, u'utf8_unicode_ci'), nullable=False, server_default=text("'post'"))
+    id = db.Column(db.Integer, primary_key=True)
+    post_id = db.Column(db.Integer, nullable=False)
+    username = db.Column(db.String(255, u'utf8_unicode_ci'), nullable=False)
+    type = db.Column(db.String(100, u'utf8_unicode_ci'), nullable=False, server_default=db.Text("'post'"))
