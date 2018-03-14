@@ -5,10 +5,10 @@ from flask_app import db
 class Comment(db.Model):
     __tablename__ = 'comments'
 
+    id = db.Column(db.Integer, primary_key=True)
     author = db.Column(db.String(100, u'utf8_unicode_ci'), nullable=False)
     votes = db.Column(db.Integer, nullable=False, server_default=db.Text("'0'"))
     body = db.Column(db.Text(collation=u'utf8_unicode_ci'), nullable=False)
-    id = db.Column(db.Integer, primary_key=True)
     parent = db.Column(db.Integer, nullable=False, server_default=db.Text("'0'"))
     post_id = db.Column(db.Integer, nullable=False)
 
@@ -16,11 +16,11 @@ class Comment(db.Model):
 class Post(db.Model):
     __tablename__ = 'posts'
 
+    id = db.Column(db.Integer, primary_key=True)
     author = db.Column(db.String(100, u'utf8_unicode_ci'), nullable=False)
     belongs_to_union = db.Column(db.String(100, u'utf8_unicode_ci'), nullable=False)
     body = db.Column(db.Text(collation=u'utf8_unicode_ci'), nullable=False)
     create_date = db.Column(DateTime, nullable=False, server_default=db.Text("CURRENT_TIMESTAMP"))
-    id = db.Column(db.Integer, primary_key=True)
     phase = db.Column(db.Integer, nullable=False, server_default=db.Text("'1'"))
     title = db.Column(db.Text(collation=u'utf8_unicode_ci'), nullable=False)
     votes = db.Column(db.Integer, nullable=False, server_default=db.Text("'0'"))
@@ -39,8 +39,8 @@ class Union(db.Model):
 class User(db.Model):
     __tablename__ = 'users'
 
-    connected_union = db.Column(db.String(255, u'utf8_unicode_ci'), nullable=False)
     id = db.Column(db.Integer, primary_key=True)
+    connected_union = db.Column(db.String(255, u'utf8_unicode_ci'), nullable=False)
     name = db.Column(db.String(255, u'utf8_unicode_ci'), nullable=False)
     password = db.Column(db.String(255, u'utf8_unicode_ci'), nullable=False)
     username = db.Column(db.String(255, u'utf8_unicode_ci'), nullable=False)
