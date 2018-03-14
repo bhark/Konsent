@@ -5,6 +5,7 @@ from wtforms import Form, StringField, TextAreaField, PasswordField, SelectField
 from passlib.hash import sha256_crypt
 from functools import wraps
 import datetime
+from models import User, Union, Post, Vote
 
 app = Flask(__name__)
 db = SQLAlchemy(app)
@@ -54,18 +55,9 @@ def is_not_logged_in(f):
 @is_logged_in
 def phase1():
 
-    # create cursor
-    cur = mysql.connection.cursor()
+    posts = Post.query.all()
 
-    # find post
-    result = cur.execute('SELECT * FROM posts WHERE belongs_to_union = "%s" AND phase = "1"' % session['connected_union'])
-    posts = cur.fetchall()
-    # close connection to database
-    cur.close()
-
-    if result:
-        for post in posts:
-            post = assignTimeValues(post)
+    if len(posts):
         return render_template('phase1.html', posts=posts)
     else:
         return render_template('phase1.html', msg=no_results_error)
@@ -583,16 +575,6 @@ def completed():
 def about():
     return render_template('about.html')
 
-# assign "posted x minutes/hours ago" values
-def assignTimeValues(post):
-    now = datetime.datetime.now()
-    create_date = post['create_date']
-    time_since = str(now - create_date)[:-10]
-    hours = int(time_since[:1])
-    minutes = time_since[2:4]
-    post['time_since_create_hours'] = hours
-    post['time_since_create_minutes'] = minutes
-    return post
 
 def updatePhases():
     # create cursor

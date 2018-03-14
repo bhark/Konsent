@@ -34,6 +34,20 @@ class Post(db.Model):
     vetoed_by_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True, default=None)
     vetoed_by = db.relationship('User', backref=db.backref('vetoes', lazy=True))
 
+    @property
+    def time_since_create(self):
+        """
+        assign "posted x minutes/hours ago" values
+        """
+        if not hasattr(self, '_time_since_create'):
+            now = datetime.datetime.now()
+            create_date = self.create_date
+            time_since = now - create_date
+            hours, minutes = time_since.seconds // 3600, (time_since.seconds // 60) % 60
+            self._time_since_create = {'hours': hours, 'minutes': minutes}
+        return self._time_since_create
+
+
 
 class Union(db.Model):
     __tablename__ = 'unions'
