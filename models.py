@@ -6,11 +6,15 @@ class Comment(db.Model):
     __tablename__ = 'comments'
 
     id = db.Column(db.Integer, primary_key=True)
-    author = db.Column(db.String(100, u'utf8_unicode_ci'), nullable=False)
-    votes = db.Column(db.Integer, nullable=False, server_default=db.Text("'0'"))
-    body = db.Column(db.Text(collation=u'utf8_unicode_ci'), nullable=False)
+    author_name = db.Column(db.Unicode, nullable=False)
+    votes = db.Column(db.Integer, nullable=False, default=0)
+    body = db.Column(db.UnicodeText, nullable=False)
     parent = db.Column(db.Integer, nullable=False, server_default=db.Text("'0'"))
-    post_id = db.Column(db.Integer, nullable=False)
+    # relationships
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=False)
+    post = db.relationship('Post', backref=db.backref('posts', lazy=True))
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    author = db.relationship('User', backref=db.backref('posts', lazy=True))
 
 
 class Post(db.Model):
