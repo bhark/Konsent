@@ -55,7 +55,11 @@ def is_not_logged_in(f):
 @is_logged_in
 def phase1():
 
-    posts = Post.query.filter(Post.union_id == session['connected_union']).all()
+    posts = Post.query.filter(
+        Post.union_id == session['connected_union']
+        ).filter(
+        Post.phase == 1
+    ).all()
 
     if len(posts):
         return render_template('phase1.html', posts=posts)
