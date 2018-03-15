@@ -1,6 +1,6 @@
 # coding=iso-8859-1
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
-from flask_sqlalchemy import SQLAlchemy
+from flask_mysqldb import MySQL
 from functools import wraps
 import datetime
 from flask import Flask, g, render_template, flash, redirect, url_for, session, logging, request
@@ -13,6 +13,7 @@ import datetime
 from models import User, Union, Post, Vote
 from datetime import timedelta
 import hashlib
+from models import db
 
 # CURRENT VERSION: 0.2a
 # config
@@ -21,7 +22,7 @@ REQUIRED_VOTES_DIVISOR = 2 # number of members in the union divided by this numb
 NO_RESULTS_ERROR = 'Nothing to show.'
 
 app = Flask(__name__)
-db = SQLAlchemy(app)
+db.init_app(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root@127.0.0.1/konsent'
 app.config['MYSQL_HOST'] = '127.0.0.1'
 app.config['MYSQL_USER'] = 'root'

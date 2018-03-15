@@ -1,6 +1,8 @@
 # coding: utf-8
-from __main__ import db
 from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 
 class Comment(db.Model):
@@ -10,7 +12,6 @@ class Comment(db.Model):
     author_name = db.Column(db.Unicode, nullable=False)
     votes = db.Column(db.Integer, nullable=False, default=0)
     body = db.Column(db.UnicodeText, nullable=False)
-    parent = db.Column(db.Integer, nullable=False, server_default=db.Text("'0'"))
     # relationships
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=False)
     post = db.relationship('Post', backref=db.backref('comments', lazy=True))
@@ -72,9 +73,11 @@ class User(db.Model):
 class Vote(db.Model):
     __tablename__ = 'votes'
 
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(255, u'utf8_unicode_ci'), nullable=False)
-    type = db.Column(db.String(100, u'utf8_unicode_ci'), nullable=False, server_default=db.Text("'post'"))
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
     # relationships
-    post_id = db.Column(db.Integer, nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=True)
     post = db.relationship('Post', backref=db.backref('votes', lazy=True))
+    comment_id = db.Column(db.Integer, db.ForeignKey('comments.id'), nullable=True)
+    comment = db.relationship('Comment', backref=db.backref('votes', lazy=True))
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    author = db.relationship('User', backref=db.backref('votes', lazy=True))
