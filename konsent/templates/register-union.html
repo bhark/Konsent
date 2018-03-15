@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-  <h1 class="heading">Registrering af Unioner</h1>
+  <h1 class="heading">Union registration</h1>
   {% from 'includes/_formhelpers.html' import render_field %}
   <form method="POST" action="">
     <div class="form-group">
@@ -13,8 +13,8 @@
     <div class="form-group">
       {{ render_field(form.confirm, class_="form-control") }}
     </div>
-    <p><input type="submit" value="Opret Union" class="btn btn-primary"></p>
-    <h2>Eksisterende unioner</h2>
+    <p><input type="submit" value="Submit" class="btn btn-primary"></p>
+    <h2>Existing unions</h2>
     <ul class="list-group">
     {% if unions %}
     {% for union in unions %}
