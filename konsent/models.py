@@ -11,7 +11,7 @@ class Comment(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
     author_name = db.Column(db.Unicode(length=255), nullable=False)
-    votes = db.Column(db.Integer, nullable=False, default=0)
+    votes_count = db.Column(db.Integer, nullable=False, default=0)
     body = db.Column(db.UnicodeText, nullable=False)
     # relationships
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=False)
