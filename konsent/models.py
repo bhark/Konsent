@@ -86,6 +86,12 @@ class User(db.Model):
     union_id = db.Column(db.Integer, db.ForeignKey('unions.id'), nullable=False)
     union = db.relationship('Union', backref=db.backref('users', lazy=True))
 
+    def check_password(self, password):
+        """
+        Checks the validity of the user's password.
+        """
+        return hashlib.sha256(password.encode('utf-8')).hexdigest() == self.password
+
 
 class Vote(db.Model):
     __tablename__ = 'votes'

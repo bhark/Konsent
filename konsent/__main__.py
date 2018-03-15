@@ -326,25 +326,17 @@ def login():
         username = request.form['username']
         password_candidate = request.form['password']
 
-        # create cursor
-        cur = mysql.connection.cursor()
-
         # find user in database using submitted username
-        result = cur.execute('SELECT * FROM users WHERE username = %s', [username])
+        user = User.query.filter(User.username == username).first()
 
-        if result > 0:
-            # find saved hash
-            data = cur.fetchone()
-            password = data['password']
-            name = data['name']
-            username = data['username']
-            connected_union = data['connected_union']
+        if user is not None:
+            connected_union = user.union.id
 
             # compare password to hash
-            if hashlib.sha256(password_candidate.encode('utf-8')).hexdigest() == password:
+            if user.check_password(password_candidate):
                 # that's a match, set session variables
                 session['logged_in'] = True
-                session['name'] = name
+                session['name'] = user.name
                 session['username'] = username
                 session['connected_union'] = connected_union
                 flash('Youve been logged in.', 'success')
@@ -352,15 +344,11 @@ def login():
             else:
                 error = 'Wrong password'
                 return render_template('login.html', error=error)
-            # luk forbindelsen
-            cur.close()
         else:
             error = 'This user doesnt exist'
             return render_template('login.html', error=error)
 
     return render_template('login.html')
-
-
 
 
 # vote on comment
