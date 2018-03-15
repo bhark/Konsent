@@ -270,7 +270,8 @@ def register():
         name = form.name.data
         username = form.username.data
         users_union = form.users_union.data
-        password = hashlib.sha256(str(form.password.data).encode('utf-8')).hexdigest()
+        password = form.password.data
+
 
         union_password_candidate = form.union_password.data
 
@@ -278,20 +279,15 @@ def register():
         cur = mysql.connection.cursor()
 
         # find union
-        result = cur.execute('SELECT * FROM unions WHERE union_name = "{0}"'.format(users_union))
+        union = Union.query.filer(Union.union_name == users_union).first()
 
-        if result:
-            # find saved hash
-            data = cur.fetchone()
-            union_password = data['password']
-
-            if hashlib.sha256(union_password_candidate.encode('utf-8')).hexdigest() == union_password:
+        if union is not None:
+            if union.check_password(union_password_candidate):
                 # password matches hash
-                cur.execute('INSERT INTO users(name, username, connected_union, password) VALUES(%s, %s, %s, %s)', (name, username, users_union, password))
+                user = User(username, password, name, union)
                 # send to database
-                mysql.connection.commit()
-                # close connection
-                cur.close()
+                db.session.add(user)
+                db.session.commit()
                 # redirect user
                 msg = 'Youre now signed up and can login.'
                 return render_template('login.html', msg=msg)

@@ -1,6 +1,7 @@
 # coding: utf-8
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+import hashlib
 
 db = SQLAlchemy()
 
@@ -27,7 +28,7 @@ class Post(db.Model):
     create_date = db.Column(db.DateTime, nullable=False, default=datetime.now())
     phase = db.Column(db.Integer, nullable=False, default=1)
     title = db.Column(db.UnicodeText, nullable=False)
-    votes = db.Column(db.Integer, nullable=False, default=0)
+    votes_count = db.Column(db.Integer, nullable=False, default=0)
     solution = db.Column(db.UnicodeText)
     # Relationships
     union_id = db.Column(db.Integer, db.ForeignKey('unions.id'), nullable=False)
@@ -56,9 +57,21 @@ class Union(db.Model):
     union_name = db.Column(db.Unicode(length=255), nullable=False)
     password = db.Column(db.Unicode(length=255), nullable=False)
 
+    def check_password(self, password):
+        """
+        Checks the validity of the union's password.
+        """
+        return hashlib.sha256(password.encode('utf-8')).hexdigest() == self.password
+
 
 class User(db.Model):
     __tablename__ = 'users'
+
+    def __init__(self, username, password, name, union):
+        self.name = name
+        self.password = hashlib.sha256(str(password).encode('utf-8')).hexdigest()
+        self.username = username
+        self.union = union
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode(length=255), nullable=False)
