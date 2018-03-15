@@ -308,18 +308,12 @@ def register_union():
     form = RegisterUnionForm(request.form)
     if request.method == 'POST':
         union_name = form.union_name.data
-        password = hashlib.sha256(str(form.password.data).encode('utf-8')).hexdigest()
+        password = form.password.data
 
-        # create cursor
-        cur = mysql.connection.cursor()
-
-        cur.execute('INSERT INTO unions(union_name, password) VALUES("{0}", "{1}")'.format(union_name, password))
-
+        union = Union(union_name, password)
+        db.session.add(union)
         # commit to database
-        mysql.connection.commit()
-
-        # close connection
-        cur.close()
+        db.session.commit()
 
         msg = 'Your union is now registered, and can be accessed by other users'
         return render_template('index.html', msg=msg)
@@ -667,6 +661,8 @@ class VetoForm(BaseForm):
     veto = BooleanField('') # this field is hidden, and is true by default
 
 def main():
+    app.app_context().push()
+    db.create_all()
     app.secret_key = 'Ka,SkqNs//'
     app.run(debug=True)
 

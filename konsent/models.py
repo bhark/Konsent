@@ -53,6 +53,10 @@ class Post(db.Model):
 class Union(db.Model):
     __tablename__ = 'unions'
 
+    def __init__(self, union_name, password):
+        self.union_name = union_name
+        self.password = hashlib.sha256(str(password).encode('utf-8')).hexdigest()
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
     union_name = db.Column(db.Unicode(length=255), nullable=False)
     password = db.Column(db.Unicode(length=255), nullable=False)
