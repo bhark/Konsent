@@ -272,14 +272,11 @@ def register():
         users_union = form.users_union.data
         password = form.password.data
 
-
         union_password_candidate = form.union_password.data
 
-        # create cursor
-        cur = mysql.connection.cursor()
-
         # find union
-        union = Union.query.filer(Union.union_name == users_union).first()
+        union = Union.query.filter(Union.union_name == users_union).first()
+        print(union)
 
         if union is not None:
             if union.check_password(union_password_candidate):
