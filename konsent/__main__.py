@@ -658,8 +658,6 @@ class VetoForm(BaseForm):
     veto = BooleanField('') # this field is hidden, and is true by default
 
 def main():
-    app.app_context().push()
-    db.create_all()
     app.secret_key = 'Ka,SkqNs//'
     app.run(debug=True)
 
