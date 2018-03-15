@@ -10,7 +10,7 @@ from wtforms import Form, StringField, TextAreaField, PasswordField, SelectField
 from passlib.hash import sha256_crypt
 from functools import wraps
 import datetime
-from models import User, Union, Post, Vote
+from models import User, Union, Post, Vote, Comment
 from datetime import timedelta
 import hashlib
 from models import db
@@ -500,35 +500,37 @@ def about():
 
 # move posts on to next phase if ready
 def update_phases():
-    # create cursor
-    cur = mysql.connection.cursor()
-
     # find all posts to be moved
-    cur.execute('SELECT * FROM posts WHERE belongs_to_union = "{0}" AND create_date < (NOW() - INTERVAL {1} MINUTE)'.format(session['connected_union'], RESTING_TIME))
-    posts = cur.fetchall()
+    posts = Post.query.filter(
+        Post.union_id == session['connected_union']
+    ).filter(
+        Post.create_date < datetime.datetime.now() - timedelta(minutes=RESTING_TIME)
+    ).all()
 
     for post in posts:
-
-        post_id = post['id']
-        post_phase = post['phase']
-
         # phase 2
-        if post_phase == 2:
-            try:
-                cur.execute('SELECT * FROM comments WHERE post_id = "{0}" ORDER BY votes DESC'.format( post_id ))
-                solution = cur.fetchone()
-                cur.execute('UPDATE posts SET create_date = NOW(), solution = "{0}", phase = 3 WHERE id = {1}'.format( solution['body'], post_id ))
-                app.logger.info('Moved post with id {0} from phase 2 to phase 3, with solution "{1}"'.format( post_id, solution['body'] ))
-            except TypeError:
-                cur.execute('UPDATE posts SET create_date = NOW() WHERE id = "{0}"'.format( post_id ))
-                app.logger.info('Post with id {0} didnt find a solution in time'.format( post_id ))
+        if post.phase == 2:
+            solution = Comment.query.filter(
+                Comment.post == post
+            ).order_by(
+                Comment.votes_count.desc()
+            ).first()
+            # update the post
+            if solution is not None:
+                post.solution = solution.body
+                post.phase = 3
+                app.logger.info('Moved post with id {0} from phase 2 to phase 3, with solution "{1}"'.format(post.id, solution.body))
+            else:
+                app.logger.info('Post with id {0} didnt find a solution in time'.format(post.id))
+            post.create_date = datetime.datetime.now()
+            db.session.add(post)
 
         # phase 3
-        elif post_phase == 3:
-            cur.execute('UPDATE posts SET create_date = NOW(), phase = 4 WHERE id = {0}'.format(post['id']))
-
-    mysql.connection.commit()
-    cur.close()
+        elif post.phase == 3:
+            post.create_date = datetime.datetime.now()
+            post.phase = 4
+            db.session.add(post)
+    db.session.commit()
 
 
 # list unions for use somewhere else
