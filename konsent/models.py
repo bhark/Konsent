@@ -9,7 +9,7 @@ class Comment(db.Model):
     __tablename__ = 'comments'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
-    author_name = db.Column(db.Unicode, nullable=False)
+    author_name = db.Column(db.Unicode(length=255), nullable=False)
     votes = db.Column(db.Integer, nullable=False, default=0)
     body = db.Column(db.UnicodeText, nullable=False)
     # relationships
@@ -53,17 +53,17 @@ class Union(db.Model):
     __tablename__ = 'unions'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
-    union_name = db.Column(db.Unicode, nullable=False)
-    password = db.Column(db.Unicode, nullable=False)
+    union_name = db.Column(db.Unicode(length=255), nullable=False)
+    password = db.Column(db.Unicode(length=255), nullable=False)
 
 
 class User(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Unicode, nullable=False)
-    password = db.Column(db.String, nullable=False)
-    username = db.Column(db.Unicode, nullable=False, unique=True)
+    name = db.Column(db.Unicode(length=255), nullable=False)
+    password = db.Column(db.String(length=255), nullable=False)
+    username = db.Column(db.Unicode(length=255), nullable=False, unique=True)
     authority = db.Column(db.Integer, default=0)
     # relationships
     union_id = db.Column(db.Integer, db.ForeignKey('unions.id'), nullable=False)

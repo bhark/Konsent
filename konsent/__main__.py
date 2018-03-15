@@ -22,8 +22,8 @@ REQUIRED_VOTES_DIVISOR = 2 # number of members in the union divided by this numb
 NO_RESULTS_ERROR = 'Nothing to show.'
 
 app = Flask(__name__)
-db.init_app(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root@127.0.0.1/konsent'
+db.init_app(app)
 app.config['MYSQL_HOST'] = '127.0.0.1'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = ''
