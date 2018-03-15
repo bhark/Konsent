@@ -330,7 +330,8 @@ def login():
         user = User.query.filter(User.username == username).first()
 
         if user is not None:
-            connected_union = user.union.union_name
+            connected_union_name = user.union.union_name
+            connected_union = user.union.id
 
             # compare password to hash
             if user.check_password(password_candidate):
