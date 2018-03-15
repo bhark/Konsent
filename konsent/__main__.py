@@ -4,7 +4,6 @@ from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
 import datetime
 from flask import Flask, g, render_template, flash, redirect, url_for, session, logging, request
-from flask_mysqldb import MySQL
 from wtforms.csrf.core import CSRF
 from wtforms.csrf.session import SessionCSRF
 from wtforms import Form, StringField, TextAreaField, PasswordField, SelectField, HiddenField, SubmitField, BooleanField, validators
