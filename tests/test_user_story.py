@@ -5,6 +5,7 @@ the tests must run in order, they are NOT independent from each other.
 NOTE: In order for the tests to run firefox and geckodriver must be on $PATH.
 """
 
+
 import pytest
 from selenium.webdriver import Firefox
 
@@ -32,6 +33,17 @@ UNION_REGISTER_NAME ='#union_name'
 UNION_REGISTER_PASSWORD = '#password' 
 UNION_REGISTER_PASSWORD_CONFIRM = '#confirm'
 UNION_REGISTER_SUBMIT_BUTTON ='.btn' 
+
+# after login
+HOME_NEW_ISSUE_BUTTON = '.btn'
+NEW_ISSUE_TITLE_FIELD = '#title'
+NEW_ISSUE_BODY_FIELD = '#editor'
+NEW_ISSUE_SUBMIT_BUTTON = '.btn'
+TOP_SOLUTION_PROPOSAL_BUTTON = 'ul.navbar-nav:nth-child(1) > li:nth-child(2) > a:nth-child(1)'
+
+
+# PHASE1
+PHASE1_VOTEUP = '.container > a:nth-child(4)'
 
 
 @pytest.fixture(scope='module')
@@ -108,3 +120,33 @@ def test_user_story_account(browser):
     find(LOGIN_PASS_FIELD).send_keys("test_password")
     find(LOGIN_CONFIG_BUTTON).click()
     assert 'Youve been logged in' in find(ALERT).text
+
+
+def test_user_story_issue(browser):
+    find = browser.find_element_by_css_selector
+
+    # user starts a new issue
+    find(HOME_NEW_ISSUE_BUTTON).click()
+    assert browser.current_url.endswith('/new_post')
+
+    # she fills the required fields
+    find(NEW_ISSUE_TITLE_FIELD).send_keys('New test issue')
+    find(NEW_ISSUE_BODY_FIELD).send_keys('This is a test issue that was created for the purpose of testing, obviously')
+    # she submits the issue
+    find(NEW_ISSUE_SUBMIT_BUTTON).click()
+    assert 'Your post have been published' in find(ALERT).text
+
+    # she chooses her issue from the list
+    issues_list = browser.find_elements_by_tag_name('li')
+    test_issue = next(issue for issue in issues_list
+                      if '0 votes - New test issue' in issue.text)
+    test_issue.find_element_by_tag_name('a').click()
+
+    # she votes for the issue
+    find(PHASE1_VOTEUP).click()
+    # proposal goes to phase2 if the user is the only in the test database
+    # if this fails that may mean that there are more users
+    # and the algorithm implemented will not move the proposal to phase2
+    find(TOP_SOLUTION_PROPOSAL_BUTTON).click()
+    assert browser.current_url.endswith('/phase2')
+    assert 'New test issue' in browser.page_source

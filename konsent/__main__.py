@@ -695,6 +695,8 @@ class CommentForm(Form):
 
 def main():
     parser = argparse.ArgumentParser(description='Konsent')
+    parser.add_argument('-d', '--database', default='konsent',
+                        help='Database name')
     parser.add_argument('-u', '--user', default='root',
                         help='Database username')
     parser.add_argument('-p', '--password', default='',
@@ -704,7 +706,7 @@ def main():
     app.config['MYSQL_HOST'] = '127.0.0.1'
     app.config['MYSQL_USER'] = args.user
     app.config['MYSQL_PASSWORD'] = args.password
-    app.config['MYSQL_DB'] = 'konsent'
+    app.config['MYSQL_DB'] = args.database
     app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
     app.secret_key = 'Ka,SkqNs//'
     app.run(debug=True)
