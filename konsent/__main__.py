@@ -2,6 +2,7 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
 from flask_mysqldb import MySQL
 from functools import wraps
+from sqlalchemy import and_
 import datetime
 from flask import Flask, g, render_template, flash, redirect, url_for, session, logging, request
 from wtforms.csrf.core import CSRF
@@ -89,20 +90,13 @@ def phase2():
 
     update_phases()
 
-    # create cursor
-    cur = mysql.connection.cursor()
-
-
     # find posts
-    result = cur.execute('SELECT * FROM posts WHERE belongs_to_union = "{0}" AND phase = "2"'.format(session['connected_union']))
-    posts = cur.fetchall()
+    posts = Post.query.filter(
+        and_(
+            Post.union_id == session['connected_union'],
+            Post.phase == 2)).all()
 
-
-    if result:
-        for post in posts:
-            post = assign_time_values(post)
-        cur.close()
-
+    if len(posts):
         return render_template('phase2.html', posts=posts)
     else:
         return render_template('phase2.html', msg=NO_RESULTS_ERROR)
@@ -115,17 +109,15 @@ def phase3():
 
     update_phases()
 
-    # create cursor
-    cur = mysql.connection.cursor()
-
     # find posts
-    result = cur.execute('SELECT * FROM posts WHERE belongs_to_union = "{0}" AND phase = 3 AND vetoed_by IS NULL'.format(session['connected_union']))
-    posts = cur.fetchall()
+    posts = Post.query.filter(
+        and_(
+            Post.union_id == session['connected_union'],
+            Post.phase == 3,
+            Post.vetoed_by == None
+            )).all()
 
-    if result:
-        for post in posts:
-            post = assign_time_values(post)
-        cur.close()
+    if len(posts):
         return render_template('phase3.html', posts=posts)
     else:
         return render_template('phase3.html', msg=NO_RESULTS_ERROR)
