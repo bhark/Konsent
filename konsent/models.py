@@ -31,10 +31,27 @@ class Post(db.Model):
     votes_count = db.Column(db.Integer, nullable=False, default=0)
     solution = db.Column(db.UnicodeText)
     # Relationships
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    author = db.relationship('User', backref=db.backref('posts', lazy=True), foreign_keys=[author_id])
     union_id = db.Column(db.Integer, db.ForeignKey('unions.id'), nullable=False)
     union = db.relationship('Union', backref=db.backref('posts', lazy=True))
     vetoed_by_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True, default=None)
-    vetoed_by = db.relationship('User', backref=db.backref('vetoes', lazy=True))
+    vetoed_by = db.relationship('User', backref=db.backref('vetoes', lazy=True), foreign_keys=[vetoed_by_id])
+
+    def __init__(self, title, body, union, author, create_date=None):
+        if create_date is None:
+            create_date = datetime.now()
+        self.title = title
+        self.body = body
+        if isinstance(union, Union):
+            self.union = union
+        else:
+            self.union_id = union
+        if isinstance(author, User):
+            self.author = author
+        else:
+            self.author_id = author
+        self.create_date = create_date
 
     @property
     def time_since_create(self):
@@ -42,11 +59,12 @@ class Post(db.Model):
         assign "posted x minutes/hours ago" values
         """
         if not hasattr(self, '_time_since_create'):
-            now = datetime.datetime.now()
+            now = datetime.now()
             create_date = self.create_date
             time_since = now - create_date
             hours, minutes = time_since.seconds // 3600, (time_since.seconds // 60) % 60
             self._time_since_create = {'hours': hours, 'minutes': minutes}
+        print(self._time_since_create)
         return self._time_since_create
 
 

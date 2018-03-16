@@ -339,6 +339,7 @@ def login():
                 session['logged_in'] = True
                 session['name'] = user.name
                 session['username'] = username
+                session['user_id'] = user.id
                 session['connected_union'] = connected_union
                 flash('Youve been logged in.', 'success')
                 return redirect(url_for('index'))
@@ -415,15 +416,10 @@ def new_post():
         title = form.title.data
         body = form.body.data
 
-        # create cursor
-        cur = mysql.connection.cursor()
-
         # FIRE THE CANNONS, COMRADES!!!
-        cur.execute('INSERT INTO posts(title, body, author, belongs_to_union) VALUES(%s, %s, %s, %s)', (title, body, session['name'], session['connected_union']))
-
-        # commit to database and close connection
-        mysql.connection.commit()
-        cur.close()
+        post = Post(title, body, session["connected_union"], session["user_id"])
+        db.session.add(post)
+        db.session.commit()
 
         flash('Your post have been published', 'success')
         return redirect(url_for('phase1'))
