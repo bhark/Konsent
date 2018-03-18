@@ -189,32 +189,30 @@ def post1(id):
             # redirect user
             return redirect(url_for('phase1'))
 
-    return render_template('post.html', post=post_data, phase=1, form=form)
+    return render_template('post.html', post_data=post_data, post=post, phase=1, form=form)
 
 
 # single post, phase 2
-@app.route('/phase2/post/<string:id>', methods=['GET', 'POST'])
+@app.route('/phase2/post/<string:post_id>', methods=['GET', 'POST'])
 @is_logged_in
-def post2(id):
+def post2(post_id):
     form = CommentForm(request.form, meta={'csrf_context': session})
-
-    # create cursor
-    cur = mysql.connection.cursor()
 
     if request.method == 'POST' and form.validate():
         body = form.body.data
-        author = session['name']
-        cur.execute('INSERT INTO comments(body, author, post_id) VALUES("{0}", "{1}", "{2}")'.format(body, author, id))
-        mysql.connection.commit()
+        author = session['user_id']
+        comment = Comment(post_id, author, body)
+        db.session.add(comment)
+        db.session.commit()
 
     # find posts
-    cur.execute('SELECT * FROM posts WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(id, session['connected_union']))
+    post = Post.query.get(post_id)
+    # TODO: Check that the post is in the correct Union, return a
+    # proper error if not
+    if post.union_id != session['connected_union']:
+        post = None
 
-    post = cur.fetchone()
-
-    cur.close()
-
-    return render_template('post.html', post=post, form=form, comments=list_comments(id, session['username']), phase=2)
+    return render_template('post.html', post=post, form=form, comments=list_comments(post_id, session['username']), phase=2)
 
 
 # single post, phase 3

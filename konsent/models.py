@@ -19,6 +19,15 @@ class Comment(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     author = db.relationship('User', backref=db.backref('comments', lazy=True))
 
+    def __init__(self, post, author, body):
+        if isinstance(post, Post):
+            self.post = post
+        else:
+            self.post_id = post
+        if isinstance(author, User):
+            self.author = author
+        self.body = body
+
 
 class Post(db.Model):
     __tablename__ = 'posts'

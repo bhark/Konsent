@@ -11,8 +11,8 @@
     <div class="form-group">
       {{ render_field(form.vote, type="hidden", class_="form-control") }}
       {{ form.csrf_token }}
-      <p>{{ post.votes }} votes</p>
-      <input class="btn btn-primary" type="submit" value={% if post.voted %}"Cancel vote"{% else %}"Vote up"{% endif %}>
+      <p>{{ post_data['votes'] }} votes</p>
+      <input class="btn btn-primary" type="submit" value={% if post_data['voted'] %}"Cancel vote"{% else %}"Vote up"{% endif %}>
     </div>
   </form>
 
