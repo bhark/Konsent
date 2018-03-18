@@ -123,6 +123,20 @@ class User(db.Model):
 class Vote(db.Model):
     __tablename__ = 'votes'
 
+    def __init__(self, author, target, target_type=None):
+        if isinstance(author, User):
+            self.author = author
+        else:
+            self.author_id = author
+        if isinstance(target, Post):
+            self.post = Post
+        elif isinstance(target, Comment):
+            self.comment = Comment
+        elif target_type == "post":
+            self.post_id = target
+        elif target_type == "comment":
+            self.comment_id = target
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
     # relationships
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=True)

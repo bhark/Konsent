@@ -341,47 +341,57 @@ def login():
 
 
 # vote on comment
-@app.route('/post/vote/<string:id>/<string:post_id>')
-def vote_comment(id, post_id):
-
-    # create cursor
-    cur = mysql.connection.cursor()
+@app.route('/post/vote/<int:comment_id>/<int:post_id>')
+def vote_comment(comment_id, post_id):
 
     # check if user already voted
-    result = cur.execute('SELECT * FROM votes WHERE username = "{0}" AND post_id = "{1}" AND type = "comment"'.format(session['username'], id))
+    result = Vote.query.filter(
+        and_(
+            Vote.comment_id == comment_id,
+            Vote.author_id == session['user_id'],
+        )
+    ).first()
 
-    if result:
-        error = 'Youve already voted.'
+    if result is not None:
+        error = 'You\'ve already voted.'
         return render_template('index.html', error=error)
     else:
-        data = cur.execute('UPDATE comments SET votes = votes + 1 WHERE id = "{0}"'.format(id))
-        cur.execute('INSERT INTO votes(username, post_id, type) VALUES("{0}", "{1}", "comment")'.format(session['username'], id))
-
-    mysql.connection.commit()
-    cur.close()
+        comment = Comment.query.get(comment_id)
+        comment.votes_count += 1
+        db.session.add(comment)
+        vote = Vote(session['user_id'], comment)
+        db.session.add(vote)
+        db.session.commit()
 
     return redirect("/phase2/post/{0}".format(post_id))
 
+
 # remove vote on comments
-@app.route('/post/unvote/<string:id>/<string:post_id>')
-def unvote_comment(id, post_id):
+@app.route('/post/unvote/<int:comment_id>/<int:post_id>')
+def unvote_comment(comment_id, post_id):
+    # check if user already voted
+    result = Vote.query.filter(
+        and_(
+            Vote.comment_id == comment_id,
+            Vote.author_id == session['user_id'],
+        )
+    ).first()
 
-    # create cursor
-    cur = mysql.connection.cursor()
-
-    # check if user voted
-    result = cur.execute('SELECT * FROM votes WHERE username = "{0}" AND post_id = "{1}" AND type = "comment"'.format(session['username'], id))
-
-
-    if result:
-        cur.execute('UPDATE comments SET votes = votes - 1 WHERE id = "{0}"'.format(id))
-        cur.execute('DELETE FROM votes WHERE username = "{0}" AND post_id = "{1}" AND type = "comment"'.format(session['username'], id))
+    if result is not None:
+        comment = Comment.query.get(comment_id)
+        comment.votes_count -= 1
+        db.session.add(comment)
+        vote = Vote.query.filter(
+            and_(
+                Vote.author_id == session['user_id'],
+                Vote.comment_id == comment_id
+            )
+        ).first()
+        db.session.delete(vote)
+        db.session.commit()
     else:
         error = 'Du har ikke stemt endnu'
         return render_template('index.html', error=error)
-
-    mysql.connection.commit()
-    cur.close()
 
     return redirect("/phase2/post/{0}".format(post_id))
 
