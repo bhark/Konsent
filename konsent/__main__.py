@@ -474,16 +474,16 @@ def veto(post_id):
 @app.route('/completed')
 @is_logged_in
 def completed():
-    # create cursor and find posts
-    cur = mysql.connection.cursor()
+    # Find posts
+    posts = Post.query.filter(
+        and_(
+            Post.phase == 4,
+            Post.union_id == session['connected_union'],
+            Post.vetoed_by_id == None
+        )
+    ).all()
 
-    result = cur.execute('SELECT * FROM posts WHERE phase = "4" AND belongs_to_union = "{0}" AND vetoed_by IS NULL'.format(session['connected_union']))
-    posts = cur.fetchall()
-
-    if result:
-        for post in posts:
-            post = assign_time_values(post)
-
+    if len(posts):
         return render_template('completed.html', posts=posts)
     else:
         return render_template('completed.html', msg=NO_RESULTS_ERROR)
