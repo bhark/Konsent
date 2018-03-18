@@ -234,24 +234,21 @@ def post3(post_id):
 
 
 # view a single solution that's been confirmed (phase 4)
-@app.route('/completed/post/<string:id>', methods=['GET'])
+@app.route('/completed/post/<int:post_id>', methods=['GET'])
 @is_logged_in
-def post_completed(id):
-
-    # create cursor
-    cur = mysql.connection.cursor()
-
+def post_completed(post_id):
     # find posts
-    result = cur.execute('SELECT * FROM posts WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(id, session['connected_union']))
-    post = cur.fetchone()
+    post = Post.query.get(post_id)
+    # TODO: Check that the post is in the correct Union, return a
+    # proper error if not
+    if post.union_id != session['connected_union']:
+        post = None
 
-    cur.close()
-
-    return render_template('post.html', post=post, comments=list_comments(id, session['username']), phase=4)
+    return render_template('post.html', post=post, comments=list_comments(post_id, session['username']), phase=4)
 
 
 # user registration
-@app.route('/register', methods = ['GET', 'POST'])
+@app.route('/register', methods=['GET', 'POST'])
 @is_not_logged_in
 def register():
     form = RegisterForm(request.form)
