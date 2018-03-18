@@ -202,7 +202,7 @@ def post2(post_id):
     if request.method == 'POST' and form.validate():
         body = form.body.data
         author = session['user_id']
-        comment = Comment(post_id, author, body)
+        comment = Comment(post_id, author, body, author_name=session['name'])
         db.session.add(comment)
         db.session.commit()
 
@@ -548,6 +548,7 @@ def list_unions():
 # find solution proposals for a certain post
 def list_comments(post_id, username):
     post = Post.query.get(int(post_id))
+    author = User.query.filter(User.username == username).one()
 
     # find all comments in database belonging to this specific post
     comments = sorted(post.comments, key=lambda x: x.votes_count)
@@ -561,9 +562,9 @@ def list_comments(post_id, username):
             'votes': c.votes_count,
             'id': c.id}
         comment['voted'] = Vote.query.filter(and_(
-            Vote.author.name == username,
+            Vote.author_id == username,
             Vote.comment_id == c.id
-        )).exist()
+        )).count() > 0
         result.append(comment)
 
     return result
