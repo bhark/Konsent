@@ -221,9 +221,6 @@ def post2(post_id):
 @is_logged_in
 def post3(post_id):
 
-    # create cursor
-    cur = mysql.connection.cursor()
-
     # find issues
     post = Post.query.get(post_id)
     # TODO: Check that the post is in the correct Union, return a
