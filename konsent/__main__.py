@@ -534,20 +534,13 @@ def update_phases():
 
 # list unions for use somewhere else
 def list_unions():
-    # create cursor
-    cur = mysql.connection.cursor()
-
     # find all unions in database
-    unions = cur.execute('SELECT union_name FROM unions')
+    unions = Union.query.all()
 
     # add unions to tuple
-    i = 0
     result = []
-    while unions > i:
-        data = cur.fetchone()
-        _union = data['union_name']
-        result.append((_union,_union))
-        i+=1
+    for union in unions:
+        result.append((union.union_name, union.union_name))
     return result
 
 
