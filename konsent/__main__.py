@@ -546,53 +546,34 @@ def list_unions():
 
 # find solution proposals for a certain post
 def list_comments(post_id, username):
-    # create cursor
-    cur = mysql.connection.cursor()
-    _cur = mysql.connection.cursor()
+    post = Post.query.get(int(post_id))
 
     # find all comments in database belonging to this specific post
-    comments = cur.execute('SELECT * FROM comments WHERE post_id = "{0}" ORDER BY votes DESC'.format(post_id))
+    comments = sorted(post.comments, key=lambda x: x.votes_count)
 
     # make a tuple with the result
-    i = 0
     result = []
-    while comments > i:
-        data = cur.fetchone()
-        comment = {'author':data['author'], 'body':data['body'], 'votes':data['votes'], 'id':data['id']}
+    for c in comments:
+        comment = {
+            'author': c.author.name,
+            'body': c.body,
+            'votes': c.votes_count,
+            'id': c.id}
+        comment['voted'] = Vote.query.filter(and_(
+            Vote.author.name == username,
+            Vote.comment_id == c.id
+        )).exist()
         result.append(comment)
-
-        # se om brugeren har stemt
-        voted_on = _cur.execute('SELECT * FROM votes WHERE post_id = "{0}" AND username = "{1}" AND type = "comment"'.format(data['id'], username))
-        _cur.fetchone()
-        if voted_on:
-            comment['voted'] = True
-        else:
-            comment['voted'] = False
-
-        i+=1
-
-    i = 0
 
     return result
 
 
 # list unions for pretty-printing
 def print_unions():
-    # create cursor
-    cur = mysql.connection.cursor()
-
     # find all unions in database
-    unions = cur.execute('SELECT union_name FROM unions')
+    unions = Union.qeury.all()
 
-    # make a neat little tuple with the result
-    i = 0
-    result = []
-    while unions > i:
-        data = cur.fetchone()
-        _union = data['union_name']
-        result.append(_union)
-        i+=1
-    return result
+    return [u.union_name for u in unions]
 
 class BaseForm(Form):
     class Meta:
