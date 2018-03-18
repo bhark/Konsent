@@ -125,13 +125,13 @@ def phase3():
 
 
 # single post, phase 1
-@app.route('/phase1/post/<string:id>', methods=['GET', 'POST'])
+@app.route('/phase1/post/<int:post_id>', methods=['GET', 'POST'])
 @is_logged_in
-def post1(id):
+def post1(post_id):
     form = UpvoteForm(request.form, meta={'csrf_context': session})
     post_data = {}
     # find posts
-    post = Post.query.get(id)
+    post = Post.query.get(post_id)
     voted = False
     # check if user already voted
     vote = Vote.query.filter(
