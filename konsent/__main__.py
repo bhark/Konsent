@@ -15,6 +15,7 @@ from models import User, Union, Post, Vote, Comment
 from datetime import timedelta
 import hashlib
 from models import db
+from sys import argv
 
 # CURRENT VERSION: 0.2a
 # config
@@ -627,4 +628,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    if len(argv) > 1 and argv[1] == 'createdb':
+        app.app_context().push()
+        db.create_all()
+    else:
+        main()
