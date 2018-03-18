@@ -1,14 +1,10 @@
 # coding=iso-8859-1
-from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
-from flask_mysqldb import MySQL
-from functools import wraps
 from sqlalchemy import and_
 import datetime
 from flask import Flask, g, render_template, flash, redirect, url_for, session, logging, request
 from wtforms.csrf.core import CSRF
 from wtforms.csrf.session import SessionCSRF
 from wtforms import Form, StringField, TextAreaField, PasswordField, SelectField, HiddenField, SubmitField, BooleanField, validators
-from passlib.hash import sha256_crypt
 from functools import wraps
 import datetime
 from models import User, Union, Post, Vote, Comment
@@ -31,8 +27,6 @@ app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'konsent'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
-
-mysql = MySQL(app)
 
 
 # index
@@ -449,9 +443,6 @@ def veto(post_id):
     form = VetoForm(request.form, meta={'csrf_context': session})
 
     if request.method == 'POST' and form.validate():
-        # create cursor
-        cur = mysql.connection.cursor()
-
         # find and update post
         post = Post.query.get(post_id)
         if post.phase != 3:
