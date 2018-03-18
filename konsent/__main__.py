@@ -551,7 +551,7 @@ def list_comments(post_id, username):
     author = User.query.filter(User.username == username).one()
 
     # find all comments in database belonging to this specific post
-    comments = sorted(post.comments, key=lambda x: x.votes_count)
+    comments = sorted(post.comments, reverse=True, key=lambda x: x.votes_count)
 
     # make a tuple with the result
     result = []
