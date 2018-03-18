@@ -548,7 +548,7 @@ def list_unions():
 # find solution proposals for a certain post
 def list_comments(post_id, username):
     post = Post.query.get(int(post_id))
-    author = User.query.filter(User.username == username).one()
+    user = User.query.filter(User.username == username).one()
 
     # find all comments in database belonging to this specific post
     comments = sorted(post.comments, reverse=True, key=lambda x: x.votes_count)
@@ -561,10 +561,11 @@ def list_comments(post_id, username):
             'body': c.body,
             'votes': c.votes_count,
             'id': c.id}
-        comment['voted'] = Vote.query.filter(and_(
-            Vote.author_id == username,
+        user_voted = Vote.query.filter(and_(
+            Vote.author_id == user.id,
             Vote.comment_id == c.id
-        )).count() > 0
+        )).count()
+        comment['voted'] = user_voted > 0
         result.append(comment)
 
     return result
