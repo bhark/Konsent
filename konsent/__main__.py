@@ -193,7 +193,7 @@ def post1(id):
 
 
 # single post, phase 2
-@app.route('/phase2/post/<string:post_id>', methods=['GET', 'POST'])
+@app.route('/phase2/post/<int:post_id>', methods=['GET', 'POST'])
 @is_logged_in
 def post2(post_id):
     form = CommentForm(request.form, meta={'csrf_context': session})
@@ -216,21 +216,21 @@ def post2(post_id):
 
 
 # single post, phase 3
-@app.route('/phase3/post/<string:id>')
+@app.route('/phase3/post/<int:post_id>')
 @is_logged_in
-def post3(id):
+def post3(post_id):
 
     # create cursor
     cur = mysql.connection.cursor()
 
     # find issues
-    result = cur.execute('SELECT * FROM posts WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(id, session['connected_union']))
+    post = Post.query.get(post_id)
+    # TODO: Check that the post is in the correct Union, return a
+    # proper error if not
+    if post.union_id != session['connected_union']:
+        post = None
 
-    post = cur.fetchone()
-
-    cur.close()
-
-    return render_template('post.html', post=post, comments=list_comments(id, session['username']), phase=3)
+    return render_template('post.html', post=post, comments=list_comments(post_id, session['username']), phase=3)
 
 
 # view a single solution that's been confirmed (phase 4)
