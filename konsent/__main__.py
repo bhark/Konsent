@@ -430,20 +430,23 @@ def vetoed():
 
     update_phases()
 
-    cur = mysql.connection.cursor()
-    result = cur.execute('SELECT * FROM posts WHERE vetoed_by IS NOT NULL AND belongs_to_union = "{0}"'.format(session['connected_union']))
-    posts = cur.fetchall()
+    posts = Post.query.filter(
+        and_(
+            Post.union_id == session['connected_union'],
+            Post.vetoed_by_id != None
+        )
+    ).all()
 
-    if result:
+    if len(posts):
         return render_template('vetoed.html', posts=posts)
     else:
         return render_template('vetoed.html', msg=NO_RESULTS_ERROR)
 
 
 # veto a solution
-@app.route('/veto/<string:id>', methods=['GET', 'POST'])
+@app.route('/veto/<int:post_id>', methods=['GET', 'POST'])
 @is_logged_in
-def veto(id):
+def veto(post_id):
 
     form = VetoForm(request.form, meta={'csrf_context': session})
 
@@ -452,16 +455,19 @@ def veto(id):
         cur = mysql.connection.cursor()
 
         # find and update post
-        cur.execute('UPDATE posts SET vetoed_by = "{0}" WHERE id = "{1}" AND phase = 3'.format(session['name'], id))
+        post = Post.query.get(post_id)
+        if post.phase != 3:
+            post = None
+        post.vetoed_by_id = session['user_id']
 
         # commit to database and close connection
-        mysql.connection.commit()
-        cur.close()
+        db.session.add(post)
+        db.session.commit()
 
         msg = 'Youve successfully blocked the solution'
         return redirect(url_for("vetoed"))
 
-    return render_template('veto.html', id=id, form=form)
+    return render_template('veto.html', id=post_id, form=form)
 
 
 # finished solutions
