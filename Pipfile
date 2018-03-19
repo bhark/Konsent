@@ -15,6 +15,7 @@ passlib = "*"
 
 [dev-packages]
 
+pytest-watch = "*"
 
 
 [requires]

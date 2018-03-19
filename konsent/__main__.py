@@ -1,4 +1,5 @@
 # coding=iso-8859-1
+import argparse
 from functools import wraps
 import datetime
 from flask import Flask, g, render_template, flash, redirect, url_for, session, logging, request
@@ -18,12 +19,6 @@ REQUIRED_VOTES_DIVISOR = 2 # number of members in the union divided by this numb
 NO_RESULTS_ERROR = 'Nothing to show.'
 
 app = Flask(__name__)
-app.config['MYSQL_HOST'] = '127.0.0.1'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
-app.config['MYSQL_DB'] = 'konsent'
-app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
-
 mysql = MySQL(app)
 
 
@@ -680,6 +675,20 @@ class VetoForm(BaseForm):
     veto = BooleanField('') # this field is hidden, and is true by default
 
 def main():
+    parser = argparse.ArgumentParser(description='Konsent')
+    parser.add_argument('-d', '--database', default='konsent',
+                        help='Database name')
+    parser.add_argument('-u', '--user', default='root',
+                        help='Database username')
+    parser.add_argument('-p', '--password', default='',
+                        help='Database password')
+    args = parser.parse_args()
+
+    app.config['MYSQL_HOST'] = '127.0.0.1'
+    app.config['MYSQL_USER'] = args.user
+    app.config['MYSQL_PASSWORD'] = args.password
+    app.config['MYSQL_DB'] = args.database
+    app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
     app.secret_key = 'Ka,SkqNs//'
     app.run(debug=True)
 
