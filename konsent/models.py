@@ -109,9 +109,9 @@ class User(db.Model):
         self.union = union
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Unicode(length=255), nullable=False)
+    name = db.Column(db.Unicode(length=191), nullable=False)
     password = db.Column(db.String(length=255), nullable=False)
-    username = db.Column(db.Unicode(length=255), nullable=False, unique=True)
+    username = db.Column(db.Unicode(length=191), nullable=False, unique=True)
     authority = db.Column(db.Integer, default=0)
     # relationships
     union_id = db.Column(db.Integer, db.ForeignKey('unions.id'), nullable=False)
