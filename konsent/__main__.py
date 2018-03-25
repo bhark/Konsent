@@ -1,5 +1,7 @@
 # coding=iso-8859-1
 from sqlalchemy import and_
+import argparse
+from functools import wraps
 import datetime
 from flask import Flask, g, render_template, flash, redirect, url_for, session, logging, request
 from wtforms.csrf.core import CSRF
@@ -20,13 +22,6 @@ REQUIRED_VOTES_DIVISOR = 2 # number of members in the union divided by this numb
 NO_RESULTS_ERROR = 'Nothing to show.'
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root@127.0.0.1/konsent'
-db.init_app(app)
-app.config['MYSQL_HOST'] = '127.0.0.1'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
-app.config['MYSQL_DB'] = 'konsent'
-app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 
 # index
@@ -613,13 +608,35 @@ class VetoForm(BaseForm):
     veto = BooleanField('') # this field is hidden, and is true by default
 
 def main():
+    parser = argparse.ArgumentParser(description='Konsent')
+    parser.add_argument('action', default='runserver')
+    parser.add_argument('-d', '--database', default='konsent',
+                        help='Database name')
+    parser.add_argument('-h', '--database-host', default='127.0.0.1',
+                        help='Database host')
+    parser.add_argument('-u', '--user', default='root',
+                        help='Database username')
+    parser.add_argument('-p', '--password', default='',
+                        help='Database password')
+    args = parser.parse_args()
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://{username}{sep}{password}@{host}/{database}'.format(
+        host=args.database_host,
+        username=args.user,
+        sep=':' if len(args.password) else '',
+        password=args.password,
+        database=args.database
+    )
+
     app.secret_key = 'Ka,SkqNs//'
-    app.run(debug=True)
+    db.init_app(app)
+
+    if args.action == 'runserver':
+        app.run(debug=True)
+    elif args.action == 'createdb':
+        app.app_context().push()
+        db.create_all()
 
 
 if __name__ == '__main__':
-    if len(argv) > 1 and argv[1] == 'createdb':
-        app.app_context().push()
-        db.create_all()
-    else:
-        main()
+    main()
