@@ -557,7 +557,7 @@ def list_comments(post_id, username):
 # list unions for pretty-printing
 def print_unions():
     # find all unions in database
-    unions = Union.qeury.all()
+    unions = Union.query.all()
 
     return [u.union_name for u in unions]
 
