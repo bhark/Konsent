@@ -152,16 +152,13 @@ def post1(post_id):
             # redirect user
             return redirect(url_for('phase1'))
 
-        # if user hasnt already voted, count his vote
+        # if user hasn't already voted, count his vote
         else:
             # increment vote value
             post.votes_count += 1
             # count that this user has now voted
-            vote = Vote()
-            vote.author_id = session['user_id']
-            vote.post = post
+            vote = Vote(session['user_id'], post)
             db.session.add(vote)
-
             # count union members
             union_members = Union.query.filter(Union.id == session['connected_union']).count()
 

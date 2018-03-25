@@ -136,9 +136,9 @@ class Vote(db.Model):
             self.post = Post
         elif isinstance(target, Comment):
             self.comment = target
-        elif target_type == "post":
+        elif target_type == 'post':
             self.post_id = target
-        elif target_type == "comment":
+        elif target_type == 'comment':
             self.comment_id = target
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
