@@ -609,7 +609,7 @@ def main():
     parser.add_argument('action', default='runserver')
     parser.add_argument('-d', '--database', default='konsent',
                         help='Database name')
-    parser.add_argument('-h', '--database-host', default='127.0.0.1',
+    parser.add_argument('-H', '--database-host', default='127.0.0.1',
                         help='Database host')
     parser.add_argument('-u', '--user', default='root',
                         help='Database username')
