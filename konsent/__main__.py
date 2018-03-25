@@ -1,16 +1,19 @@
 # coding=iso-8859-1
+from sqlalchemy import and_
 import argparse
 from functools import wraps
 import datetime
 from flask import Flask, g, render_template, flash, redirect, url_for, session, logging, request
-from flask_mysqldb import MySQL
 from wtforms.csrf.core import CSRF
 from wtforms.csrf.session import SessionCSRF
 from wtforms import Form, StringField, TextAreaField, PasswordField, SelectField, HiddenField, SubmitField, BooleanField, validators
 from functools import wraps
 import datetime
+from models import User, Union, Post, Vote, Comment
 from datetime import timedelta
 import hashlib
+from models import db
+from sys import argv
 
 # CURRENT VERSION: 0.2a
 # config
@@ -19,7 +22,6 @@ REQUIRED_VOTES_DIVISOR = 2 # number of members in the union divided by this numb
 NO_RESULTS_ERROR = 'Nothing to show.'
 
 app = Flask(__name__)
-mysql = MySQL(app)
 
 
 # index
@@ -59,18 +61,13 @@ def phase1():
 
     update_phases()
 
-    # create cursor
-    cur = mysql.connection.cursor()
+    posts = Post.query.filter(
+        Post.union_id == session['connected_union']
+        ).filter(
+        Post.phase == 1
+    ).all()
 
-    # find post
-    result = cur.execute('SELECT * FROM posts WHERE belongs_to_union = "%s" AND phase = "1"' % session['connected_union'])
-    posts = cur.fetchall()
-    # close connection to database
-    cur.close()
-
-    if result:
-        for post in posts:
-            post = assign_time_values(post)
+    if len(posts):
         return render_template('phase1.html', posts=posts)
     else:
         return render_template('phase1.html', msg=NO_RESULTS_ERROR)
@@ -83,20 +80,13 @@ def phase2():
 
     update_phases()
 
-    # create cursor
-    cur = mysql.connection.cursor()
-
-
     # find posts
-    result = cur.execute('SELECT * FROM posts WHERE belongs_to_union = "{0}" AND phase = "2"'.format(session['connected_union']))
-    posts = cur.fetchall()
+    posts = Post.query.filter(
+        and_(
+            Post.union_id == session['connected_union'],
+            Post.phase == 2)).all()
 
-
-    if result:
-        for post in posts:
-            post = assign_time_values(post)
-        cur.close()
-
+    if len(posts):
         return render_template('phase2.html', posts=posts)
     else:
         return render_template('phase2.html', msg=NO_RESULTS_ERROR)
@@ -109,153 +99,140 @@ def phase3():
 
     update_phases()
 
-    # create cursor
-    cur = mysql.connection.cursor()
-
     # find posts
-    result = cur.execute('SELECT * FROM posts WHERE belongs_to_union = "{0}" AND phase = 3 AND vetoed_by IS NULL'.format(session['connected_union']))
-    posts = cur.fetchall()
+    posts = Post.query.filter(
+        and_(
+            Post.union_id == session['connected_union'],
+            Post.phase == 3,
+            Post.vetoed_by == None
+            )).all()
 
-    if result:
-        for post in posts:
-            post = assign_time_values(post)
-        cur.close()
+    if len(posts):
         return render_template('phase3.html', posts=posts)
     else:
         return render_template('phase3.html', msg=NO_RESULTS_ERROR)
 
 
 # single post, phase 1
-@app.route('/phase1/post/<string:id>', methods=['GET', 'POST'])
+@app.route('/phase1/post/<int:post_id>', methods=['GET', 'POST'])
 @is_logged_in
-def post1(id):
+def post1(post_id):
     form = UpvoteForm(request.form, meta={'csrf_context': session})
-
-    # create cursor
-    cur = mysql.connection.cursor()
-
+    post_data = {}
     # find posts
-    result = cur.execute('SELECT * FROM posts WHERE id = %s', [id])
-    post = cur.fetchone()
-
+    post = Post.query.get(post_id)
+    voted = False
     # check if user already voted
-    result = cur.execute('SELECT * FROM votes WHERE username = "{0}" AND post_id = "{1}" AND type = "post"'.format(session['username'], id))
-    post['voted'] = bool(result)
+    vote = Vote.query.filter(
+        and_(
+            Vote.author_id == session["user_id"],
+            Vote.post == post)
+        ).first()
+    if vote is not None:
+        voted = True
+    post_data['voted'] = voted
 
     # count total votes
-    result = cur.execute('SELECT votes FROM posts WHERE id = "{0}"'.format(id))
-    data = cur.fetchone()
-    post['votes'] = data['votes']
+    post_data['votes'] = len(post.votes)
 
     # if user submitted a vote request
     if request.method == 'POST' and form.validate():
 
         # if user has already voted, remove his vote
-        if post['voted']:
+        if post_data['voted']:
             # decrement vote value
-            cur.execute('UPDATE posts SET votes = votes - 1 WHERE id = "{0}"'.format(id))
+            post.votes_count -= 1
             # delete relevant entry in votes
-            cur.execute('DELETE FROM votes WHERE username = "{0}" AND post_id = "{1}"'.format(session['username'], id))
+            db.session.delete(vote)
 
             # commit to database
-            mysql.connection.commit()
+            db.session.add(post)
+            db.session.commit()
 
             # redirect user
             return redirect(url_for('phase1'))
 
-        # if user hasnt already voted, count his vote
+        # if user hasn't already voted, count his vote
         else:
             # increment vote value
-            cur.execute('UPDATE posts SET votes = votes + 1 WHERE id = "{0}"'.format(id))
+            post.votes_count += 1
             # count that this user has now voted
-            cur.execute('INSERT INTO votes(username, post_id) VALUES("{0}", "{1}")'.format(session['username'], id))
-
+            vote = Vote(session['user_id'], post)
+            db.session.add(vote)
             # count union members
-            result = cur.execute('SELECT COUNT(*) AS "count" FROM users WHERE connected_union = "{0}"'.format(session['connected_union']))
-            union_members = cur.fetchone()
+            union_members = Union.query.filter(Union.id == session['connected_union']).count()
 
             # if enough union members have voted, move this post to phase 2
-            if post['votes'] >= union_members['count']/REQUIRED_VOTES_DIVISOR:
+            if post_data['votes'] >= union_members/REQUIRED_VOTES_DIVISOR:
                 # reset create_date
-                cur.execute('UPDATE posts SET create_date = NOW() WHERE id = "{0}"'.format(id))
+                post.create_date = datetime.datetime.now()
                 # increment phase value
-                cur.execute('UPDATE posts SET phase = phase + 1 WHERE id = "{0}"'.format(id))
+                post.phase += 1
 
             # commit changes to database
-            mysql.connection.commit()
+            db.session.add(post)
+            db.session.commit()
 
             # redirect user
             return redirect(url_for('phase1'))
 
-
-
-    cur.close()
-
-    return render_template('post.html', post=post, phase=1, form=form)
+    return render_template('post.html', post_data=post_data, post=post, phase=1, form=form)
 
 
 # single post, phase 2
-@app.route('/phase2/post/<string:id>', methods=['GET', 'POST'])
+@app.route('/phase2/post/<int:post_id>', methods=['GET', 'POST'])
 @is_logged_in
-def post2(id):
+def post2(post_id):
     form = CommentForm(request.form, meta={'csrf_context': session})
-
-    # create cursor
-    cur = mysql.connection.cursor()
 
     if request.method == 'POST' and form.validate():
         body = form.body.data
-        author = session['name']
-        cur.execute('INSERT INTO comments(body, author, post_id) VALUES("{0}", "{1}", "{2}")'.format(body, author, id))
-        mysql.connection.commit()
+        author = session['user_id']
+        comment = Comment(post_id, author, body, author_name=session['name'])
+        db.session.add(comment)
+        db.session.commit()
 
     # find posts
-    cur.execute('SELECT * FROM posts WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(id, session['connected_union']))
+    post = Post.query.get(post_id)
+    # TODO: Check that the post is in the correct Union, return a
+    # proper error if not
+    if post.union_id != session['connected_union']:
+        post = None
 
-    post = cur.fetchone()
-
-    cur.close()
-
-    return render_template('post.html', post=post, form=form, comments=list_comments(id, session['username']), phase=2)
+    return render_template('post.html', post=post, form=form, comments=list_comments(post_id, session['username']), phase=2)
 
 
 # single post, phase 3
-@app.route('/phase3/post/<string:id>')
+@app.route('/phase3/post/<int:post_id>')
 @is_logged_in
-def post3(id):
-
-    # create cursor
-    cur = mysql.connection.cursor()
+def post3(post_id):
 
     # find issues
-    result = cur.execute('SELECT * FROM posts WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(id, session['connected_union']))
+    post = Post.query.get(post_id)
+    # TODO: Check that the post is in the correct Union, return a
+    # proper error if not
+    if post.union_id != session['connected_union']:
+        post = None
 
-    post = cur.fetchone()
-
-    cur.close()
-
-    return render_template('post.html', post=post, comments=list_comments(id, session['username']), phase=3)
+    return render_template('post.html', post=post, comments=list_comments(post_id, session['username']), phase=3)
 
 
 # view a single solution that's been confirmed (phase 4)
-@app.route('/completed/post/<string:id>', methods=['GET'])
+@app.route('/completed/post/<int:post_id>', methods=['GET'])
 @is_logged_in
-def post_completed(id):
-
-    # create cursor
-    cur = mysql.connection.cursor()
-
+def post_completed(post_id):
     # find posts
-    result = cur.execute('SELECT * FROM posts WHERE id = "{0}" AND belongs_to_union = "{1}"'.format(id, session['connected_union']))
-    post = cur.fetchone()
+    post = Post.query.get(post_id)
+    # TODO: Check that the post is in the correct Union, return a
+    # proper error if not
+    if post.union_id != session['connected_union']:
+        post = None
 
-    cur.close()
-
-    return render_template('post.html', post=post, comments=list_comments(id, session['username']), phase=4)
+    return render_template('post.html', post=post, comments=list_comments(post_id, session['username']), phase=4)
 
 
 # user registration
-@app.route('/register', methods = ['GET', 'POST'])
+@app.route('/register', methods=['GET', 'POST'])
 @is_not_logged_in
 def register():
     form = RegisterForm(request.form)
@@ -264,28 +241,21 @@ def register():
         name = form.name.data
         username = form.username.data
         users_union = form.users_union.data
-        password = hashlib.sha256(str(form.password.data).encode('utf-8')).hexdigest()
+        password = form.password.data
 
         union_password_candidate = form.union_password.data
 
-        # create cursor
-        cur = mysql.connection.cursor()
-
         # find union
-        result = cur.execute('SELECT * FROM unions WHERE union_name = "{0}"'.format(users_union))
+        union = Union.query.filter(Union.union_name == users_union).first()
+        print(union)
 
-        if result:
-            # find saved hash
-            data = cur.fetchone()
-            union_password = data['password']
-
-            if hashlib.sha256(union_password_candidate.encode('utf-8')).hexdigest() == union_password:
+        if union is not None:
+            if union.check_password(union_password_candidate):
                 # password matches hash
-                cur.execute('INSERT INTO users(name, username, connected_union, password) VALUES(%s, %s, %s, %s)', (name, username, users_union, password))
+                user = User(username, password, name, union)
                 # send to database
-                mysql.connection.commit()
-                # close connection
-                cur.close()
+                db.session.add(user)
+                db.session.commit()
                 # redirect user
                 msg = 'Youre now signed up and can login.'
                 return render_template('login.html', msg=msg)
@@ -306,18 +276,12 @@ def register_union():
     form = RegisterUnionForm(request.form)
     if request.method == 'POST':
         union_name = form.union_name.data
-        password = hashlib.sha256(str(form.password.data).encode('utf-8')).hexdigest()
+        password = form.password.data
 
-        # create cursor
-        cur = mysql.connection.cursor()
-
-        cur.execute('INSERT INTO unions(union_name, password) VALUES("{0}", "{1}")'.format(union_name, password))
-
+        union = Union(union_name, password)
+        db.session.add(union)
         # commit to database
-        mysql.connection.commit()
-
-        # close connection
-        cur.close()
+        db.session.commit()
 
         msg = 'Your union is now registered, and can be accessed by other users'
         return render_template('index.html', msg=msg)
@@ -333,34 +297,26 @@ def login():
         username = request.form['username']
         password_candidate = request.form['password']
 
-        # create cursor
-        cur = mysql.connection.cursor()
-
         # find user in database using submitted username
-        result = cur.execute('SELECT * FROM users WHERE username = %s', [username])
+        user = User.query.filter(User.username == username).first()
 
-        if result > 0:
-            # find saved hash
-            data = cur.fetchone()
-            password = data['password']
-            name = data['name']
-            username = data['username']
-            connected_union = data['connected_union']
+        if user is not None:
+            connected_union_name = user.union.union_name
+            connected_union = user.union.id
 
             # compare password to hash
-            if hashlib.sha256(password_candidate.encode('utf-8')).hexdigest() == password:
+            if user.check_password(password_candidate):
                 # that's a match, set session variables
                 session['logged_in'] = True
-                session['name'] = name
+                session['name'] = user.name
                 session['username'] = username
+                session['user_id'] = user.id
                 session['connected_union'] = connected_union
                 flash('Youve been logged in.', 'success')
                 return redirect(url_for('index'))
             else:
                 error = 'Wrong password'
                 return render_template('login.html', error=error)
-            # luk forbindelsen
-            cur.close()
         else:
             error = 'This user doesnt exist'
             return render_template('login.html', error=error)
@@ -368,50 +324,58 @@ def login():
     return render_template('login.html')
 
 
-
-
 # vote on comment
-@app.route('/post/vote/<string:id>/<string:post_id>')
-def vote_comment(id, post_id):
-
-    # create cursor
-    cur = mysql.connection.cursor()
+@app.route('/post/vote/<int:comment_id>/<int:post_id>')
+def vote_comment(comment_id, post_id):
 
     # check if user already voted
-    result = cur.execute('SELECT * FROM votes WHERE username = "{0}" AND post_id = "{1}" AND type = "comment"'.format(session['username'], id))
+    result = Vote.query.filter(
+        and_(
+            Vote.comment_id == comment_id,
+            Vote.author_id == session['user_id'],
+        )
+    ).first()
 
-    if result:
-        error = 'Youve already voted.'
+    if result is not None:
+        error = 'You\'ve already voted.'
         return render_template('index.html', error=error)
     else:
-        data = cur.execute('UPDATE comments SET votes = votes + 1 WHERE id = "{0}"'.format(id))
-        cur.execute('INSERT INTO votes(username, post_id, type) VALUES("{0}", "{1}", "comment")'.format(session['username'], id))
-
-    mysql.connection.commit()
-    cur.close()
+        comment = Comment.query.get(comment_id)
+        comment.votes_count += 1
+        db.session.add(comment)
+        vote = Vote(session['user_id'], comment)
+        db.session.add(vote)
+        db.session.commit()
 
     return redirect("/phase2/post/{0}".format(post_id))
 
+
 # remove vote on comments
-@app.route('/post/unvote/<string:id>/<string:post_id>')
-def unvote_comment(id, post_id):
+@app.route('/post/unvote/<int:comment_id>/<int:post_id>')
+def unvote_comment(comment_id, post_id):
+    # check if user already voted
+    result = Vote.query.filter(
+        and_(
+            Vote.comment_id == comment_id,
+            Vote.author_id == session['user_id'],
+        )
+    ).first()
 
-    # create cursor
-    cur = mysql.connection.cursor()
-
-    # check if user voted
-    result = cur.execute('SELECT * FROM votes WHERE username = "{0}" AND post_id = "{1}" AND type = "comment"'.format(session['username'], id))
-
-
-    if result:
-        cur.execute('UPDATE comments SET votes = votes - 1 WHERE id = "{0}"'.format(id))
-        cur.execute('DELETE FROM votes WHERE username = "{0}" AND post_id = "{1}" AND type = "comment"'.format(session['username'], id))
+    if result is not None:
+        comment = Comment.query.get(comment_id)
+        comment.votes_count -= 1
+        db.session.add(comment)
+        vote = Vote.query.filter(
+            and_(
+                Vote.author_id == session['user_id'],
+                Vote.comment_id == comment_id
+            )
+        ).first()
+        db.session.delete(vote)
+        db.session.commit()
     else:
         error = 'Du har ikke stemt endnu'
         return render_template('index.html', error=error)
-
-    mysql.connection.commit()
-    cur.close()
 
     return redirect("/phase2/post/{0}".format(post_id))
 
@@ -433,15 +397,10 @@ def new_post():
         title = form.title.data
         body = form.body.data
 
-        # create cursor
-        cur = mysql.connection.cursor()
-
         # FIRE THE CANNONS, COMRADES!!!
-        cur.execute('INSERT INTO posts(title, body, author, belongs_to_union) VALUES(%s, %s, %s, %s)', (title, body, session['name'], session['connected_union']))
-
-        # commit to database and close connection
-        mysql.connection.commit()
-        cur.close()
+        post = Post(title, body, session["connected_union"], session["user_id"])
+        db.session.add(post)
+        db.session.commit()
 
         flash('Your post have been published', 'success')
         return redirect(url_for('phase1'))
@@ -455,54 +414,57 @@ def vetoed():
 
     update_phases()
 
-    cur = mysql.connection.cursor()
-    result = cur.execute('SELECT * FROM posts WHERE vetoed_by IS NOT NULL AND belongs_to_union = "{0}"'.format(session['connected_union']))
-    posts = cur.fetchall()
+    posts = Post.query.filter(
+        and_(
+            Post.union_id == session['connected_union'],
+            Post.vetoed_by_id != None
+        )
+    ).all()
 
-    if result:
+    if len(posts):
         return render_template('vetoed.html', posts=posts)
     else:
         return render_template('vetoed.html', msg=NO_RESULTS_ERROR)
 
 
 # veto a solution
-@app.route('/veto/<string:id>', methods=['GET', 'POST'])
+@app.route('/veto/<int:post_id>', methods=['GET', 'POST'])
 @is_logged_in
-def veto(id):
+def veto(post_id):
 
     form = VetoForm(request.form, meta={'csrf_context': session})
 
     if request.method == 'POST' and form.validate():
-        # create cursor
-        cur = mysql.connection.cursor()
-
         # find and update post
-        cur.execute('UPDATE posts SET vetoed_by = "{0}" WHERE id = "{1}" AND phase = 3'.format(session['name'], id))
+        post = Post.query.get(post_id)
+        if post.phase != 3:
+            post = None
+        post.vetoed_by_id = session['user_id']
 
         # commit to database and close connection
-        mysql.connection.commit()
-        cur.close()
+        db.session.add(post)
+        db.session.commit()
 
         msg = 'Youve successfully blocked the solution'
         return redirect(url_for("vetoed"))
 
-    return render_template('veto.html', id=id, form=form)
+    return render_template('veto.html', id=post_id, form=form)
 
 
 # finished solutions
 @app.route('/completed')
 @is_logged_in
 def completed():
-    # create cursor and find posts
-    cur = mysql.connection.cursor()
+    # Find posts
+    posts = Post.query.filter(
+        and_(
+            Post.phase == 4,
+            Post.union_id == session['connected_union'],
+            Post.vetoed_by_id == None
+        )
+    ).all()
 
-    result = cur.execute('SELECT * FROM posts WHERE phase = "4" AND belongs_to_union = "{0}" AND vetoed_by IS NULL'.format(session['connected_union']))
-    posts = cur.fetchall()
-
-    if result:
-        for post in posts:
-            post = assign_time_values(post)
-
+    if len(posts):
         return render_template('completed.html', posts=posts)
     else:
         return render_template('completed.html', msg=NO_RESULTS_ERROR)
@@ -515,118 +477,86 @@ def about():
 
 # FUNCTIONS
 
-# assign "posted x minutes/hours ago" values
-def assign_time_values(post):
-    now = datetime.datetime.now()
-    create_date = post['create_date']
-    time_since = str(now - create_date)[:-10]
-    hours = int(time_since[:1])
-    minutes = time_since[2:4]
-    post['time_since_create_hours'] = hours
-    post['time_since_create_minutes'] = minutes
-    return post
 
 # move posts on to next phase if ready
 def update_phases():
-    # create cursor
-    cur = mysql.connection.cursor()
-
     # find all posts to be moved
-    cur.execute('SELECT * FROM posts WHERE belongs_to_union = "{0}" AND create_date < (NOW() - INTERVAL {1} MINUTE)'.format(session['connected_union'], RESTING_TIME))
-    posts = cur.fetchall()
+    posts = Post.query.filter(
+        Post.union_id == session['connected_union']
+    ).filter(
+        Post.create_date < datetime.datetime.now() - timedelta(minutes=RESTING_TIME)
+    ).all()
 
     for post in posts:
-
-        post_id = post['id']
-        post_phase = post['phase']
-
         # phase 2
-        if post_phase == 2:
-            try:
-                cur.execute('SELECT * FROM comments WHERE post_id = "{0}" ORDER BY votes DESC'.format( post_id ))
-                solution = cur.fetchone()
-                cur.execute('UPDATE posts SET create_date = NOW(), solution = "{0}", phase = 3 WHERE id = {1}'.format( solution['body'], post_id ))
-                app.logger.info('Moved post with id {0} from phase 2 to phase 3, with solution "{1}"'.format( post_id, solution['body'] ))
-            except TypeError:
-                cur.execute('UPDATE posts SET create_date = NOW() WHERE id = "{0}"'.format( post_id ))
-                app.logger.info('Post with id {0} didnt find a solution in time'.format( post_id ))
+        if post.phase == 2:
+            solution = Comment.query.filter(
+                Comment.post == post
+            ).order_by(
+                Comment.votes_count.desc()
+            ).first()
+            # update the post
+            if solution is not None:
+                post.solution = solution.body
+                post.phase = 3
+                app.logger.info('Moved post with id {0} from phase 2 to phase 3, with solution "{1}"'.format(post.id, solution.body))
+            else:
+                app.logger.info('Post with id {0} didnt find a solution in time'.format(post.id))
+            post.create_date = datetime.datetime.now()
+            db.session.add(post)
 
         # phase 3
-        elif post_phase == 3:
-            cur.execute('UPDATE posts SET create_date = NOW(), phase = 4 WHERE id = {0}'.format(post['id']))
-
-    mysql.connection.commit()
-    cur.close()
+        elif post.phase == 3:
+            post.create_date = datetime.datetime.now()
+            post.phase = 4
+            db.session.add(post)
+    db.session.commit()
 
 
 # list unions for use somewhere else
 def list_unions():
-    # create cursor
-    cur = mysql.connection.cursor()
-
     # find all unions in database
-    unions = cur.execute('SELECT union_name FROM unions')
+    unions = Union.query.all()
 
     # add unions to tuple
-    i = 0
     result = []
-    while unions > i:
-        data = cur.fetchone()
-        _union = data['union_name']
-        result.append((_union,_union))
-        i+=1
+    for union in unions:
+        result.append((union.union_name, union.union_name))
     return result
 
 
 # find solution proposals for a certain post
 def list_comments(post_id, username):
-    # create cursor
-    cur = mysql.connection.cursor()
-    _cur = mysql.connection.cursor()
+    post = Post.query.get(int(post_id))
+    user = User.query.filter(User.username == username).one()
 
     # find all comments in database belonging to this specific post
-    comments = cur.execute('SELECT * FROM comments WHERE post_id = "{0}" ORDER BY votes DESC'.format(post_id))
+    comments = sorted(post.comments, reverse=True, key=lambda x: x.votes_count)
 
     # make a tuple with the result
-    i = 0
     result = []
-    while comments > i:
-        data = cur.fetchone()
-        comment = {'author':data['author'], 'body':data['body'], 'votes':data['votes'], 'id':data['id']}
+    for c in comments:
+        comment = {
+            'author': c.author.name,
+            'body': c.body,
+            'votes': c.votes_count,
+            'id': c.id}
+        user_voted = Vote.query.filter(and_(
+            Vote.author_id == user.id,
+            Vote.comment_id == c.id
+        )).count()
+        comment['voted'] = user_voted > 0
         result.append(comment)
-
-        # se om brugeren har stemt
-        voted_on = _cur.execute('SELECT * FROM votes WHERE post_id = "{0}" AND username = "{1}" AND type = "comment"'.format(data['id'], username))
-        _cur.fetchone()
-        if voted_on:
-            comment['voted'] = True
-        else:
-            comment['voted'] = False
-
-        i+=1
-
-    i = 0
 
     return result
 
 
 # list unions for pretty-printing
 def print_unions():
-    # create cursor
-    cur = mysql.connection.cursor()
-
     # find all unions in database
-    unions = cur.execute('SELECT union_name FROM unions')
+    unions = Union.query.all()
 
-    # make a neat little tuple with the result
-    i = 0
-    result = []
-    while unions > i:
-        data = cur.fetchone()
-        _union = data['union_name']
-        result.append(_union)
-        i+=1
-    return result
+    return [u.union_name for u in unions]
 
 class BaseForm(Form):
     class Meta:
@@ -676,21 +606,33 @@ class VetoForm(BaseForm):
 
 def main():
     parser = argparse.ArgumentParser(description='Konsent')
+    parser.add_argument('action', default='runserver')
     parser.add_argument('-d', '--database', default='konsent',
                         help='Database name')
+    parser.add_argument('-H', '--database-host', default='127.0.0.1',
+                        help='Database host')
     parser.add_argument('-u', '--user', default='root',
                         help='Database username')
     parser.add_argument('-p', '--password', default='',
                         help='Database password')
     args = parser.parse_args()
 
-    app.config['MYSQL_HOST'] = '127.0.0.1'
-    app.config['MYSQL_USER'] = args.user
-    app.config['MYSQL_PASSWORD'] = args.password
-    app.config['MYSQL_DB'] = args.database
-    app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://{username}{sep}{password}@{host}/{database}'.format(
+        host=args.database_host,
+        username=args.user,
+        sep=':' if len(args.password) else '',
+        password=args.password,
+        database=args.database
+    )
+
     app.secret_key = 'Ka,SkqNs//'
-    app.run(debug=True)
+    db.init_app(app)
+
+    if args.action == 'runserver':
+        app.run(debug=True)
+    elif args.action == 'createdb':
+        app.app_context().push()
+        db.create_all()
 
 
 if __name__ == '__main__':
