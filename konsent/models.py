@@ -102,14 +102,12 @@ class Union(db.Model):
 class User(db.Model):
     __tablename__ = 'users'
 
-    def __init__(self, username, password, name, union):
-        self.name = name
+    def __init__(self, username, password, union):
         self.password = hashlib.sha256(str(password).encode('utf-8')).hexdigest()
         self.username = username
         self.union = union
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Unicode(length=191), nullable=False)
     password = db.Column(db.String(length=255), nullable=False)
     username = db.Column(db.Unicode(length=191), nullable=False, unique=True)
     authority = db.Column(db.Integer, default=0)
