@@ -4,7 +4,7 @@
   <h1 class="heading">Vetoed solutions</h1>
   <ul class="list-group">
     {% for post in posts %}
-      <li class="list-group-item"><a href="/phase3/post/{{post.id}}">{{post.title}}</a><span> - vetoed by {{ post.vetoed_by.name }}</span></li>
+      <li class="list-group-item"><a href="/phase3/post/{{post.id}}">{{post.title}}</a><span> - vetoed by {{ post.vetoed_by.username }}</span></li>
     {% endfor %}
   </ul>
 {% endblock %}

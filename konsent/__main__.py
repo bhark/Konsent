@@ -37,7 +37,7 @@ def is_logged_in(func):
         if 'logged_in' in session:
             return func(*args, **kwargs)
         else:
-            flash('Du har ikke adgang til dette område', 'danger')
+            flash('You dont have access to this area', 'danger')
             return redirect(url_for('index'))
     return wrap
 
@@ -49,7 +49,7 @@ def is_not_logged_in(f):
         if not 'logged_in' in session:
             return f(*args, **kwargs)
         else:
-            flash('Du er allerede logget ind', 'danger')
+            flash('Youre already logged in', 'danger')
             return redirect(url_for('index'))
     return wrap
 
