@@ -133,7 +133,7 @@ class Vote(db.Model):
         else:
             self.author_id = author
         if isinstance(target, Post):
-            self.post = Post
+            self.post = target
         elif isinstance(target, Comment):
             self.comment = target
         elif target_type == 'post':
