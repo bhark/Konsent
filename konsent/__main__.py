@@ -580,7 +580,8 @@ class RegisterForm(Form):
     username = StringField('Username', [validators.Length(min=4, max=50), validators.Regexp("^[a-zA-Z0-9-_]+$", message='Username may only contain alphanumerics, numbers, underscores and dashes')])
     password = PasswordField('Password', [
         validators.DataRequired(),
-        validators.EqualTo('confirm', message='The passwords doesnt match')
+        validators.EqualTo('confirm', message='The passwords doesnt match'),
+        validators.Regexp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{5,666}$", message="Your password does not live up to the requirements")
     ])
     confirm = PasswordField('Confirm password')
     users_union = SelectField('Union', choices=[('kristensamfundet', 'Kristensamfundet')])
