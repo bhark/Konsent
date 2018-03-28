@@ -581,7 +581,7 @@ class RegisterForm(Form):
     password = PasswordField('Password', [
         validators.DataRequired(),
         validators.EqualTo('confirm', message='The passwords doesnt match'),
-        validators.Regexp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{5,666}$", message="Your password does not live up to the requirements")
+        validators.Regexp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,666}$", message="Your password does not live up to the requirements")
     ])
     confirm = PasswordField('Confirm password')
     users_union = SelectField('Union', choices=[('kristensamfundet', 'Kristensamfundet')])
