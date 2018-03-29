@@ -37,7 +37,7 @@ def is_logged_in(func):
         if 'logged_in' in session:
             return func(*args, **kwargs)
         else:
-            flash('Du har ikke adgang til dette område', 'danger')
+            flash('You dont have access to this area', 'danger')
             return redirect(url_for('index'))
     return wrap
 
@@ -49,7 +49,7 @@ def is_not_logged_in(f):
         if not 'logged_in' in session:
             return f(*args, **kwargs)
         else:
-            flash('Du er allerede logget ind', 'danger')
+            flash('Youre already logged in', 'danger')
             return redirect(url_for('index'))
     return wrap
 
@@ -188,7 +188,7 @@ def post2(post_id):
     if request.method == 'POST' and form.validate():
         body = form.body.data
         author = session['user_id']
-        comment = Comment(post_id, author, body, author_name=session['name'])
+        comment = Comment(post_id, author, body, author_name=session['username'])
         db.session.add(comment)
         db.session.commit()
 
@@ -238,7 +238,6 @@ def register():
     form = RegisterForm(request.form)
     form.users_union.choices = list_unions()
     if request.method == 'POST' and form.validate():
-        name = form.name.data
         username = form.username.data
         users_union = form.users_union.data
         password = form.password.data
@@ -252,7 +251,7 @@ def register():
         if union is not None:
             if union.check_password(union_password_candidate):
                 # password matches hash
-                user = User(username, password, name, union)
+                user = User(username, password, union)
                 # send to database
                 db.session.add(user)
                 db.session.commit()
@@ -308,7 +307,6 @@ def login():
             if user.check_password(password_candidate):
                 # that's a match, set session variables
                 session['logged_in'] = True
-                session['name'] = user.name
                 session['username'] = username
                 session['user_id'] = user.id
                 session['connected_union'] = connected_union
@@ -537,7 +535,7 @@ def list_comments(post_id, username):
     result = []
     for c in comments:
         comment = {
-            'author': c.author.name,
+            'author': c.author.username,
             'body': c.body,
             'votes': c.votes_count,
             'id': c.id}
@@ -579,11 +577,11 @@ class RegisterUnionForm(Form):
 
 
 class RegisterForm(Form):
-    name = StringField('Display name', [validators.Length(min=1, max=50), validators.Regexp("^[a-zA-Z0-9-_]+$", message='Display name may only contain alphanumerics, numbers, underscores and dashes')])
     username = StringField('Username', [validators.Length(min=4, max=50), validators.Regexp("^[a-zA-Z0-9-_]+$", message='Username may only contain alphanumerics, numbers, underscores and dashes')])
     password = PasswordField('Password', [
         validators.DataRequired(),
-        validators.EqualTo('confirm', message='The passwords doesnt match')
+        validators.EqualTo('confirm', message='The passwords doesnt match'),
+        validators.Regexp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,666}$", message="Your password does not live up to the requirements")
     ])
     confirm = PasswordField('Confirm password')
     users_union = SelectField('Union', choices=[('kristensamfundet', 'Kristensamfundet')])
