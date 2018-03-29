@@ -179,7 +179,9 @@ def post1(post_id):
             # redirect user
             return redirect(url_for('phase1'))
 
-    return render_template('post.html', post_data=post_data, post=post, phase=1, form=form)
+    return render_template(
+        'post.html', post_data=post_data, post=post, phase=1, form=form
+    )
 
 
 # single post, phase 2
@@ -203,7 +205,8 @@ def post2(post_id):
     if post.union_id != session['connected_union']:
         post = None
 
-    return render_template('post.html', post=post, form=form, comments=list_comments(post_id, session['username']), phase=2)
+    return render_template('post.html', post=post, form=form,
+        comments=list_comments(post_id, session['username']), phase=2)
 
 
 # single post, phase 3
@@ -218,7 +221,8 @@ def post3(post_id):
     if post.union_id != session['connected_union']:
         post = None
 
-    return render_template('post.html', post=post, comments=list_comments(post_id, session['username']), phase=3)
+    return render_template('post.html', post=post,
+        comments=list_comments(post_id, session['username']), phase=3)
 
 
 # view a single solution that's been confirmed (phase 4)
@@ -232,7 +236,8 @@ def post_completed(post_id):
     if post.union_id != session['connected_union']:
         post = None
 
-    return render_template('post.html', post=post, comments=list_comments(post_id, session['username']), phase=4)
+    return render_template('post.html', post=post,
+        comments=list_comments(post_id, session['username']), phase=4)
 
 
 # user registration
@@ -286,9 +291,10 @@ def register_union():
         # commit to database
         db.session.commit()
 
-        msg = 'Your union is now registered, and can be accessed by other users'
+        msg = 'Your union is now registered and can be accessed by other users'
         return render_template('index.html', msg=msg)
-    return render_template('register-union.html', form=form, unions=print_unions())
+    return render_template('register-union.html',
+        form=form, unions=print_unions())
 
 
 # bruger login
@@ -505,7 +511,7 @@ def update_phases():
                 post.phase = 3
             else:
                 app.logger.info(
-                    'Post with id {0} didnt find a solution in time'.format(post.id))
+                    'Post id:{0} didnt find a solution'.format(post.id))
             post.create_date = datetime.datetime.now()
             db.session.add(post)
 
@@ -578,7 +584,7 @@ class BaseForm(Form):
 
 class RegisterUnionForm(Form):
     union_name = StringField('Name', [validators.Length(min=1, max=50)])
-    password = PasswordField('Password (hand this out to all members of your union)', [
+    password = PasswordField('Union password', [
         validators.DataRequired(),
         validators.EqualTo('confirm', message='Passwords doesnt match')
     ])
@@ -586,8 +592,9 @@ class RegisterUnionForm(Form):
 
 
 class RegisterForm(Form):
-    username = StringField('Username', [validators.Length(min=4, max=50), validators.Regexp(
-        "^[a-zA-Z0-9-_]+$", message='Username may only contain alphanumerics, numbers, underscores and dashes')])
+    username = StringField('Username', [validators.Length(min=4, max=50),
+        validators.Regexp(
+            "^[a-zA-Z0-9-_]+$", message='Username may only contain alphanumerics, numbers, underscores and dashes')])
     password = PasswordField('Password', [
         validators.DataRequired(),
         validators.EqualTo('confirm', message='The passwords doesnt match'),
@@ -613,11 +620,11 @@ class CommentForm(BaseForm):
 
 class UpvoteForm(BaseForm):
     vote = BooleanField(
-        '')  # this field is hidden, is true by default and can work both as upvote and downvote
+        '')  # this field is true, hidden and is both upvote and downvote
 
 
 class VetoForm(BaseForm):
-    veto = BooleanField('')  # this field is hidden, and is true by default
+    veto = BooleanField('')  # this field is hidden and is true
 
 
 def main():
