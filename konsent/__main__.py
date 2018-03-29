@@ -11,7 +11,7 @@ from functools import wraps
 import datetime
 from models import User, Union, Post, Vote, Comment
 from datetime import timedelta
-import hashlib
+import bcrypt
 from models import db
 from sys import argv
 
