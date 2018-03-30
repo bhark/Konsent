@@ -3,10 +3,12 @@ from sqlalchemy import and_
 import argparse
 from functools import wraps
 import datetime
-from flask import Flask, g, render_template, flash, redirect, url_for, session, logging, request
+from flask import Flask, g, render_template, flash, redirect
+from flask import url_for, session, logging, request
 from wtforms.csrf.core import CSRF
 from wtforms.csrf.session import SessionCSRF
-from wtforms import Form, StringField, TextAreaField, PasswordField, SelectField, HiddenField, SubmitField, BooleanField, validators
+from wtforms import Form, StringField, TextAreaField, PasswordField, validators
+from wtforms import SelectField, HiddenField, SubmitField, BooleanField
 from functools import wraps
 import datetime
 from models import User, Union, Post, Vote, Comment
@@ -17,8 +19,8 @@ from sys import argv
 
 # CURRENT VERSION: 0.2a
 # config
-RESTING_TIME = 1 # resting time in phase 2 and 3 in minutes - 1440 = 2 days
-REQUIRED_VOTES_DIVISOR = 2 # number of members in the union divided by this number is required in order to make the issue progress to stage 2
+RESTING_TIME = 1  # resting time in phase 2 and 3 in minutes - 1440 = 2 days
+REQUIRED_VOTES_DIVISOR = 2  # divide by this to progress to stage 2
 NO_RESULTS_ERROR = 'Nothing to show.'
 
 app = Flask(__name__)
@@ -46,7 +48,7 @@ def is_logged_in(func):
 def is_not_logged_in(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        if not 'logged_in' in session:
+        if 'logged_in' not in session:
             return f(*args, **kwargs)
         else:
             flash('Youre already logged in', 'danger')
@@ -63,7 +65,7 @@ def phase1():
 
     posts = Post.query.filter(
         Post.union_id == session['connected_union']
-        ).filter(
+    ).filter(
         Post.phase == 1
     ).all()
 
@@ -105,7 +107,7 @@ def phase3():
             Post.union_id == session['connected_union'],
             Post.phase == 3,
             Post.vetoed_by == None
-            )).all()
+        )).all()
 
     if len(posts):
         return render_template('phase3.html', posts=posts)
@@ -127,7 +129,7 @@ def post1(post_id):
         and_(
             Vote.author_id == session["user_id"],
             Vote.post == post)
-        ).first()
+    ).first()
     if vote is not None:
         voted = True
     post_data['voted'] = voted
@@ -160,10 +162,11 @@ def post1(post_id):
             vote = Vote(session['user_id'], post)
             db.session.add(vote)
             # count union members
-            union_members = Union.query.filter(Union.id == session['connected_union']).count()
+            union_members = Union.query.filter(
+                Union.id == session['connected_union']).count()
 
             # if enough union members have voted, move this post to phase 2
-            if post_data['votes'] >= union_members/REQUIRED_VOTES_DIVISOR:
+            if post_data['votes'] >= union_members / REQUIRED_VOTES_DIVISOR:
                 # reset create_date
                 post.create_date = datetime.datetime.now()
                 # increment phase value
@@ -176,7 +179,9 @@ def post1(post_id):
             # redirect user
             return redirect(url_for('phase1'))
 
-    return render_template('post.html', post_data=post_data, post=post, phase=1, form=form)
+    return render_template(
+        'post.html', post_data=post_data, post=post, phase=1, form=form
+    )
 
 
 # single post, phase 2
@@ -188,7 +193,8 @@ def post2(post_id):
     if request.method == 'POST' and form.validate():
         body = form.body.data
         author = session['user_id']
-        comment = Comment(post_id, author, body, author_name=session['username'])
+        comment = Comment(
+            post_id, author, body, author_name=session['username'])
         db.session.add(comment)
         db.session.commit()
 
@@ -199,7 +205,8 @@ def post2(post_id):
     if post.union_id != session['connected_union']:
         post = None
 
-    return render_template('post.html', post=post, form=form, comments=list_comments(post_id, session['username']), phase=2)
+    return render_template('post.html', post=post, form=form,
+        comments=list_comments(post_id, session['username']), phase=2)
 
 
 # single post, phase 3
@@ -214,7 +221,8 @@ def post3(post_id):
     if post.union_id != session['connected_union']:
         post = None
 
-    return render_template('post.html', post=post, comments=list_comments(post_id, session['username']), phase=3)
+    return render_template('post.html', post=post,
+        comments=list_comments(post_id, session['username']), phase=3)
 
 
 # view a single solution that's been confirmed (phase 4)
@@ -228,7 +236,8 @@ def post_completed(post_id):
     if post.union_id != session['connected_union']:
         post = None
 
-    return render_template('post.html', post=post, comments=list_comments(post_id, session['username']), phase=4)
+    return render_template('post.html', post=post,
+        comments=list_comments(post_id, session['username']), phase=4)
 
 
 # user registration
@@ -262,14 +271,14 @@ def register():
                 error = 'Wrong password for union.'
                 return render_template('register.html', error=error, form=form)
         else:
-            error = 'Something mysterious happened. If youre seeing this, go beat up the developers.'
+            error = 'Something mysterious happened.'
             return render_template('register.html', error=error, form=form)
 
     return render_template('register.html', form=form, unions=list_unions())
 
 
 # register new unions
-@app.route('/register-union', methods = ['GET', 'POST'])
+@app.route('/register-union', methods=['GET', 'POST'])
 @is_not_logged_in
 def register_union():
     form = RegisterUnionForm(request.form)
@@ -282,9 +291,10 @@ def register_union():
         # commit to database
         db.session.commit()
 
-        msg = 'Your union is now registered, and can be accessed by other users'
+        msg = 'Your union is now registered and can be accessed by other users'
         return render_template('index.html', msg=msg)
-    return render_template('register-union.html', form=form, unions=print_unions())
+    return render_template('register-union.html',
+        form=form, unions=print_unions())
 
 
 # bruger login
@@ -396,7 +406,8 @@ def new_post():
         body = form.body.data
 
         # FIRE THE CANNONS, COMRADES!!!
-        post = Post(title, body, session["connected_union"], session["user_id"])
+        post = Post(title, body, session[
+                    "connected_union"], session["user_id"])
         db.session.add(post)
         db.session.commit()
 
@@ -482,7 +493,8 @@ def update_phases():
     posts = Post.query.filter(
         Post.union_id == session['connected_union']
     ).filter(
-        Post.create_date < datetime.datetime.now() - timedelta(minutes=RESTING_TIME)
+        Post.create_date < datetime.datetime.now() - timedelta(
+            minutes=RESTING_TIME)
     ).all()
 
     for post in posts:
@@ -497,9 +509,9 @@ def update_phases():
             if solution is not None:
                 post.solution = solution.body
                 post.phase = 3
-                app.logger.info('Moved post with id {0} from phase 2 to phase 3, with solution "{1}"'.format(post.id, solution.body))
             else:
-                app.logger.info('Post with id {0} didnt find a solution in time'.format(post.id))
+                app.logger.info(
+                    'Post id:{0} didnt find a solution'.format(post.id))
             post.create_date = datetime.datetime.now()
             db.session.add(post)
 
@@ -556,7 +568,9 @@ def print_unions():
 
     return [u.union_name for u in unions]
 
+
 class BaseForm(Form):
+
     class Meta:
         # enable csrf
         csrf = True
@@ -567,9 +581,10 @@ class BaseForm(Form):
         # time limit
         csrf_time_limit = timedelta(minutes=20)
 
+
 class RegisterUnionForm(Form):
     union_name = StringField('Name', [validators.Length(min=1, max=50)])
-    password = PasswordField('Password (hand this out to all members of your union)', [
+    password = PasswordField('Union password', [
         validators.DataRequired(),
         validators.EqualTo('confirm', message='Passwords doesnt match')
     ])
@@ -577,30 +592,40 @@ class RegisterUnionForm(Form):
 
 
 class RegisterForm(Form):
-    username = StringField('Username', [validators.Length(min=4, max=50), validators.Regexp("^[a-zA-Z0-9-_]+$", message='Username may only contain alphanumerics, numbers, underscores and dashes')])
+    username = StringField('Username', [validators.Length(min=4, max=50),
+        validators.Regexp(
+            "^[a-zA-Z0-9-_]+$", message='Username may only contain alphanumerics, numbers, underscores and dashes')])
     password = PasswordField('Password', [
         validators.DataRequired(),
         validators.EqualTo('confirm', message='The passwords doesnt match'),
-        validators.Regexp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,666}$", message="Your password does not live up to the requirements")
+        validators.Regexp(
+            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,666}$", message="Your password does not live up to the requirements")
     ])
     confirm = PasswordField('Confirm password')
-    users_union = SelectField('Union', choices=[('kristensamfundet', 'Kristensamfundet')])
-    union_password = PasswordField('Password for union', [validators.DataRequired()])
+    users_union = SelectField(
+        'Union', choices=[('kristensamfundet', 'Kristensamfundet')])
+    union_password = PasswordField(
+        'Password for union', [validators.DataRequired()])
 
 
 class ArticleForm(Form):
     title = StringField('Title', [validators.Length(min=1, max=150)])
-    body = TextAreaField('Body', [validators.Length(min=20, max=1000, message='Your post body should contain between 20 and 1000 characters.')])
+    body = TextAreaField(
+        'Body', [validators.Length(min=20, max=1000, message='Your post body should contain between 20 and 1000 characters.')])
 
 
 class CommentForm(BaseForm):
     body = TextAreaField('', [validators.length(min=1, max=1000)])
 
+
 class UpvoteForm(BaseForm):
-    vote = BooleanField('') # this field is hidden, is true by default and can work both as upvote and downvote
+    vote = BooleanField(
+        '')  # this field is true, hidden and is both upvote and downvote
+
 
 class VetoForm(BaseForm):
-    veto = BooleanField('') # this field is hidden, and is true by default
+    veto = BooleanField('')  # this field is hidden and is true
+
 
 def main():
     parser = argparse.ArgumentParser(description='Konsent')

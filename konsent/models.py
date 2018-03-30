@@ -9,14 +9,16 @@ db = SQLAlchemy()
 class Comment(db.Model):
     __tablename__ = 'comments'
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    id = db.Column(
+        db.Integer, primary_key=True, autoincrement=True, unique=True)
     author_name = db.Column(db.Unicode(length=255), nullable=False)
     votes_count = db.Column(db.Integer, nullable=False, default=0)
     body = db.Column(db.UnicodeText, nullable=False)
     # relationships
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=False)
     post = db.relationship('Post', backref=db.backref('comments', lazy=True))
-    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    author_id = db.Column(
+        db.Integer, db.ForeignKey('users.id'), nullable=False)
     author = db.relationship('User', backref=db.backref('comments', lazy=True))
 
     def __init__(self, post, author, body, author_name=None):
@@ -36,20 +38,28 @@ class Comment(db.Model):
 class Post(db.Model):
     __tablename__ = 'posts'
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    id = db.Column(
+        db.Integer, primary_key=True, autoincrement=True, unique=True)
     body = db.Column(db.UnicodeText, nullable=False)
-    create_date = db.Column(db.DateTime, nullable=False, default=datetime.now())
+    create_date = db.Column(
+        db.DateTime, nullable=False, default=datetime.now())
     phase = db.Column(db.Integer, nullable=False, default=1)
     title = db.Column(db.UnicodeText, nullable=False)
     votes_count = db.Column(db.Integer, nullable=False, default=0)
     solution = db.Column(db.UnicodeText)
     # Relationships
-    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    author = db.relationship('User', backref=db.backref('posts', lazy=True), foreign_keys=[author_id])
-    union_id = db.Column(db.Integer, db.ForeignKey('unions.id'), nullable=False)
+    author_id = db.Column(
+        db.Integer, db.ForeignKey('users.id'), nullable=False)
+    author = db.relationship('User', backref=db.backref('posts', lazy=True),
+                             foreign_keys=[author_id])
+    union_id = db.Column(
+        db.Integer, db.ForeignKey('unions.id'), nullable=False)
     union = db.relationship('Union', backref=db.backref('posts', lazy=True))
-    vetoed_by_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True, default=None)
-    vetoed_by = db.relationship('User', backref=db.backref('vetoes', lazy=True), foreign_keys=[vetoed_by_id])
+    vetoed_by_id = db.Column(
+        db.Integer, db.ForeignKey('users.id'), nullable=True, default=None)
+    vetoed_by = db.relationship(
+        'User', backref=db.backref('vetoes', lazy=True),
+        foreign_keys=[vetoed_by_id])
 
     def __init__(self, title, body, union, author, create_date=None):
         if create_date is None:
@@ -75,7 +85,8 @@ class Post(db.Model):
             now = datetime.now()
             create_date = self.create_date
             time_since = now - create_date
-            hours, minutes = time_since.seconds // 3600, (time_since.seconds // 60) % 60
+            hours, minutes = time_since.seconds // 3600, (
+                time_since.seconds // 60) % 60
             self._time_since_create = {'hours': hours, 'minutes': minutes}
         print(self._time_since_create)
         return self._time_since_create
@@ -86,9 +97,11 @@ class Union(db.Model):
 
     def __init__(self, union_name, password):
         self.union_name = union_name
-        self.password = hashlib.sha256(str(password).encode('utf-8')).hexdigest()
+        self.password = hashlib.sha256(
+            str(password).encode('utf-8')).hexdigest()
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    id = db.Column(
+        db.Integer, primary_key=True, autoincrement=True, unique=True)
     union_name = db.Column(db.Unicode(length=255), nullable=False)
     password = db.Column(db.Unicode(length=255), nullable=False)
 
@@ -103,7 +116,8 @@ class User(db.Model):
     __tablename__ = 'users'
 
     def __init__(self, username, password, union):
-        self.password = hashlib.sha256(str(password).encode('utf-8')).hexdigest()
+        self.password = hashlib.sha256(
+            str(password).encode('utf-8')).hexdigest()
         self.username = username
         self.union = union
 
@@ -112,7 +126,8 @@ class User(db.Model):
     username = db.Column(db.Unicode(length=191), nullable=False, unique=True)
     authority = db.Column(db.Integer, default=0)
     # relationships
-    union_id = db.Column(db.Integer, db.ForeignKey('unions.id'), nullable=False)
+    union_id = db.Column(
+        db.Integer, db.ForeignKey('unions.id'), nullable=False)
     union = db.relationship('Union', backref=db.backref('users', lazy=True))
 
     def check_password(self, password):
@@ -139,11 +154,15 @@ class Vote(db.Model):
         elif target_type == 'comment':
             self.comment_id = target
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    id = db.Column(
+        db.Integer, primary_key=True, autoincrement=True, unique=True)
     # relationships
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=True)
     post = db.relationship('Post', backref=db.backref('votes', lazy=True))
-    comment_id = db.Column(db.Integer, db.ForeignKey('comments.id'), nullable=True)
-    comment = db.relationship('Comment', backref=db.backref('votes', lazy=True))
-    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    comment_id = db.Column(
+        db.Integer, db.ForeignKey('comments.id'), nullable=True)
+    comment = db.relationship(
+        'Comment', backref=db.backref('votes', lazy=True))
+    author_id = db.Column(
+        db.Integer, db.ForeignKey('users.id'), nullable=False)
     author = db.relationship('User', backref=db.backref('votes', lazy=True))
