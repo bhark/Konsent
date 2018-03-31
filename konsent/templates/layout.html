@@ -15,8 +15,8 @@
     </div>
     {% include 'includes/_footer.html' %}
 
-    <script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static',filename='js/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
     <script>
       $('#submitSendMail').click(function(){
         $(this).val('Dine filer sendes, vent venligst...')
