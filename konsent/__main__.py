@@ -1,21 +1,24 @@
 # coding=iso-8859-1
-from sqlalchemy import and_
 import argparse
-from functools import wraps
 import datetime
+import hashlib
+from datetime import timedelta
+from functools import wraps
+from sys import argv
+
+import click
+from sqlalchemy import and_
 from flask import Flask, g, render_template, flash, redirect
 from flask import url_for, session, logging, request
+
 from wtforms.csrf.core import CSRF
 from wtforms.csrf.session import SessionCSRF
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from wtforms import SelectField, HiddenField, SubmitField, BooleanField
-from functools import wraps
-import datetime
+
 from models import User, Union, Post, Vote, Comment
-from datetime import timedelta
-import hashlib
 from models import db
-from sys import argv
+
 
 # CURRENT VERSION: 0.2a
 # config
@@ -627,33 +630,36 @@ class VetoForm(BaseForm):
     veto = BooleanField('')  # this field is hidden and is true
 
 
-def main():
-    parser = argparse.ArgumentParser(description='Konsent')
-    parser.add_argument('action', default='runserver')
-    parser.add_argument('-d', '--database', default='konsent',
-                        help='Database name')
-    parser.add_argument('-H', '--database-host', default='127.0.0.1',
-                        help='Database host')
-    parser.add_argument('-u', '--user', default='root',
-                        help='Database username')
-    parser.add_argument('-p', '--password', default='',
-                        help='Database password')
-    args = parser.parse_args()
+@click.command()
+@click.argument('action', type=click.Choice(['runserver', 'createdb']))
+@click.option('-d', '--database-name', default='konsent',
+              help='Database name')
+@click.option('-H', '--database-host', default='127.0.0.1',
+              help='Database host')
+@click.option('-u', '--database-user', default='root',
+              help='Database username')
+@click.option('-p', '--database-password', default='',
+              help='Database password')
+def main(action,
+         database_name,
+         database_host,
+         database_user,
+         database_password):
 
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://{username}{sep}{password}@{host}/{database}'.format(
-        host=args.database_host,
-        username=args.user,
-        sep=':' if len(args.password) else '',
-        password=args.password,
-        database=args.database
+        host=database_host,
+        username=database_user,
+        sep=':' if len(database_password) else '',
+        password=database_password,
+        database=database_name
     )
 
     app.secret_key = 'Ka,SkqNs//'
     db.init_app(app)
 
-    if args.action == 'runserver':
+    if action == 'runserver':
         app.run(debug=True)
-    elif args.action == 'createdb':
+    elif action == 'createdb':
         app.app_context().push()
         db.create_all()
 
