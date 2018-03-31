@@ -4,13 +4,23 @@ the tests must run in order, they are NOT independent from each other.
 
 NOTE: In order for the tests to run firefox and geckodriver must be on $PATH.
 """
+import random
 
 
 import pytest
-from selenium.webdriver import Firefox
+from selenium import webdriver
+from selenium.webdriver.support import ui
 
 
 URL = 'http://127.0.0.1:5000/'
+
+def rand():
+    return str(random.random())[2:]
+
+TEST_USERNAME = 'test_username_' + rand()
+TEST_PASSWORD = 'test_passw0rD_' + rand()
+TEST_UNION_NAME = 'test_union_name_' + rand()
+TEST_UNION_PASSWORD = 'test_union_password_' + rand()
 
 # CSS selectors
 HOME_LOGIN_BUTTON = 'a.btn:nth-child(6)'
@@ -23,7 +33,6 @@ TOP_NEW_ACCOUNT = 'li.nav-item:nth-child(1) > a:nth-child(1)'
 TOP_LOGIN = 'li.nav-item:nth-child(2) > a:nth-child(1)'
 REGISTER_SUBMIT_BUTTON = 'input.btn'
 REGISTER_CREATE_NEW_UNION_BUTTON = 'a.btn'
-REGISTER_DISPLAY_NAME = '#name'
 REGISTER_USERNAME = '#username'
 REGISTER_PASSWORD = '#password'
 REGISTER_CONFIRM_PASSWORD = '#confirm'
@@ -43,29 +52,27 @@ TOP_SOLUTION_PROPOSAL_BUTTON = 'ul.navbar-nav:nth-child(1) > li:nth-child(2) > a
 
 
 # PHASE1
-PHASE1_VOTEUP = '.container > a:nth-child(4)'
-
+PHASE1_VOTEUP = '.btn'
+PHASE1_ISSUE = '.list-group-item > a:nth-child(1)'
 
 @pytest.fixture(scope='module')
 def browser():
-    firefox = Firefox()
-    yield firefox
-    # firefox.quit()
+    firefox = webdriver.Firefox()
+    firefox.implicitly_wait(20)
+    yield firefox 
+    firefox.quit()
 
 
 def test_user_story_account(browser):
+    find = browser.find_element_by_css_selector
+
     # user enters the url on the browser
     browser.get(URL)
-    find = browser.find_element_by_css_selector
 
     assert 'Konsent' in browser.title
 
     # she clicks the login button
-    home_login_button = find(HOME_LOGIN_BUTTON)
-    home_login_button.click()
-
-    # she is redirected to the login page
-    assert browser.current_url.endswith('/login')
+    find(HOME_LOGIN_BUTTON).click()
 
     # she tries to login with wrong credentials
     find(LOGIN_USER_FIELD).send_keys("WRONG_USER")
@@ -73,52 +80,40 @@ def test_user_story_account(browser):
     find(LOGIN_CONFIG_BUTTON).click()
 
     # an alert popups with an error message
-    alert = find(ALERT)
-    assert 'This user doesnt exist' in alert.text
+    assert 'This user doesnt exist' in find(ALERT).text
 
     # she clicks a button for creating a new account on top bar
     find(TOP_NEW_ACCOUNT).click()
 
-    # she is redirected to the register page
-    assert browser.current_url.endswith('/register')
-
-    # she clicks create account without entering any information
-    find(REGISTER_SUBMIT_BUTTON).click()
-
-    # error text appears under the missing fields
-    assert browser.current_url.endswith('/register')
-    assert 'This field is required' in browser.page_source
-
     # she creates a new union
     find(REGISTER_CREATE_NEW_UNION_BUTTON).click()
-    assert browser.current_url.endswith('/register-union')
 
     # she fills the required field and sumbits
-    find(UNION_REGISTER_NAME).send_keys('test_union')
-    find(UNION_REGISTER_PASSWORD).send_keys('test_union_password')
-    find(UNION_REGISTER_PASSWORD_CONFIRM).send_keys('test_union_password')
+    find(UNION_REGISTER_NAME).send_keys(TEST_UNION_NAME)
+    find(UNION_REGISTER_PASSWORD).send_keys(TEST_UNION_PASSWORD)
+    find(UNION_REGISTER_PASSWORD_CONFIRM).send_keys(TEST_UNION_PASSWORD)
     find(UNION_REGISTER_SUBMIT_BUTTON).click()
 
     # she goes back to register a new account
     find(TOP_NEW_ACCOUNT).click()
     # she fills the required fields
-    find(REGISTER_DISPLAY_NAME).send_keys('test_display_name')
-    find(REGISTER_USERNAME).send_keys('test_username')
-    find(REGISTER_PASSWORD).send_keys('test_password')
-    find(REGISTER_CONFIRM_PASSWORD).send_keys('test_password')
+    find(REGISTER_USERNAME).send_keys(TEST_USERNAME)
+    find(REGISTER_PASSWORD).send_keys(TEST_PASSWORD)
+    find(REGISTER_CONFIRM_PASSWORD).send_keys(TEST_PASSWORD)
     # she selects her new union
     options = find(REGISTER_UNION).find_elements_by_tag_name('option')
     test_union_option = next(
-        opt for opt in options if opt.get_property('value') == 'test_union')
+        opt for opt in options if opt.get_property('value') == TEST_UNION_NAME)
     test_union_option.click()
-    find(REGISTER_UNION_PASSWORD).send_keys('test_union_password')
+    find(REGISTER_UNION_PASSWORD).send_keys(TEST_UNION_PASSWORD)
     # she sumbits the information
     find(REGISTER_SUBMIT_BUTTON).click()
+    assert 'signed up' in find(ALERT).text
 
     # she logins with the correct credentials
     find(TOP_LOGIN).click()
-    find(LOGIN_USER_FIELD).send_keys("test_username")
-    find(LOGIN_PASS_FIELD).send_keys("test_password")
+    find(LOGIN_USER_FIELD).send_keys(TEST_USERNAME)
+    find(LOGIN_PASS_FIELD).send_keys(TEST_PASSWORD)
     find(LOGIN_CONFIG_BUTTON).click()
     assert 'Youve been logged in' in find(ALERT).text
 
@@ -128,7 +123,6 @@ def test_user_story_issue(browser):
 
     # user starts a new issue
     find(HOME_NEW_ISSUE_BUTTON).click()
-    assert browser.current_url.endswith('/new_post')
 
     # she fills the required fields
     find(NEW_ISSUE_TITLE_FIELD).send_keys('New test issue')
@@ -138,17 +132,8 @@ def test_user_story_issue(browser):
     find(NEW_ISSUE_SUBMIT_BUTTON).click()
     assert 'Your post have been published' in find(ALERT).text
 
-    # she chooses her issue from the list
-    issues_list = browser.find_elements_by_tag_name('li')
-    test_issue = next(issue for issue in issues_list
-                      if '0 votes - New test issue' in issue.text)
-    test_issue.find_element_by_tag_name('a').click()
+    # she chooses her issue
+    find(PHASE1_ISSUE).click()
 
     # she votes for the issue
     find(PHASE1_VOTEUP).click()
-    # proposal goes to phase2 if the user is the only in the test database
-    # if this fails that may mean that there are more users
-    # and the algorithm implemented will not move the proposal to phase2
-    find(TOP_SOLUTION_PROPOSAL_BUTTON).click()
-    assert browser.current_url.endswith('/phase2')
-    assert 'New test issue' in browser.page_source
