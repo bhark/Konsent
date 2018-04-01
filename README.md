@@ -34,6 +34,6 @@ When everything is ready to go, open up a command line (terminal, konsole, comma
 
 You don't have to know anything about programming or the likes to contribute to Konsent - developing the concept further is currently just as important. In the future, discussion and concept development will probably happen on the subraddle /f/konsent, on Raddle.me. Until then we can use GitHub's issues.
 
-Contributing to the code-base is easy if you know Python and the basics of Git, and there's lots to be done. Simply install all the dependencies, as explained in the chapter above, grab your favorite code editor, take a look at the open issues and fire away. We're following the branching model explained [here](https://nvie.com/posts/a-successful-git-branching-model/) loosely.
+Contributing to the code-base is easy if you know Python and the basics of Git, and there's lots to be done. Simply install all the dependencies, as explained in the chapter above, grab your favorite code editor, take a look at the open issues and fire away. We're following the branching model explained [here](https://nvie.com/posts/a-successful-git-branching-model/) loosely. We're following the [PEP8](https://pep8.org/) style guide.
 
 You can ship your changes pretty much however you want, although a good old pull-request is preferred.
