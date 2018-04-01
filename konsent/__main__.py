@@ -253,8 +253,13 @@ def register():
         username = form.username.data
         users_union = form.users_union.data
         password = form.password.data
-
         union_password_candidate = form.union_password.data
+
+        # check if username exists
+        user_exists = User.query.filter(User.username == username).first()
+        if user_exists is not None:
+            error = 'This username has already been taken'
+            return render_template('register.html', error=error, form=form)
 
         # find union
         union = Union.query.filter(Union.union_name == users_union).first()
