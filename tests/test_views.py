@@ -1,3 +1,4 @@
+import datetime
 from contextlib import contextmanager
 
 from flask import request, template_rendered, session
@@ -23,17 +24,42 @@ def captured_templates(app):
 
 @pytest.fixture()
 def client():
+    app.config['TESTING'] = True
     app.secret_key = 'test_views'
-    app.testing = True
     with app.test_client() as client:
         yield client
 
 
-def _mock_user_query(mocker, return_value):
+@pytest.fixture
+def user_mock(mocker):
     User_mock = mocker.patch('konsent.User')
-    filter_mock =  MagicMock()
-    filter_mock.first.return_value = return_value
-    User_mock.query.filter.return_value = filter_mock
+
+    user_stab = MagicMock()
+    user_stab.union.union_name = 'test_union'
+    user_stab.union.id = '1'
+    user_stab.id = '1'
+    user_stab.check_password.return_value = True
+
+    User_mock.query.filter().first.return_value = user_stab
+
+
+@pytest.fixture()
+def client_logged(user_mock):
+    app.config['TESTING'] = True
+    app.secret_key = 'test_views'
+
+    data = {'username': 'test_user',
+            'password': 'test_password'}
+
+
+    with app.test_client() as client:
+        client.post('/login', data=data)
+        yield client
+
+
+def is_logged_in_stub(func):
+    def wrap(*args, **kwargs):
+        return func(*args, **kwargs)
 
 
 def test_index(client):
@@ -42,7 +68,8 @@ def test_index(client):
 
 
 def test_login_non_existing_user(client, mocker):
-    _mock_user_query(mocker, None)
+    User_mock = mocker.patch('konsent.User')
+    User_mock.query.filter().first.return_value = None
 
     data = {'username': 'test_user',
             'password': 'test_password'}
@@ -59,13 +86,7 @@ def test_login_non_existing_user(client, mocker):
         assert context['error']
 
 
-def test_login_existing_user(client, mocker):
-    user_mock = MagicMock()
-    user_mock.union.union_name = 'test_union'
-    user_mock.union.id = '1'
-    user_mock.id = '1'
-    user_mock.check_password.return_value = True
-    _mock_user_query(mocker, user_mock)
+def test_login_existing_user(client, user_mock):
 
     data = {'username': 'test_user',
             'password': 'test_password'}
@@ -81,3 +102,27 @@ def test_login_existing_user(client, mocker):
     assert response.status == '302 FOUND'
     assert b"Redirecting" in response.data
     assert response.headers['Location'].endswith('/')
+
+
+def test_phase1(client_logged, mocker):
+    mocker.patch('konsent.db')
+    mocker.patch('konsent.update_phases')
+
+    Post_mock = mocker.patch('konsent.Post')
+
+    post_stub = MagicMock()
+    post_stub.time_since_create = {'hours': 0}
+
+    Post_mock.query.filter().filter().all.return_value = [post_stub]
+    Post_mock.create_date = datetime.datetime.now()
+
+
+    with captured_templates(app) as templates:
+
+        response = client_logged.get('/phase1')
+
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
+        assert template.name == 'phase1.html'
+        print('CONT:', context)
+        assert context['posts'] == [post_stub]
