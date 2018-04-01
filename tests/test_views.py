@@ -239,3 +239,14 @@ def test_post2_post(client_logged, orm_mock):
         assert template.name == 'post.html'
         assert context['post'] == orm_mock['post_stub']
         orm_mock['db'].session.add.assert_called_with(orm_mock['comment_stub'])
+
+
+def test_post3(client_logged, orm_mock):
+    with captured_templates(app) as templates:
+
+        response = client_logged.get('/phase3/post/1')
+
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
+        assert template.name == 'post.html'
+        assert context['post'] == orm_mock['post_stub']
