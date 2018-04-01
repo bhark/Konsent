@@ -58,6 +58,8 @@ def post_mock(mocker):
     Post_mock.query.filter().filter().all.return_value = [post_stub]
     Post_mock.create_date = datetime.datetime.now()
 
+    Post_mock.query.get.return_value = post_stub
+
     return post_stub
 
 
@@ -152,3 +154,64 @@ def test_phase3(client_logged, post_mock):
         [template, context], *_ = templates
         assert template.name == 'phase3.html'
         assert context['posts'] == [post_mock]
+
+
+def test_post1_get(client_logged, post_mock, mocker):
+    Vote_mock = mocker.patch('konsent.Vote')
+    Vote_mock.query.filter().first.return_value = 'A Vote'
+
+    with captured_templates(app) as templates:
+
+        response = client_logged.get('/phase1/post/1')
+
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
+        assert template.name == 'post.html'
+        assert context['post_data']['voted'] == True
+        # MagicMock __len__ returns 0
+        assert context['post_data']['votes'] == 0
+
+
+def test_post1_post_vote_up(client_logged, post_mock, mocker):
+    Form_mock = mocker.patch('konsent.UpvoteForm')
+    Form_mock().validate.return_value = True
+    Vote_mock = mocker.patch('konsent.Vote')
+    Vote_mock.query.filter().first.return_value = None
+    Union_mock = mocker.patch('konsent.Union')
+    Union_mock.query.filter().count.return_value = 1
+    post_mock.votes = [Vote_mock]
+    post_mock.votes_count = 0
+
+    with captured_templates(app) as templates:
+
+        response = client_logged.post('/phase1/post/1',
+                                      data={'minutes': 0, 'hours': 0},
+                                      follow_redirects=True)
+
+        assert response.status == '200 OK'
+
+        [template, context], *_ = templates
+        assert template.name == 'phase1.html'
+
+        assert post_mock.votes_count == 1
+
+
+def test_post1_post_vote_down(client_logged, post_mock, mocker):
+    Form_mock = mocker.patch('konsent.UpvoteForm')
+    Form_mock().validate.return_value = True
+    Vote_mock = mocker.patch('konsent.Vote')
+    Vote_mock.query.filter().first.return_value = 'A Vote'
+    post_mock.votes_count = 1
+
+    with captured_templates(app) as templates:
+
+        response = client_logged.post('/phase1/post/1',
+                                      data={'minutes': 0, 'hours': 0},
+                                      follow_redirects=True)
+
+        assert response.status == '200 OK'
+
+        [template, context], *_ = templates
+        assert template.name == 'phase1.html'
+
+        assert post_mock.votes_count == 0
