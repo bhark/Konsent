@@ -129,7 +129,6 @@ def test_phase1(client_logged, post_mock):
         assert response.status == '200 OK'
         [template, context], *_ = templates
         assert template.name == 'phase1.html'
-        print('CONT:', context)
         assert context['posts'] == [post_mock]
 
 
@@ -141,5 +140,15 @@ def test_phase2(client_logged, post_mock):
         assert response.status == '200 OK'
         [template, context], *_ = templates
         assert template.name == 'phase2.html'
-        print('CONT:', context)
+        assert context['posts'] == [post_mock]
+
+
+def test_phase3(client_logged, post_mock):
+    with captured_templates(app) as templates:
+
+        response = client_logged.get('/phase3')
+
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
+        assert template.name == 'phase3.html'
         assert context['posts'] == [post_mock]

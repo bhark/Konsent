@@ -17,6 +17,7 @@ markupsafe = "==1.0"
 passlib = "==1.7.1"
 sqlalchemy = "==1.2.5"
 werkzeug = "==0.14.1"
+bcrypt = "*"
 
 
 [dev-packages]
