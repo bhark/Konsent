@@ -29,10 +29,10 @@ REGISTER_PASSWORD = '#password'
 REGISTER_CONFIRM_PASSWORD = '#confirm'
 REGISTER_UNION = '#users_union'
 REGISTER_UNION_PASSWORD = '#union_password'
-UNION_REGISTER_NAME ='#union_name' 
-UNION_REGISTER_PASSWORD = '#password' 
+UNION_REGISTER_NAME = '#union_name'
+UNION_REGISTER_PASSWORD = '#password'
 UNION_REGISTER_PASSWORD_CONFIRM = '#confirm'
-UNION_REGISTER_SUBMIT_BUTTON ='.btn' 
+UNION_REGISTER_SUBMIT_BUTTON = '.btn'
 
 # after login
 HOME_NEW_ISSUE_BUTTON = '.btn'
@@ -108,7 +108,8 @@ def test_user_story_account(browser):
     find(REGISTER_CONFIRM_PASSWORD).send_keys('test_password')
     # she selects her new union
     options = find(REGISTER_UNION).find_elements_by_tag_name('option')
-    test_union_option = next(opt for opt in options if opt.get_property('value') == 'test_union')
+    test_union_option = next(
+        opt for opt in options if opt.get_property('value') == 'test_union')
     test_union_option.click()
     find(REGISTER_UNION_PASSWORD).send_keys('test_union_password')
     # she sumbits the information
@@ -131,7 +132,8 @@ def test_user_story_issue(browser):
 
     # she fills the required fields
     find(NEW_ISSUE_TITLE_FIELD).send_keys('New test issue')
-    find(NEW_ISSUE_BODY_FIELD).send_keys('This is a test issue that was created for the purpose of testing, obviously')
+    find(NEW_ISSUE_BODY_FIELD).send_keys(
+        'This is a test issue that was created for the purpose of testing, obviously')
     # she submits the issue
     find(NEW_ISSUE_SUBMIT_BUTTON).click()
     assert 'Your post have been published' in find(ALERT).text

@@ -96,9 +96,15 @@ class Union(db.Model):
 
     def __init__(self, union_name, password):
         self.union_name = union_name
+<<<<<<< HEAD
 
         self.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
+=======
+        self.password = hashlib.sha256(
+            str(password).encode('utf-8')).hexdigest()
+
+>>>>>>> develop
     id = db.Column(
         db.Integer, primary_key=True, autoincrement=True, unique=True)
     union_name = db.Column(db.Unicode(length=255), nullable=False)
@@ -116,8 +122,13 @@ class User(db.Model):
     __tablename__ = 'users'
 
     def __init__(self, username, password, union):
+<<<<<<< HEAD
 
         self.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+=======
+        self.password = hashlib.sha256(
+            str(password).encode('utf-8')).hexdigest()
+>>>>>>> develop
         self.username = username
         self.union = union
 

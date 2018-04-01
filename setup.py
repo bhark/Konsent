@@ -11,4 +11,4 @@ setup(name='konsent',
               'konsent = konsent.__main__:main',
           ],
       }
- )
+      )
