@@ -1,7 +1,6 @@
 # coding=iso-8859-1
 import argparse
 import datetime
-import hashlib
 from datetime import timedelta
 from functools import wraps
 from sys import argv
@@ -17,6 +16,7 @@ from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from wtforms import SelectField, HiddenField, SubmitField, BooleanField
 
 from models import User, Union, Post, Vote, Comment
+import bcrypt
 from models import db
 
 

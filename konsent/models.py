@@ -1,10 +1,9 @@
 # coding: utf-8
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-import hashlib
+import bcrypt
 
 db = SQLAlchemy()
-
 
 class Comment(db.Model):
     __tablename__ = 'comments'
@@ -97,8 +96,8 @@ class Union(db.Model):
 
     def __init__(self, union_name, password):
         self.union_name = union_name
-        self.password = hashlib.sha256(
-            str(password).encode('utf-8')).hexdigest()
+
+        self.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     id = db.Column(
         db.Integer, primary_key=True, autoincrement=True, unique=True)
@@ -109,15 +108,15 @@ class Union(db.Model):
         """
         Checks the validity of the union's password.
         """
-        return hashlib.sha256(password.encode('utf-8')).hexdigest() == self.password
+        self.password = self.password.encode('utf-8')
+        return bcrypt.hashpw(password.encode('utf-8'), self.password) == self.password
 
 
 class User(db.Model):
     __tablename__ = 'users'
 
     def __init__(self, username, password, union):
-        self.password = hashlib.sha256(
-            str(password).encode('utf-8')).hexdigest()
+        self.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         self.username = username
         self.union = union
 
@@ -134,7 +133,8 @@ class User(db.Model):
         """
         Checks the validity of the user's password.
         """
-        return hashlib.sha256(password.encode('utf-8')).hexdigest() == self.password
+        self.password = self.password.encode('utf-8')
+        return bcrypt.hashpw(password.encode('utf-8'), self.password) == self.password
 
 
 class Vote(db.Model):
