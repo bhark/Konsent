@@ -67,8 +67,12 @@ def orm_mock(mocker):
     CommentForm_mock = mocker.patch('konsent.CommentForm')
     CommentForm_mock().validate.return_value = True
 
+    RegisterForm_mock = mocker.patch('konsent.RegisterForm')
+    RegisterForm_mock().validate.return_value = True
+
     Union_mock = mocker.patch('konsent.Union')
     Union_mock.query.filter().count.return_value = 1
+    union_stub = Union_mock.query.filter().first()
 
     Vote_mock = mocker.patch('konsent.Vote')
     Vote_query = Vote_mock.query.filter().first
@@ -261,3 +265,26 @@ def test_post_completed(client_logged, orm_mock):
         [template, context], *_ = templates
         assert template.name == 'post.html'
         assert context['post'] == orm_mock['post_stub']
+
+
+def test_register_get(client, orm_mock):
+    with captured_templates(app) as templates:
+
+        response = client.get('/register')
+
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
+        assert template.name == 'register.html'
+
+
+def test_register_post(client, user_mock, orm_mock):
+    orm_mock['union_stub'].check_password.return_value = True
+    with captured_templates(app) as templates:
+
+        response = client.post('/register',
+                              data={'username': 'test_username',
+                                    'password': 'test_passw0rD'})
+
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
+        assert template.name == 'login.html'
