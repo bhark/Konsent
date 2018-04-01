@@ -250,3 +250,14 @@ def test_post3(client_logged, orm_mock):
         [template, context], *_ = templates
         assert template.name == 'post.html'
         assert context['post'] == orm_mock['post_stub']
+
+
+def test_post_completed(client_logged, orm_mock):
+    with captured_templates(app) as templates:
+
+        response = client_logged.get('/completed/post/1')
+
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
+        assert template.name == 'post.html'
+        assert context['post'] == orm_mock['post_stub']
