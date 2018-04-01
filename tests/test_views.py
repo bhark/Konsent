@@ -43,6 +43,24 @@ def user_mock(mocker):
     User_mock.query.filter().first.return_value = user_stab
 
 
+@pytest.fixture
+def post_mock(mocker):
+    mocker.patch('konsent.db')
+    mocker.patch('konsent.update_phases')
+
+    Post_mock = mocker.patch('konsent.Post')
+
+    post_stub = MagicMock()
+    post_stub.time_since_create = {'hours': 0}
+
+    Post_mock.query.filter().all.return_value = [post_stub]
+
+    Post_mock.query.filter().filter().all.return_value = [post_stub]
+    Post_mock.create_date = datetime.datetime.now()
+
+    return post_stub
+
+
 @pytest.fixture()
 def client_logged(user_mock):
     app.config['TESTING'] = True
@@ -50,7 +68,6 @@ def client_logged(user_mock):
 
     data = {'username': 'test_user',
             'password': 'test_password'}
-
 
     with app.test_client() as client:
         client.post('/login', data=data)
@@ -104,19 +121,7 @@ def test_login_existing_user(client, user_mock):
     assert response.headers['Location'].endswith('/')
 
 
-def test_phase1(client_logged, mocker):
-    mocker.patch('konsent.db')
-    mocker.patch('konsent.update_phases')
-
-    Post_mock = mocker.patch('konsent.Post')
-
-    post_stub = MagicMock()
-    post_stub.time_since_create = {'hours': 0}
-
-    Post_mock.query.filter().filter().all.return_value = [post_stub]
-    Post_mock.create_date = datetime.datetime.now()
-
-
+def test_phase1(client_logged, post_mock):
     with captured_templates(app) as templates:
 
         response = client_logged.get('/phase1')
@@ -125,4 +130,16 @@ def test_phase1(client_logged, mocker):
         [template, context], *_ = templates
         assert template.name == 'phase1.html'
         print('CONT:', context)
-        assert context['posts'] == [post_stub]
+        assert context['posts'] == [post_mock]
+
+
+def test_phase2(client_logged, post_mock):
+    with captured_templates(app) as templates:
+
+        response = client_logged.get('/phase2')
+
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
+        assert template.name == 'phase2.html'
+        print('CONT:', context)
+        assert context['posts'] == [post_mock]

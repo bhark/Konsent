@@ -9,7 +9,6 @@ import random
 
 import pytest
 from selenium import webdriver
-from selenium.webdriver.support import ui
 
 
 URL = 'http://127.0.0.1:5000/'
