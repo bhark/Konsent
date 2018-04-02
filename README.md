@@ -37,3 +37,25 @@ You don't have to know anything about programming or the likes to contribute to 
 Contributing to the code-base is easy if you know Python and the basics of Git, and there's lots to be done. Simply install all the dependencies, as explained in the chapter above, grab your favorite code editor, take a look at the open issues and fire away. We're following the branching model explained [here](https://nvie.com/posts/a-successful-git-branching-model/) loosely. We're following the [PEP8](https://pep8.org/) style guide.
 
 You can ship your changes pretty much however you want, although a good old pull-request is preferred.
+
+## Changelog
+
+### v. 2.0a
+
+- Got rid of "display name" and made some rules for usernames
+
+- Buffed up password storing security (replaced hashlib with bcrypt)
+
+- Implemented CSRF (Cross-site request forgery) protection
+
+- Added automated testing
+
+- Enforced better passwords
+
+- Refactored everything to comply with PEP8
+
+- Restructured the whole project
+
+- Switched to ORM (SQLAlchemy)
+
+- Smashed a ton of bugs
