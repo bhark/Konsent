@@ -14,14 +14,18 @@ Flask-SQLAlchemy = "==2.3.2"
 itsdangerous = "==0.24"
 "Jinja2" = "==2.10"
 MarkupSafe = "==1.0"
-passlib = "==1.7.1"
 SQLAlchemy = "==1.2.5"
 Werkzeug = "==0.14.1"
+bcrypt = "*"
 
 
 [dev-packages]
 
 pytest-watch = "*"
+pytest-mock = "*"
+blinker = "*"
+coverage = "*"
+pytest-cov = "*"
 
 
 [requires]
