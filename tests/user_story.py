@@ -29,7 +29,6 @@ LOGIN_PASS_FIELD = 'div.form-group:nth-child(2) > input:nth-child(2)'
 LOGIN_CONFIG_BUTTON = '.btn'
 ALERT = '.alert'
 TOP_NEW_ACCOUNT = 'li.nav-item:nth-child(1) > a:nth-child(1)'
-TOP_LOGIN = 'li.nav-item:nth-child(2) > a:nth-child(1)'
 REGISTER_SUBMIT_BUTTON = 'input.btn'
 REGISTER_CREATE_NEW_UNION_BUTTON = 'a.btn'
 REGISTER_USERNAME = '#username'
@@ -59,7 +58,7 @@ def browser():
     firefox = webdriver.Firefox()
     firefox.implicitly_wait(20)
     yield firefox 
-    firefox.quit()
+    # firefox.quit()
 
 
 def test_user_story_account(browser):
@@ -92,25 +91,22 @@ def test_user_story_account(browser):
     find(UNION_REGISTER_PASSWORD).send_keys(TEST_UNION_PASSWORD)
     find(UNION_REGISTER_PASSWORD_CONFIRM).send_keys(TEST_UNION_PASSWORD)
     find(UNION_REGISTER_SUBMIT_BUTTON).click()
+    assert "Your union is now registered" in find(ALERT).text
 
     # she goes back to register a new account
-    find(TOP_NEW_ACCOUNT).click()
+    find(HOME_NEW_ACCOUNT_BUTTON).click()
     # she fills the required fields
     find(REGISTER_USERNAME).send_keys(TEST_USERNAME)
     find(REGISTER_PASSWORD).send_keys(TEST_PASSWORD)
     find(REGISTER_CONFIRM_PASSWORD).send_keys(TEST_PASSWORD)
     # she selects her new union
     options = find(REGISTER_UNION).find_elements_by_tag_name('option')
-    test_union_option = next(
-        opt for opt in options if opt.get_property('value') == TEST_UNION_NAME)
-    test_union_option.click()
     find(REGISTER_UNION_PASSWORD).send_keys(TEST_UNION_PASSWORD)
     # she sumbits the information
     find(REGISTER_SUBMIT_BUTTON).click()
     assert 'signed up' in find(ALERT).text
 
     # she logins with the correct credentials
-    find(TOP_LOGIN).click()
     find(LOGIN_USER_FIELD).send_keys(TEST_USERNAME)
     find(LOGIN_PASS_FIELD).send_keys(TEST_PASSWORD)
     find(LOGIN_CONFIG_BUTTON).click()
