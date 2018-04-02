@@ -1,15 +1,16 @@
 # coding=iso-8859-1
 import argparse
 import datetime
-import hashlib
 from datetime import timedelta
 from functools import wraps
 from sys import argv
 
+import bcrypt
 import click
+from sqlalchemy import and_
 from flask import Flask, g, render_template, flash, redirect
 from flask import url_for, session, logging, request
-from sqlalchemy import and_
+
 from wtforms.csrf.core import CSRF
 from wtforms.csrf.session import SessionCSRF
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
@@ -252,17 +253,21 @@ def register():
         username = form.username.data
         users_union = form.users_union.data
         password = form.password.data
-
         union_password_candidate = form.union_password.data
+
+        # check if username exists
+        user_exists = User.query.filter(User.username == username).first()
+        if user_exists is not None:
+            error = 'This username has already been taken'
+            return render_template('register.html', error=error, form=form)
 
         # find union
         union = Union.query.filter(Union.union_name == users_union).first()
-        print(union)
 
         if union is not None:
-            if union.check_password(union_password_candidate):
+            if check_password(union_password_candidate, union.password):
                 # password matches hash
-                user = User(username, password, union)
+                user = User(username, hash_password(password), union)
                 # send to database
                 db.session.add(user)
                 db.session.commit()
@@ -288,7 +293,7 @@ def register_union():
         union_name = form.union_name.data
         password = form.password.data
 
-        union = Union(union_name, password)
+        union = Union(union_name, hash_password(password))
         db.session.add(union)
         # commit to database
         db.session.commit()
@@ -316,7 +321,7 @@ def login():
             connected_union = user.union.id
 
             # compare password to hash
-            if user.check_password(password_candidate):
+            if check_password(password_candidate, user.password):
                 # that's a match, set session variables
                 session['logged_in'] = True
                 session['username'] = username
@@ -487,6 +492,14 @@ def about():
 
 
 # FUNCTIONS
+
+def hash_password(passwd):
+    hashed_passwd = bcrypt.hashpw(passwd.encode(), bcrypt.gensalt())
+    return hashed_passwd
+
+
+def check_password(canditate, stored):
+    return bcrypt.checkpw(canditate.encode(), stored.encode())
 
 
 # move posts on to next phase if ready
@@ -661,3 +674,7 @@ def main(action,
     elif action == 'createdb':
         app.app_context().push()
         db.create_all()
+
+
+if __name__ == '__main__':
+    main()

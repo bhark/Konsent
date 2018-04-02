@@ -96,27 +96,19 @@ class Union(db.Model):
 
     def __init__(self, union_name, password):
         self.union_name = union_name
-
-        self.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        self.password = password
 
     id = db.Column(
         db.Integer, primary_key=True, autoincrement=True, unique=True)
     union_name = db.Column(db.Unicode(length=255), nullable=False)
-    password = db.Column(db.Unicode(length=255), nullable=False)
-
-    def check_password(self, password):
-        """
-        Checks the validity of the union's password.
-        """
-        self.password = self.password.encode('utf-8')
-        return bcrypt.hashpw(password.encode('utf-8'), self.password) == self.password
+    password = db.Column(db.String(length=255), nullable=False)
 
 
 class User(db.Model):
     __tablename__ = 'users'
 
     def __init__(self, username, password, union):
-        self.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        self.password = password
         self.username = username
         self.union = union
 
@@ -128,13 +120,6 @@ class User(db.Model):
     union_id = db.Column(
         db.Integer, db.ForeignKey('unions.id'), nullable=False)
     union = db.relationship('Union', backref=db.backref('users', lazy=True))
-
-    def check_password(self, password):
-        """
-        Checks the validity of the user's password.
-        """
-        self.password = self.password.encode('utf-8')
-        return bcrypt.hashpw(password.encode('utf-8'), self.password) == self.password
 
 
 class Vote(db.Model):
