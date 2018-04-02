@@ -38,9 +38,18 @@ def user_mock(mocker):
     user_stab.union.union_name = 'test_union'
     user_stab.union.id = '1'
     user_stab.id = '1'
-    user_stab.check_password.return_value = True
 
-    User_mock.query.filter().first.return_value = user_stab
+    query = User_mock.query.filter().first
+    query.return_value = user_stab
+
+    return locals()
+
+
+@pytest.fixture
+def passwd_mock(mocker):
+    check_password = mocker.patch('konsent.check_password')
+    check_password.return_value = True
+    mocker.patch('konsent.hash_password')
 
 
 @pytest.fixture
@@ -93,7 +102,7 @@ def forms_mock(mocker):
 
 
 @pytest.fixture()
-def client_logged(user_mock):
+def client_logged(user_mock, passwd_mock):
     app.config['TESTING'] = True
     app.secret_key = 'test_views'
 
@@ -134,7 +143,7 @@ def test_login_non_existing_user(client, mocker):
         assert context['error']
 
 
-def test_login_existing_user(client, user_mock):
+def test_login_existing_user(client, user_mock, passwd_mock):
 
     data = {'username': 'test_user',
             'password': 'test_password'}
@@ -285,8 +294,9 @@ def test_register_get(client, orm_mock):
         assert template.name == 'register.html'
 
 
-def test_register_post(client, user_mock, orm_mock, forms_mock):
-    orm_mock['union_stub'].check_password.return_value = True
+def test_register_post(client, user_mock, passwd_mock, orm_mock, forms_mock):
+    user_mock['query'].return_value = None
+
     with captured_templates(app) as templates:
 
         # why this works? :O
@@ -296,6 +306,7 @@ def test_register_post(client, user_mock, orm_mock, forms_mock):
 
         assert response.status == '200 OK'
         [template, context], *_ = templates
+        print("CONTENT:", context)
         assert template.name == 'login.html'
 
 
@@ -311,9 +322,7 @@ def test_register_union_get(client, orm_mock):
         assert template.name == 'register-union.html'
 
 
-def test_register_union_post(client, orm_mock, forms_mock):
-    orm_mock['union_stub'].check_password.return_value = True
-
+def test_register_union_post(client, passwd_mock, orm_mock, forms_mock):
     with captured_templates(app) as templates:
 
         response = client.post('/register-union',

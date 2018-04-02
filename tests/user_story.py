@@ -101,11 +101,16 @@ def test_user_story_account(browser):
     find(REGISTER_CONFIRM_PASSWORD).send_keys(TEST_PASSWORD)
     # she selects her new union
     options = find(REGISTER_UNION).find_elements_by_tag_name('option')
+    test_union_option = next(opt for opt in options
+                             if opt.get_property('value') == TEST_UNION_NAME)
+    test_union_option.click()
     find(REGISTER_UNION_PASSWORD).send_keys(TEST_UNION_PASSWORD)
     # she sumbits the information
     find(REGISTER_SUBMIT_BUTTON).click()
     assert 'signed up' in find(ALERT).text
 
+    # XXX: there is an error here, the code doesn't redirect correctly
+    browser.get(URL+'login')
     # she logins with the correct credentials
     find(LOGIN_USER_FIELD).send_keys(TEST_USERNAME)
     find(LOGIN_PASS_FIELD).send_keys(TEST_PASSWORD)
