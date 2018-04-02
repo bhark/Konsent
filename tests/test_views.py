@@ -61,15 +61,6 @@ def orm_mock(mocker):
 
     Post_mock.query.get.return_value = post_stub
 
-    UpvoteForm_mock = mocker.patch('konsent.UpvoteForm')
-    UpvoteForm_mock().validate.return_value = True
-
-    CommentForm_mock = mocker.patch('konsent.CommentForm')
-    CommentForm_mock().validate.return_value = True
-
-    RegisterForm_mock = mocker.patch('konsent.RegisterForm')
-    RegisterForm_mock().validate.return_value = True
-
     Union_mock = mocker.patch('konsent.Union')
     Union_mock.query.filter().count.return_value = 1
     union_stub = Union_mock.query.filter().first()
@@ -80,6 +71,23 @@ def orm_mock(mocker):
     Comment_mock = mocker.patch('konsent.Comment')
     comment_stub = MagicMock()
     Comment_mock.return_value = comment_stub
+
+    return locals()
+
+
+@pytest.fixture
+def forms_mock(mocker):
+    UpvoteForm_mock = mocker.patch('konsent.UpvoteForm')
+    UpvoteForm_mock().validate.return_value = True
+
+    CommentForm_mock = mocker.patch('konsent.CommentForm')
+    CommentForm_mock().validate.return_value = True
+
+    RegisterForm_mock = mocker.patch('konsent.RegisterForm')
+    RegisterForm_mock().validate.return_value = True
+
+    RegisterUnionForm_mock = mocker.patch('konsent.RegisterUnionForm')
+    RegisterUnionForm_mock().validate.return_value = True
 
     return locals()
 
@@ -190,7 +198,7 @@ def test_post1_get(client_logged, orm_mock):
         assert context['post_data']['votes'] == 0
 
 
-def test_post1_post_vote_up(client_logged, orm_mock):
+def test_post1_post_vote_up(client_logged, orm_mock, forms_mock):
     orm_mock['Vote_query'].return_value = None
     orm_mock['post_stub'].votes_count = 0
 
@@ -207,7 +215,7 @@ def test_post1_post_vote_up(client_logged, orm_mock):
         assert orm_mock['post_stub'].votes_count == 1
 
 
-def test_post1_post_vote_down(client_logged, orm_mock, mocker):
+def test_post1_post_vote_down(client_logged, orm_mock, forms_mock):
     orm_mock['post_stub'].votes_count = 1
 
     with captured_templates(app) as templates:
@@ -233,7 +241,7 @@ def test_post2_get(client_logged, orm_mock):
         assert context['post'] == orm_mock['post_stub']
 
 
-def test_post2_post(client_logged, orm_mock):
+def test_post2_post(client_logged, orm_mock, forms_mock):
     with captured_templates(app) as templates:
 
         response = client_logged.post('/phase2/post/1')
@@ -277,10 +285,11 @@ def test_register_get(client, orm_mock):
         assert template.name == 'register.html'
 
 
-def test_register_post(client, user_mock, orm_mock):
+def test_register_post(client, user_mock, orm_mock, forms_mock):
     orm_mock['union_stub'].check_password.return_value = True
     with captured_templates(app) as templates:
 
+        # why this works? :O
         response = client.post('/register',
                               data={'username': 'test_username',
                                     'password': 'test_passw0rD'})
@@ -288,3 +297,32 @@ def test_register_post(client, user_mock, orm_mock):
         assert response.status == '200 OK'
         [template, context], *_ = templates
         assert template.name == 'login.html'
+
+
+def test_register_union_get(client, orm_mock):
+
+    with captured_templates(app) as templates:
+
+        response = client.get('/register-union')
+
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
+
+        assert template.name == 'register-union.html'
+
+
+def test_register_union_post(client, orm_mock, forms_mock):
+    orm_mock['union_stub'].check_password.return_value = True
+
+    with captured_templates(app) as templates:
+
+        response = client.post('/register-union',
+                              data={'union_name': 'test_union_username',
+                                    'password': 'test_passw0rD',
+                                    'confirm': 'test_passw0rD'})
+
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
+
+        # XXX: This should not redirect to index
+        assert template.name == 'index.html'
