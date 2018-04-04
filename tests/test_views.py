@@ -306,7 +306,6 @@ def test_register_post(client, user_mock, passwd_mock, orm_mock, forms_mock):
 
         assert response.status == '200 OK'
         [template, context], *_ = templates
-        print("CONTENT:", context)
         assert template.name == 'login.html'
 
 
