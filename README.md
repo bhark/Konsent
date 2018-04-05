@@ -10,11 +10,11 @@ When you register a new account, you link the account to a community, using a pa
 
 When a new issue is posted by a member of the union, it goes through three phases before being marked as solved. Here's a brief explanation of the three phases:
 
-    Phase 1: Other members of the union can vote for issues they feel are relevant. When an issue has been voted for by half of the community, it will progress to phase 2.
+- Phase 1: Other members of the union can vote for issues they feel are relevant. When an issue has been voted for by half of the community, it will progress to phase 2.
 
-    Phase 2: The community may suggest what they feel would be an appropriate solution to the issue at hand. They may also vote for other solutions that they agree with. After one day, the issue will progress to phase 3, bringing the solution with the most votes along with it.
+- Phase 2: The community may suggest what they feel would be an appropriate solution to the issue at hand. They may also vote for other solutions that they agree with. After one day, the issue will progress to phase 3, bringing the solution with the most votes along with it.
 
-    Phase 3: Community-members may veto the solution if they feel that the solution is deeply disturbing, and can in no way benefit the greater good of the community. If a community-member decides to veto a solution, he will have to provide a reason for the veto. The name of the member who vetoed will be visible to every community-member. If no veto has been put in place after one day, the issue will be marked as solved, and the solution will be carried out.
+- Phase 3: Community-members may veto the solution if they feel that the solution is deeply disturbing, and can in no way benefit the greater good of the community. If a community-member decides to veto a solution, he will have to provide a reason for the veto. The name of the member who vetoed will be visible to every community-member. If no veto has been put in place after one day, the issue will be marked as solved, and the solution will be carried out.
 
 The concept of Konsent is just as much under development as the code-base, and everything is potentially subject to change. If you have any ideas on how we could improve the concept, share them in a new post on /f/konsent.
 
