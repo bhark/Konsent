@@ -22,7 +22,7 @@ The concept of Konsent is just as much under development as the code-base, and e
 
 If you want to give Konsent a try on your local machine, here's how it's done. There's a setup script included, if it doesn't work properly you'll want to install manually.
 
-*Automatic Installation*
+**Automatic Installation**
 
 - Install Python 3.
 
@@ -34,7 +34,7 @@ If you want to give Konsent a try on your local machine, here's how it's done. T
 
 - Populate the database by running `python konsent createdb`.
 
-*Manual Installation*
+**Manual Installation**
 
 - Install Python 3.
 
@@ -48,7 +48,7 @@ If you want to give Konsent a try on your local machine, here's how it's done. T
 
 - Populate the database by running `python konsent createdb`.
 
-*Running Konsent after installation*
+**Running Konsent after installation**
 
 Konsent has a few optional parameters. Execute from base directory using: `python konsent runserver -d [DATABASE NAME] -p [DATABASE PASSWORD] -H [DATABASE HOST] -u [DATABASE USER]`
 
@@ -61,25 +61,3 @@ Contributing to the code-base is easy if you know Python and the basics of Git, 
 If you're planning to participate regularly and want to introduce yourself and get to know the others, you can do so on [our Raddle forum](https://raddle.me/f/Konsent).
 
 You can ship your changes pretty much however you want, although a good old pull-request is preferred. Alternatively, contact [me on Raddle.me](https://raddle.me/u/dellitsni) or send me an email at adrianelias@protonmail.com.
-
-## Changelog
-
-### v. 2.0a
-
-- Got rid of "display name" and made some rules for usernames
-
-- Buffed up password storing security (replaced hashlib with bcrypt)
-
-- Implemented CSRF (Cross-site request forgery) protection
-
-- Added automated testing
-
-- Enforced better passwords
-
-- Refactored everything to comply with PEP8
-
-- Restructured the whole project
-
-- Switched to ORM (SQLAlchemy)
-
-- Smashed a ton of bugs
