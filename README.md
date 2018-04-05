@@ -24,9 +24,9 @@ Konsent is written in Python, using Flask. Before you can run Konsent on your ow
 
 - The MySQL database. Simply import the database schema from `konsent.sql` and change the database credentials on the first lines of `flask_app.py`. This can be done in PHPMyAdmin simply by clicking `import` and choosing `konsent.sql`, or using the MySQL command line: `mysql -u <username> -p konsent < konsent.sql`
 
-- Install Python. Konsent is written in Python 2.7, which can be installed from [the official Python website](https://www.python.org/ftp/python/2.7.14/Python-2.7.14.tar.xz).
+- Install Python. Konsent is written in Python 3, which can be installed from [the official Python website](https://www.python.org/ftp/python/3.6.5/Python-3.6.5.tar.xz).
 
-- Install the required Python packages. The easiest way to install Python packages is with Pip, which comes with Python 2.7 by default. The packages required to run Konsent are: `flask, flask-mysqldb, wtforms, passlib, functools, datetime`. To install with pip: `pip install datetime flask flask-mysqldb wtforms passlib functools`. Some of these packages may already be installed, if so, just skip those.
+- Install the required Python packages. The easiest way to install Python packages is with Pip, which comes with Python by default. The packages required to run Konsent are: `flask, flask-mysqldb, wtforms, passlib, functools, datetime`. To install with pip: `pip install datetime flask flask-mysqldb wtforms passlib functools`. Some of these packages may already be installed, if so, just skip those.
 
 When everything is ready to go, open up a command line (terminal, konsole, command prompt or something along those lines - depends on your OS), `git clone` this repository, `cd` to the repository and start `flask_app.py` using Python: `python flask_app.py`. If you want to adjust some settings (such as the resting time for a post in phase 2 and 3), you can do so on one of the first lines in `flask_app.py`.
 
