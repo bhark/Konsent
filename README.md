@@ -4,38 +4,60 @@
 
 > It's about time that we rethink the way we make decisions collectively. Konsent is my suggestion for an alternative to moderation, an alternative to hierarchy and unequal freedom. Konsent is a platform designed to help groups make decisions without hierarchy and representatives, built on anarchist values.
 
-The concept works roughly like this:
+Here's a brief explanation of the concept:
 
-- All members of the community can post "issues". Simple posts with a title and a body, which point out something they would like to be solved. An example could be a proposal to ban a certain community member.
+When you register a new account, you link the account to a community, using a password provided to you by the community members. Once registered, you are given the ability to post new issues as well as participate in solving existing issues.
 
-- When an issue is posted, it goes to phase one. There are three phases; when an issue has progressed through all three phases, it will have been solved, and the solution will have been either carried out or dismissed. Here's a short explanation of each phase:
+When a new issue is posted by a member of the union, it goes through three phases before being marked as solved. Here's a brief explanation of the three phases:
 
-- Phase 1: A filtering process. Every member of the community can vote directly for the issues they feel are relevant. Members cannot downvote issues. When half (adjust if needed) of the community-members have voted on an issue, it progresses to phase 2. This way, important issues are solved faster than lesser important issues.
+- Phase 1: Other members of the union can vote for issues they feel are relevant. When an issue has been voted for by half of the community, it will progress to phase 2.
 
-- Phase 2: Time to solve the issue. Every member of the community can suggest solutions to the issue. Members can vote on the solution they like the most. After one day (again, adjust if needed), the solution with the most votes progresses to phase 3.
+- Phase 2: The community may suggest what they feel would be an appropriate solution to the issue at hand. They may also vote for other solutions that they agree with. After one day, the issue will progress to phase 3, bringing the solution with the most votes along with it.
 
-- Phase 3: Achieving concensus. The solution sits here without doing anything for one day (adjust if needed). If nothing happens during this resting period, the solution is carried through. During this period, every member of the community (perhaps only members with a certain reputation when it comes to online communities, to avoid trolls and griefers) can place a "veto", much like in ancient Greece. For physical communities, users can place as many vetoes as they want; for online communities, every user should probably have a fixed amount of vetoes (i think two or three per month would be a good fit). When a solution is vetoed, the vetoing community member will have to give an acceptable reason for the veto, and all other members of the community will be able to see the reason given and by who the solution was vetoed. It is of course required that members of the community adapt the mindset of concensus decision-making: cut some here, give some there. Can't always have it exactly your way if we are to respect the opinions of every member of the community.
+- Phase 3: Community-members may veto the solution if they feel that the solution is deeply disturbing, and can in no way benefit the greater good of the community. If a community-member decides to veto a solution, he will have to provide a reason for the veto. The name of the member who vetoed will be visible to every community-member. If no veto has been put in place after one day, the issue will be marked as solved, and the solution will be carried out.
 
-- In the case of online communities, users could have the option to vote on banning another member from partaking in decision-making. This could be used to avoid trolls and such.
-
-Konsent was originally designed for physical communities, such as a student council, and needs some work before it's ready for online communities, since online communities are typically very open to new members, and doesn't have the same integrity as a physical community.
+The concept of Konsent is just as much under development as the code-base, and everything is potentially subject to change. If you have any ideas on how we could improve the concept, share them in a new post on /f/konsent.
 
 ## Installation
 
-Konsent is written in Python, using Flask. Before you can run Konsent on your own machine, three things need to be configured:
+If you want to give Konsent a try on your local machine, here's how it's done. There's a setup script included, if it doesn't work properly you'll want to install manually.
 
-- The MySQL database. Simply import the database schema from `konsent.sql` and change the database credentials on the first lines of `flask_app.py`. This can be done in PHPMyAdmin simply by clicking `import` and choosing `konsent.sql`, or using the MySQL command line: `mysql -u <username> -p konsent < konsent.sql`
+**Automatic Installation**
 
-- Install Python. Konsent is written in Python 2.7, which can be installed from [the official Python website](https://www.python.org/ftp/python/2.7.14/Python-2.7.14.tar.xz).
+- Install Python 3.
 
-- Install the required Python packages. The easiest way to install Python packages is with Pip, which comes with Python 2.7 by default. The packages required to run Konsent are: `flask, flask-mysqldb, wtforms, passlib, functools, datetime`. To install with pip: `pip install datetime flask flask-mysqldb wtforms passlib functools`. Some of these packages may already be installed, if so, just skip those.
+- Clone Konsent using git, `git clone https://github,cm/dellitsni/Konsent/` or download and unzip somewhere safe.
 
-When everything is ready to go, open up a command line (terminal, konsole, command prompt or something along those lines - depends on your OS), `git clone` this repository, `cd` to the repository and start `flask_app.py` using Python: `python flask_app.py`. If you want to adjust some settings (such as the resting time for a post in phase 2 and 3), you can do so on one of the first lines in `flask_app.py`.
+- Install dependencies by running `python setup.py install`.
+
+- Start your MySQL/MariaDB server and create a new database called `konsent`.
+
+- Populate the database by running `python konsent createdb`.
+
+**Manual Installation**
+
+- Install Python 3.
+
+- Clone Konsent using git, `git clone https://github.com/dellitsni/Konsent/` or download and unzip somewhere safe.
+
+- Use `pip` to install the dependencies: `pip install flask flask-mysqldb flaks-sqlalchemy wtforms bcrypt`. 
+
+- Install `konsent` as a module by running `pip install konsent` in Konsent's parent folder. If you want to develop on Konsent, add the `-e` flag.
+
+- Start your MySQL/MariaDB server and create a new database called `konsent`.
+
+- Populate the database by running `python konsent createdb`.
+
+**Running Konsent after installation**
+
+Konsent has a few optional parameters. Execute from base directory using: `python konsent runserver -d [DATABASE NAME] -p [DATABASE PASSWORD] -H [DATABASE HOST] -u [DATABASE USER]`
 
 ## How to contribute
 
-You don't have to know anything about programming or the likes to contribute to Konsent - developing the concept further is currently just as important. In the future, discussion and concept development will probably happen on the subraddle /f/konsent, on Raddle.me. Until then we can use GitHub's issues.
+You don't have to know anything about programming or the likes to contribute to Konsent - developing the concept further is currently just as important. Concept development happens on [/f/Konsent](https://raddle.me/f/Konsent). Discussion happens both on GitHub and Raddle.
 
-Contributing to the code-base is easy if you know Python and the basics of Git, and there's lots to be done. Simply install all the dependencies, as explained in the chapter above, grab your favorite code editor, take a look at the open issues and fire away. We're following the branching model explained [here](https://nvie.com/posts/a-successful-git-branching-model/) loosely.
+Contributing to the code-base is easy if you know Python and the basics of Git, and there's lots to be done. Simply install all the dependencies, as explained in the chapter above, grab your favorite code editor, take a look at the open issues and fire away. We're following the branching model explained [here](https://nvie.com/posts/a-successful-git-branching-model/) loosely. We're following the [PEP8](https://pep8.org/) style guide.
 
-You can ship your changes pretty much however you want, although a good old pull-request is preferred.
+If you're planning to participate regularly and want to introduce yourself and get to know the others, you can do so on [our Raddle forum](https://raddle.me/f/Konsent).
+
+You can ship your changes pretty much however you want, although a good old pull-request is preferred. Alternatively, contact [dellitsni](https://raddle.me/u/dellitsni) or one of the other developers on [raddle.me](https://raddle.me).

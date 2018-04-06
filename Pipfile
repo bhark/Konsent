@@ -1,0 +1,33 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+Flask = "==0.12.2"
+WTForms = "==2.1"
+click = "==6.7"
+Flask-SQLAlchemy = "==2.3.2"
+itsdangerous = "==0.24"
+"Jinja2" = "==2.10"
+MarkupSafe = "==1.0"
+SQLAlchemy = "==1.2.5"
+Werkzeug = "==0.14.1"
+bcrypt = "*"
+
+
+[dev-packages]
+
+pytest-watch = "*"
+pytest-mock = "*"
+blinker = "*"
+coverage = "*"
+pytest-cov = "*"
+
+
+[requires]
+
+python_version = "3.5"

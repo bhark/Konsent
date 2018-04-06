@@ -1,0 +1,10 @@
+click==6.7
+Flask==0.12.2
+Flask-SQLAlchemy==2.3.2
+itsdangerous==0.24
+Jinja2==2.10
+MarkupSafe==1.0
+SQLAlchemy==1.2.5
+Werkzeug==0.14.1
+WTForms==2.1
+bcrypt==3.1.4
