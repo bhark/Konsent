@@ -42,7 +42,7 @@ If you want to give Konsent a try on your local machine, here's how it's done. T
 
 - Use `pip` to install the dependencies: `pip install flask flask-mysqldb flaks-sqlalchemy wtforms bcrypt`. Should be executed as superuser if you're on Linux.
 
-- Install `konsent` as a module in develop mode by running `pip`: `pip install konsent -e` in Konsent's parent folder.
+- Install `konsent` as a module by running `pip install konsent` in Konsent's parent folder. If you want to develop on Konsent, add the `-e` flag.
 
 - Start your MySQL/MariaDB server and create a new database called `konsent`.
 
