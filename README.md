@@ -60,4 +60,4 @@ Contributing to the code-base is easy if you know Python and the basics of Git, 
 
 If you're planning to participate regularly and want to introduce yourself and get to know the others, you can do so on [our Raddle forum](https://raddle.me/f/Konsent).
 
-You can ship your changes pretty much however you want, although a good old pull-request is preferred. Alternatively, contact [me on Raddle.me](https://raddle.me/u/dellitsni) or send me an email at adrianelias@protonmail.com.
+You can ship your changes pretty much however you want, although a good old pull-request is preferred. Alternatively, contact [dellitsni](https://raddle.me/u/dellitsni) or one of the other developers on [raddle.me](https://raddle.me).
