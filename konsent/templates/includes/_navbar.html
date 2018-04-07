@@ -1,48 +1,50 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="navbar-brand" href="/">Konsent</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <a class="navbar-brand" href="/">Konsent</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
-  </button>
-
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
-      {% if session['username'] %}
-      <li class="nav-item">
-        <a class="nav-link" href="/phase1">Issues (phase 1)</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/phase2">Solution proposals (phase 2)</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/phase3">Solutions (phase 3)</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/completed">Completed solutions</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/vetoed">Vetoed solutions</a>
-      </li>
-      {% endif %}
-    </ul>
-
-    <ul class="nav navbar-nav navbar-right">
-      {% if session['username'] %}
-      <li class="nav-item">
-        <a class="nav-link" href="/logout">Log out</a>
-      </li>
-      {% else %}
-      <li class="nav-item">
-        <a class="nav-link" href="/register">Register new account</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/login">Log in</a>
-      </li>
-      {% endif %}
-      <li class="nav-item">
-        <a class="nav-link" href="/about">About Konsent</a>
-      </li>
-
-    </ul>
-
-  </div>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            {% if session['username'] %}
+            <li class="nav-item">
+                <a class="nav-link" href="/phase1">Issues (phase 1)</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/phase2">Solution proposals (phase 2)</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/phase3">Solutions (phase 3)</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/completed">Completed solutions</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/vetoed">Vetoed solutions</a>
+            </li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Management <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="/members">Union members</a></li>
+                </ul>
+            </li>
+            {% endif %}
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            {% if session['username'] %}
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">Log out</a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+                <a class="nav-link" href="/register">Register new account</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/login">Log in</a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+                <a class="nav-link" href="/about">About Konsent</a>
+            </li>
+        </ul>
+    </div>
 </nav>

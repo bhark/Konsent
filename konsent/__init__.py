@@ -323,6 +323,7 @@ def login():
                 session['username'] = username
                 session['user_id'] = user.id
                 session['connected_union'] = connected_union
+                session['connected_union_name'] = connected_union_name
                 flash('Youve been logged in.', 'success')
                 return redirect(url_for('index'))
             else:
@@ -486,6 +487,11 @@ def completed():
 def about():
     return render_template('about.html')
 
+@app.route('/members')
+def members():
+    union = session['connected_union']
+    return render_template('union-members.html', members=find_members(union))
+
 
 # FUNCTIONS
 
@@ -545,6 +551,15 @@ def list_unions():
         result.append((union.union_name, union.union_name))
     return result
 
+# find members of union
+def find_members(union):
+    members = User.query.filter(User.union_id == union).all()
+
+    # add members to tuple
+    result = []
+    for member in members:
+        result.append(member.username)
+    return result
 
 # find solution proposals for a certain post
 def list_comments(post_id, username):
