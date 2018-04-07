@@ -496,9 +496,11 @@ def members():
     union = session['connected_union']
     return render_template('union-members.html', members=list_members(union))
 
-@app.route('/who-voted/<int:post_id>')
-def who_voted(post_id):
-    return render_template('who-voted.html', votes=list_who_voted(post_id))
+# who voted on this post?
+@app.route('/who-voted/<string:type>/<int:id>')
+def who_voted(type, id):
+    votes = list_who_voted(id, type)
+    return render_template('who-voted.html', votes=votes)
 
 # FUNCTIONS
 
@@ -559,8 +561,12 @@ def list_unions():
     return result
 
 # list who voted on issue
-def list_who_voted(post_id):
-    votes = Vote.query.filter(Vote.post_id == post_id).all()
+def list_who_voted(id, type):
+
+    if type == "post":
+        votes = Vote.query.filter(Vote.post_id == id).all()
+    else:
+        votes = Vote.query.filter(Vote.comment_id == id).all()
 
     # add votes to tuple
     result = []
