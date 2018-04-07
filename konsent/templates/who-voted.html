@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    <h1 class="heading">Votes on this post</h1>
+
+    {% if votes %}
+
+    <ul class="list-group">
+        {% for vote in votes %}
+            <li class="list-group-item">{{ vote }}</li>
+        {% endfor %}
+    </ul>
+
+    {% endif %}
+
+    </div>
+
+{% endblock %}

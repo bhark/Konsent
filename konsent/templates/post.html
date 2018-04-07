@@ -11,7 +11,7 @@
     <div class="form-group">
       {{ render_field(form.vote, type="hidden", class_="form-control") }}
       {{ form.csrf_token }}
-      <p>{{ post_data['votes'] }} votes</p>
+      <p><a href="/who-voted/{{ post.id }}">{{ post_data['votes'] }} votes</a></p>
       <input class="btn btn-primary" type="submit" value={% if post_data['voted'] %}"Cancel vote"{% else %}"Vote up"{% endif %}>
     </div>
   </form>

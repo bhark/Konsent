@@ -18,7 +18,7 @@ from .forms import (RegisterForm, RegisterUnionForm, ArticleForm,
 
 # CURRENT VERSION: 0.2a
 # config
-RESTING_TIME = 1  # resting time in phase 2 and 3 in minutes - 1440 = 2 days
+RESTING_TIME = 666  # resting time in phase 2 and 3 in minutes - 1440 = 2 days
 REQUIRED_VOTES_DIVISOR = 2  # divide by this to progress to stage 2
 NO_RESULTS_ERROR = 'Nothing to show.'
 
@@ -162,10 +162,14 @@ def post1(post_id):
             db.session.add(vote)
             # count union members
             union_members = Union.query.filter(
-                Union.id == session['connected_union']).count()
+                User.union_id == session['connected_union']).count()
+
+            # update vote count variable
+            post_data['votes'] = len(post.votes)
 
             # if enough union members have voted, move this post to phase 2
             if post_data['votes'] >= union_members / REQUIRED_VOTES_DIVISOR:
+                app.logger.info('Votes: {0}, union_members: {1}, divisor: {2}, result: {3}'.format(post_data['votes'], union_members, REQUIRED_VOTES_DIVISOR, union_members/REQUIRED_VOTES_DIVISOR))
                 # reset create_date
                 post.create_date = datetime.datetime.now()
                 # increment phase value
@@ -490,8 +494,11 @@ def about():
 @app.route('/members')
 def members():
     union = session['connected_union']
-    return render_template('union-members.html', members=find_members(union))
+    return render_template('union-members.html', members=list_members(union))
 
+@app.route('/who-voted/<int:post_id>')
+def who_voted(post_id):
+    return render_template('who-voted.html', votes=list_who_voted(post_id))
 
 # FUNCTIONS
 
@@ -551,8 +558,20 @@ def list_unions():
         result.append((union.union_name, union.union_name))
     return result
 
+# list who voted on issue
+def list_who_voted(post_id):
+    votes = Vote.query.filter(Vote.post_id == post_id).all()
+
+    # add votes to tuple
+    result = []
+    for vote in votes:
+        author = User.query.filter(User.id == vote.author_id).one()
+        app.logger.info(author)
+        result.append(author.username)
+    return result
+
 # find members of union
-def find_members(union):
+def list_members(union):
     members = User.query.filter(User.union_id == union).all()
 
     # add members to tuple
