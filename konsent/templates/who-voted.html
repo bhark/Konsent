@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-    <h1 class="heading">Votes on this post</h1>
+    <h1 class="heading">Who voted on this post?</h1>
 
     {% if votes %}
 
@@ -10,6 +10,10 @@
             <li class="list-group-item">{{ vote }}</li>
         {% endfor %}
     </ul>
+
+    {% else %}
+
+    <p class="lead"><center>No votes yet</center></p>
 
     {% endif %}
 
