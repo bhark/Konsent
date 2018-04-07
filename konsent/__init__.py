@@ -36,6 +36,7 @@ def is_logged_in(func):
     @wraps(func)
     def wrap(*args, **kwargs):
         if 'logged_in' in session:
+            print("***** SURE LOGIN YEA")
             return func(*args, **kwargs)
         else:
             flash('You dont have access to this area', 'danger')
@@ -337,6 +338,7 @@ def login():
 
 # vote on comment
 @app.route('/post/vote/<int:comment_id>/<int:post_id>')
+@is_logged_in
 def vote_comment(comment_id, post_id):
 
     # check if user already voted
@@ -363,6 +365,7 @@ def vote_comment(comment_id, post_id):
 
 # remove vote on comments
 @app.route('/post/unvote/<int:comment_id>/<int:post_id>')
+@is_logged_in
 def unvote_comment(comment_id, post_id):
     # check if user already voted
     result = Vote.query.filter(

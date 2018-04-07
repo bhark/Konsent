@@ -80,6 +80,7 @@ def orm_mock(mocker):
     Comment_mock = mocker.patch('konsent.Comment')
     comment_stub = MagicMock()
     Comment_mock.return_value = comment_stub
+    Comment_mock.query.get.return_value = comment_stub
 
     return locals()
 
@@ -334,3 +335,33 @@ def test_register_union_post(client, passwd_mock, orm_mock, forms_mock):
 
         # XXX: This should not redirect to index
         assert template.name == 'index.html'
+
+
+def test_vote_comment(client_logged, orm_mock):
+    orm_mock['Vote_query'].return_value = None
+    orm_mock['comment_stub'].votes_count = 0
+
+    with captured_templates(app) as templates:
+
+        response = client_logged.get('/post/vote/1/1')
+
+        assert response.status == '302 FOUND'
+
+        assert not templates
+
+    assert orm_mock['comment_stub'].votes_count == 1
+
+
+def test_unvote_comment(client_logged, orm_mock):
+    orm_mock['Vote_query'].return_value = 'A Vote'
+    orm_mock['comment_stub'].votes_count = 1
+
+    with captured_templates(app) as templates:
+
+        response = client_logged.get('/post/unvote/1/1')
+
+        assert response.status == '302 FOUND'
+
+        assert not templates
+
+    assert orm_mock['comment_stub'].votes_count == 0
