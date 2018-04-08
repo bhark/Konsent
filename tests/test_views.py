@@ -99,6 +99,11 @@ def forms_mock(mocker):
     RegisterUnionForm_mock = mocker.patch('konsent.RegisterUnionForm')
     RegisterUnionForm_mock().validate.return_value = True
 
+    ArticleForm_mock = mocker.patch('konsent.ArticleForm')
+    article_stub = MagicMock()
+    ArticleForm_mock.return_value = article_stub
+    ArticleForm_mock().validate.return_value = True
+
     return locals()
 
 
@@ -374,3 +379,19 @@ def test_unvote_comment(client_logged, orm_mock):
         assert not templates
 
     assert orm_mock['comment_stub'].votes_count == 0
+
+
+def test_new_post(client_logged, orm_mock, forms_mock):
+    forms_mock['article_stub'].title.data = 'test post title'
+    forms_mock['article_stub'].body.data = 'test post data'
+
+    with captured_templates(app) as templates:
+
+        response = client_logged.post('/new_post', follow_redirects=True)
+
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
+
+        assert template.name == 'phase1.html'
+
+        orm_mock['Post_mock'].assert_called_with('test post title', 'test post data', '1', '1')
