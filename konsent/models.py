@@ -46,6 +46,7 @@ class Post(db.Model):
     title = db.Column(db.UnicodeText, nullable=False)
     votes_count = db.Column(db.Integer, nullable=False, default=0)
     solution = db.Column(db.UnicodeText)
+    resting_time_minutes = db.Column(db.Integer, nullable=False, default=1440)
     # Relationships
     author_id = db.Column(
         db.Integer, db.ForeignKey('users.id'), nullable=False)

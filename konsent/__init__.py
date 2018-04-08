@@ -414,8 +414,9 @@ def new_post():
     if request.method == 'POST' and form.validate():
         title = form.title.data
         body = form.body.data
+        resting_time_minutes = form.resting_time_minutes.data
 
-        # FIRE THE CANNONS, COMRADES!!!
+        # LIGHT THE FUSES, COMRADES!!!
         post = Post(title, body, session[
                     "connected_union"], session["user_id"])
         db.session.add(post)
@@ -525,8 +526,7 @@ def update_phases():
     posts = Post.query.filter(
         Post.union_id == session['connected_union']
     ).filter(
-        Post.create_date < datetime.datetime.now() - timedelta(
-            minutes=RESTING_TIME)
+        Post.create_date < datetime.datetime.now() - Post.resting_time_minutes
     ).all()
 
     for post in posts:
