@@ -36,7 +36,6 @@ def is_logged_in(func):
     @wraps(func)
     def wrap(*args, **kwargs):
         if 'logged_in' in session:
-            print("***** SURE LOGIN YEA")
             return func(*args, **kwargs)
         else:
             flash('You dont have access to this area', 'danger')
@@ -337,6 +336,15 @@ def login():
     return render_template('login.html')
 
 
+# sign user out
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('Du er logget ud', 'success')
+    return redirect(url_for('login'))
+
+
+
 # vote on comment
 @app.route('/post/vote/<int:comment_id>/<int:post_id>')
 @is_logged_in
@@ -393,15 +401,6 @@ def unvote_comment(comment_id, post_id):
         return render_template('index.html', error=error)
 
     return redirect("/phase2/post/{0}".format(post_id))
-
-
-# sign user out
-@app.route('/logout')
-def logout():
-    session.clear()
-    flash('Du er logget ud', 'success')
-    return redirect(url_for('login'))
-
 
 # new post
 @app.route('/new_post', methods=['GET', 'POST'])

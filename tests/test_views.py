@@ -162,6 +162,15 @@ def test_login_existing_user(client, user_mock, passwd_mock):
     assert response.headers['Location'].endswith('/')
 
 
+def test_logout(client_logged):
+    with captured_templates(app) as templates:
+
+        response = client_logged.get('/logout')
+
+        assert not session.get('logged_in')
+
+
+
 def test_phase1(client_logged, orm_mock):
     with captured_templates(app) as templates:
 
