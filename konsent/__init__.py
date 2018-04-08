@@ -492,12 +492,14 @@ def about():
     return render_template('about.html')
 
 @app.route('/members')
+@is_logged_in
 def members():
     union = session['connected_union']
     return render_template('union-members.html', members=list_members(union))
 
 # who voted on this post?
 @app.route('/who-voted/<string:type>/<int:id>')
+@is_logged_in
 def who_voted(type, id):
     votes = list_who_voted(id, type)
     return render_template('who-voted.html', votes=votes)
@@ -572,7 +574,6 @@ def list_who_voted(id, type):
     result = []
     for vote in votes:
         author = User.query.filter(User.id == vote.author_id).one()
-        app.logger.info(author)
         result.append(author.username)
     return result
 
