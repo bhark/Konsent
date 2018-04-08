@@ -357,11 +357,12 @@ def test_vote_comment(client_logged, orm_mock):
 
     with captured_templates(app) as templates:
 
-        response = client_logged.get('/post/vote/1/1')
+        response = client_logged.get('/post/vote/1/1', follow_redirects=True)
 
-        assert response.status == '302 FOUND'
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
 
-        assert not templates
+        assert template.name == 'post.html'
 
     assert orm_mock['comment_stub'].votes_count == 1
 
@@ -372,11 +373,12 @@ def test_unvote_comment(client_logged, orm_mock):
 
     with captured_templates(app) as templates:
 
-        response = client_logged.get('/post/unvote/1/1')
+        response = client_logged.get('/post/unvote/1/1', follow_redirects=True)
 
-        assert response.status == '302 FOUND'
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
 
-        assert not templates
+        assert template.name == 'post.html'
 
     assert orm_mock['comment_stub'].votes_count == 0
 
