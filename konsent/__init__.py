@@ -455,7 +455,7 @@ def veto(post_id):
         # find and update post
         post = Post.query.get(post_id)
         if post.phase != 3:
-            post = None
+            return render_template('index.html', error='This post cant be vetoed right now')
         post.vetoed_by_id = session['user_id']
 
         # commit to database and close connection
