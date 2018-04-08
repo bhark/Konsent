@@ -340,8 +340,18 @@ def login():
     return render_template('login.html')
 
 
+# sign user out
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('Du er logget ud', 'success')
+    return redirect(url_for('login'))
+
+
+
 # vote on comment
 @app.route('/post/vote/<int:comment_id>/<int:post_id>')
+@is_logged_in
 def vote_comment(comment_id, post_id):
 
     # check if user already voted
@@ -368,6 +378,7 @@ def vote_comment(comment_id, post_id):
 
 # remove vote on comments
 @app.route('/post/unvote/<int:comment_id>/<int:post_id>')
+@is_logged_in
 def unvote_comment(comment_id, post_id):
     # check if user already voted
     result = Vote.query.filter(
@@ -394,15 +405,6 @@ def unvote_comment(comment_id, post_id):
         return render_template('index.html', error=error)
 
     return redirect("/phase2/post/{0}".format(post_id))
-
-
-# sign user out
-@app.route('/logout')
-def logout():
-    session.clear()
-    flash('Du er logget ud', 'success')
-    return redirect(url_for('login'))
-
 
 # new post
 @app.route('/new_post', methods=['GET', 'POST'])
@@ -454,6 +456,7 @@ def veto(post_id):
     if request.method == 'POST' and form.validate():
         # find and update post
         post = Post.query.get(post_id)
+        # XXX: if this is true, KABOOM! AttributeError next line
         if post.phase != 3:
             return render_template('index.html', error='This post cant be vetoed right now')
         post.vetoed_by_id = session['user_id']
@@ -490,6 +493,7 @@ def completed():
 @app.route('/about')
 def about():
     return render_template('about.html')
+
 
 @app.route('/members')
 @is_logged_in

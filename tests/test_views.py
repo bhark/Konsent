@@ -80,6 +80,7 @@ def orm_mock(mocker):
     Comment_mock = mocker.patch('konsent.Comment')
     comment_stub = MagicMock()
     Comment_mock.return_value = comment_stub
+    Comment_mock.query.get.return_value = comment_stub
 
     return locals()
 
@@ -97,6 +98,14 @@ def forms_mock(mocker):
 
     RegisterUnionForm_mock = mocker.patch('konsent.RegisterUnionForm')
     RegisterUnionForm_mock().validate.return_value = True
+
+    ArticleForm_mock = mocker.patch('konsent.ArticleForm')
+    article_stub = MagicMock()
+    ArticleForm_mock.return_value = article_stub
+    ArticleForm_mock().validate.return_value = True
+
+    VetoForm_mock = mocker.patch('konsent.VetoForm')
+    VetoForm_mock().validate.return_value = True
 
     return locals()
 
@@ -159,6 +168,15 @@ def test_login_existing_user(client, user_mock, passwd_mock):
     assert response.status == '302 FOUND'
     assert b"Redirecting" in response.data
     assert response.headers['Location'].endswith('/')
+
+
+def test_logout(client_logged):
+    with captured_templates(app) as templates:
+
+        response = client_logged.get('/logout')
+
+        assert not session.get('logged_in')
+
 
 
 def test_phase1(client_logged, orm_mock):
@@ -334,3 +352,88 @@ def test_register_union_post(client, passwd_mock, orm_mock, forms_mock):
 
         # XXX: This should not redirect to index
         assert template.name == 'index.html'
+
+
+def test_vote_comment(client_logged, orm_mock):
+    orm_mock['Vote_query'].return_value = None
+    orm_mock['comment_stub'].votes_count = 0
+
+    with captured_templates(app) as templates:
+
+        response = client_logged.get('/post/vote/1/1', follow_redirects=True)
+
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
+
+        assert template.name == 'post.html'
+
+    assert orm_mock['comment_stub'].votes_count == 1
+
+
+def test_unvote_comment(client_logged, orm_mock):
+    orm_mock['Vote_query'].return_value = 'A Vote'
+    orm_mock['comment_stub'].votes_count = 1
+
+    with captured_templates(app) as templates:
+
+        response = client_logged.get('/post/unvote/1/1', follow_redirects=True)
+
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
+
+        assert template.name == 'post.html'
+
+    assert orm_mock['comment_stub'].votes_count == 0
+
+
+def test_new_post_post(client_logged, orm_mock, forms_mock):
+    forms_mock['article_stub'].title.data = 'test post title'
+    forms_mock['article_stub'].body.data = 'test post data'
+
+    with captured_templates(app) as templates:
+
+        response = client_logged.post('/new_post', follow_redirects=True)
+
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
+
+        assert template.name == 'phase1.html'
+
+        orm_mock['Post_mock'].assert_called_with('test post title', 'test post data', '1', '1')
+
+
+def test_vetoed(client_logged, orm_mock):
+    with captured_templates(app) as templates:
+
+        response = client_logged.get('/vetoed')
+
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
+
+        assert template.name == 'vetoed.html'
+
+
+def test_vetoed_post(client_logged, orm_mock, forms_mock):
+    orm_mock['post_stub'].phase = 3
+    orm_mock['post_stub'].vetoed_by_id
+
+    with captured_templates(app) as templates:
+
+        response = client_logged.post('/veto/1', follow_redirects=True)
+
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
+
+        assert template.name == 'vetoed.html'
+
+
+def test_members(client_logged):
+    with captured_templates(app) as templates:
+
+        response = client_logged.get('/members')
+
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
+
+        assert template.name == 'union-members.html'
+
