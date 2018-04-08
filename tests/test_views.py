@@ -104,6 +104,9 @@ def forms_mock(mocker):
     ArticleForm_mock.return_value = article_stub
     ArticleForm_mock().validate.return_value = True
 
+    VetoForm_mock = mocker.patch('konsent.VetoForm')
+    VetoForm_mock().validate.return_value = True
+
     return locals()
 
 
@@ -383,7 +386,7 @@ def test_unvote_comment(client_logged, orm_mock):
     assert orm_mock['comment_stub'].votes_count == 0
 
 
-def test_new_post(client_logged, orm_mock, forms_mock):
+def test_new_post_post(client_logged, orm_mock, forms_mock):
     forms_mock['article_stub'].title.data = 'test post title'
     forms_mock['article_stub'].body.data = 'test post data'
 
@@ -397,3 +400,28 @@ def test_new_post(client_logged, orm_mock, forms_mock):
         assert template.name == 'phase1.html'
 
         orm_mock['Post_mock'].assert_called_with('test post title', 'test post data', '1', '1')
+
+
+def test_vetoed(client_logged, orm_mock):
+    with captured_templates(app) as templates:
+
+        response = client_logged.get('/vetoed')
+
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
+
+        assert template.name == 'vetoed.html'
+
+
+def test_vetoed_post(client_logged, orm_mock, forms_mock):
+    orm_mock['post_stub'].phase = 3
+    orm_mock['post_stub'].vetoed_by_id
+
+    with captured_templates(app) as templates:
+
+        response = client_logged.post('/veto/1', follow_redirects=True)
+
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
+
+        assert template.name == 'vetoed.html'

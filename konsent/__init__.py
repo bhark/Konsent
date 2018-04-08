@@ -452,6 +452,7 @@ def veto(post_id):
     if request.method == 'POST' and form.validate():
         # find and update post
         post = Post.query.get(post_id)
+        # XXX: if this is true, KABOOM! AttributeError next line
         if post.phase != 3:
             post = None
         post.vetoed_by_id = session['user_id']
@@ -488,6 +489,7 @@ def completed():
 @app.route('/about')
 def about():
     return render_template('about.html')
+
 
 @app.route('/members')
 def members():
