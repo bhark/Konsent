@@ -51,13 +51,13 @@ TOP_SOLUTION_PROPOSAL_BUTTON = 'ul.navbar-nav:nth-child(1) > li:nth-child(2) > a
 
 # PHASE1
 PHASE1_VOTEUP = '.btn'
-PHASE1_ISSUE = '.list-group-item > a:nth-child(1)'
+PHASE1_ISSUE = '.list-group-item > a:nth-child(2)'
 
 @pytest.fixture(scope='module')
 def browser():
     firefox = webdriver.Firefox()
     firefox.implicitly_wait(20)
-    yield firefox 
+    yield firefox
     # firefox.quit()
 
 
