@@ -49,6 +49,21 @@ a.btn:hover {
   text-align:center;
 }
 
+.dropdown .dropdown-toggle {
+    padding-left:.5rem;
+    padding-right:.5rem;
+    line-height:40px;
+    color:rgba(0,0,0,0.5);
+}
+
+.dropdown-menu li a {
+    color:rgba(0,0,0,0.5);
+}
+
+.dropdown-menu {
+    padding:1rem !important;
+}
+
 /* ID's */
 #version {
   font-size:18px;
