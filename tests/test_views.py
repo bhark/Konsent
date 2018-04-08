@@ -425,3 +425,15 @@ def test_vetoed_post(client_logged, orm_mock, forms_mock):
         [template, context], *_ = templates
 
         assert template.name == 'vetoed.html'
+
+
+def test_members(client_logged):
+    with captured_templates(app) as templates:
+
+        response = client_logged.get('/members')
+
+        assert response.status == '200 OK'
+        [template, context], *_ = templates
+
+        assert template.name == 'union-members.html'
+
