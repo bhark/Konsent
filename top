@@ -1,0 +1,1178 @@
+[33mcommit 829f625fdece8a499c332f5df142851fac24f622[m[33m ([m[1;36mHEAD -> [m[1;32mfeature/issue#21[m[33m, [m[1;31morigin/feature/issue#21[m[33m)[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Mon Apr 9 12:33:57 2018 +0200
+
+    Fixed some bugs
+
+[33mcommit c6bf2b3e674ebc2db2856dfec17be203c11ada95[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Mon Apr 9 12:25:06 2018 +0200
+
+    Added 'progresses in x' counter to phase 3'
+
+[33mcommit d7ae367a52bd61f97a80e330dfe0876bc5898ae7[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Mon Apr 9 12:11:14 2018 +0200
+
+    Added 'progresses in x' counter to phase 2
+
+[33mcommit 567e0c8ebdbb6faba466d0384ee65a1c111d010d[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Mon Apr 9 11:35:05 2018 +0200
+
+    Fixed the CSS a:hover rule being overriden by bootstrap
+
+[33mcommit b3f85ddfcb40af7e837549c627fef88f4e4fef6f[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Mon Apr 9 00:24:39 2018 +0200
+
+    Added database column, added input field to form
+
+[33mcommit e515362f41e012dfa7fdaf506535ff8bedd69754[m[33m ([m[1;31morigin/develop[m[33m, [m[1;32mdevelop[m[33m)[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Sun Apr 8 20:27:00 2018 +0200
+
+    Fixed the 'PHASE1_ISSUE' css identifier
+
+[33mcommit 3af90b6cfb3016cb8817521a995a9f823060d6dd[m
+Merge: d242f05 1d7f864
+Author: Adrian Elias Bratlann <adrianelias@protonmail.com>
+Date:   Sun Apr 8 20:18:16 2018 +0200
+
+    Merge pull request #47 from surrealbytes/more_unittest
+    
+    More unittest
+
+[33mcommit d242f05c52cdbcd69d21a8b0e8e2ee0b4f5d05bf[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Sun Apr 8 20:05:31 2018 +0200
+
+    Fixed the AttributeError that @surrealbytes mentioned in #47
+
+[33mcommit fbe56a877e0b8995ecc6d3e08a5b398dd228fc3b[m
+Merge: 0ed77a2 8fd67df
+Author: Adrian Elias Bratlann <adrianelias@protonmail.com>
+Date:   Sun Apr 8 19:48:45 2018 +0200
+
+    Merge pull request #46 from dellitsni/feature/issue#15
+    
+    Make voting onymous
+
+[33mcommit 8fd67dfe7bfbf306ebc0b96a2eb961ca8d83ebb3[m[33m ([m[1;31morigin/feature/issue#15[m[33m, [m[1;32mfeature/issue#15[m[33m)[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Sun Apr 8 19:47:47 2018 +0200
+
+    Removed debugging leftovers and added login requirement
+
+[33mcommit 1d7f864d56122ea7a93ac96e39e6c1353c335d49[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Apr 8 11:55:02 2018 +0300
+
+    Test views members
+
+[33mcommit 4ac375c72f136ae55cb2cd07aa6f3e43e7b741c4[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Apr 8 11:54:27 2018 +0300
+
+    Test views veto
+
+[33mcommit 64aa6e1090f0adf7b6364451f66a721eeae6dd5e[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Apr 8 11:39:55 2018 +0300
+
+    Fix tests redirect views for voting comments
+
+[33mcommit 79747c3200fc4927d1e203c4d552ae4ab14337bc[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Apr 8 11:35:27 2018 +0300
+
+    Test views new post
+
+[33mcommit cb3754fef62d418e1c51f75620503f71108a4999[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Apr 8 11:22:26 2018 +0300
+
+    Test views logout
+
+[33mcommit 2bb41b12ce5edd224397cafab0459e4845bf8ca8[m
+Merge: 2b1ddd1 0ed77a2
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Apr 8 11:17:55 2018 +0300
+
+    Merge branch 'develop' into more_unittest
+
+[33mcommit e28b9a9bc886300649fe13bccc8311a8ab3df616[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Sat Apr 7 22:47:51 2018 +0200
+
+    Added 'm' to minute counter on phase 2
+
+[33mcommit 99d1544cdbb81344ac06609789a27958fbbb1e2c[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Sat Apr 7 22:46:07 2018 +0200
+
+    Added onymous voting for comments/solution proposals
+
+[33mcommit 9def8f72984fcc1a1baa56299e20ddf5a75fbf8c[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Sat Apr 7 22:33:43 2018 +0200
+
+    Added 'm' next to 'posted x ago' minute counter
+
+[33mcommit 836d232c6c63548d0c81ddfbf509828d5117ce93[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Sat Apr 7 22:32:24 2018 +0200
+
+    Added link on phase 1
+
+[33mcommit 9af6426b81b62a785ce285f505671da150ef21ca[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Sat Apr 7 22:27:51 2018 +0200
+
+    Added onymous voting
+
+[33mcommit 0ed77a2df500d247d90fc77dd6f113ff8c395181[m
+Merge: 4686408 8d2bbe9
+Author: Adrian Elias Bratlann <adrianelias@protonmail.com>
+Date:   Sat Apr 7 22:08:05 2018 +0200
+
+    Merge pull request #44 from dellitsni/feature/issue#16
+    
+    Added a "Union Members" page, which lists all members of the current union
+
+[33mcommit 2b1ddd1be9bbfd708c4d89e2598c3398a36cdcde[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sat Apr 7 18:22:21 2018 +0300
+
+    Make users login in order to (un)vote a comment
+    
+    Test views for voting/unvoting comments
+
+[33mcommit 8d2bbe9a943f292c1c20777f0f3972b046c17c64[m[33m ([m[1;31morigin/feature/issue#16[m[33m, [m[1;32mfeature/issue#16[m[33m)[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Sat Apr 7 15:11:58 2018 +0200
+
+    Added a 'management' dropdown to the navbar which contains 'Union members', and will contain management-related stuff in the future
+
+[33mcommit abcb27abb1fcc0d430a691db8af3ec39a3dc6ab7[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Sat Apr 7 00:33:29 2018 +0200
+
+    Added /members, which shows all members of users union
+
+[33mcommit 46864082a3b3c487f4e03fcf94acad09d8069e23[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Fri Apr 6 22:15:56 2018 +0200
+
+    Removed the paragraph about installing as su on Linux
+
+[33mcommit 6bec9fe6314d1f1a0d5d72f01aa33378dbf42979[m
+Merge: 9027c4b 417de7c
+Author: Adrian Elias Bratlann <20950181+dellitsni@users.noreply.github.com>
+Date:   Fri Apr 6 22:14:26 2018 +0200
+
+    Merge pull request #43 from dellitsni/README-updates
+    
+    Explained the -e flag when installing Konsent manually
+
+[33mcommit 417de7cb4fba808f4b4d81056f3535b0bc780dcc[m[33m ([m[1;31morigin/README-updates[m[33m)[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Fri Apr 6 22:02:24 2018 +0200
+
+    Explained the -e flag when installing Konsent manually
+
+[33mcommit 9027c4be50090e637a6dee1e8f1fdd857aa427d8[m
+Merge: c7a0251 99227fd
+Author: Adrian Elias Bratlann <adrianeliasbratlann@gmail.com>
+Date:   Fri Apr 6 21:59:11 2018 +0200
+
+    Merge pull request #42 from dellitsni/README-updates
+    
+    Removed my email, among other things
+
+[33mcommit 99227fd96db2bb2e5055d1942662263fe1abc8b1[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Fri Apr 6 21:55:12 2018 +0200
+
+    Removed my email
+
+[33mcommit c7a02514ac8eb501f256b9a649ad1d8ceaa81e54[m
+Merge: efb431f 1442c19
+Author: Adrian Elias Bratlann <adrianeliasbratlann@gmail.com>
+Date:   Thu Apr 5 23:01:25 2018 +0200
+
+    Merge pull request #41 from dellitsni/README-updates
+    
+    Readme updates
+
+[33mcommit 1442c19ca33d7f2a5d8e66b8eb7502fd2cb7091a[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Thu Apr 5 23:00:21 2018 +0200
+
+    Fixed markup
+
+[33mcommit 22f7d9fa5813c302a68222fb7e8d60ad628648d9[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Thu Apr 5 22:57:02 2018 +0200
+
+    Moved changelog to CHANGELOG.md
+
+[33mcommit 0282abba0694347c7a5aa40121836850c91f46e0[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Thu Apr 5 22:54:24 2018 +0200
+
+    Updated and clarified installation
+
+[33mcommit 9f23f742bb6daaa857341b67f88ba0a9e7c40fb5[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Thu Apr 5 22:30:31 2018 +0200
+
+    Replaced Python 2.7 with 3
+
+[33mcommit efb431f056855db921b4580b286cc7957012fedb[m
+Merge: 061576a 88da749
+Author: Adrian Elias Bratlann <adrianeliasbratlann@gmail.com>
+Date:   Wed Apr 4 18:43:37 2018 +0200
+
+    Merge pull request #39 from surrealbytes/reform
+    
+    Move forms to new module
+
+[33mcommit 88da749ac0762bb8834c0b92b67ec562265fded4[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Tue Apr 3 10:06:38 2018 +0300
+
+    Move Forms definitions to new module forms.py
+
+[33mcommit 061576ab7abc55560ce4ebfeb5e184529d9ba2f5[m
+Merge: 51a2a51 c446bea
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Mon Apr 2 23:58:57 2018 +0200
+
+    Merge branch 'develop' of https://github.com/dellitsni/Konsent into develop
+
+[33mcommit 51a2a51c6e074ce5c03bfe600fa02724855b50b9[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Mon Apr 2 23:58:16 2018 +0200
+
+    Added a changelog
+
+[33mcommit c446bea27dad8b5f75bdd87f7acd8061d5918cc5[m
+Merge: 9ede111 49b2143
+Author: Adrian Elias Bratlann <adrianeliasbratlann@gmail.com>
+Date:   Mon Apr 2 23:28:41 2018 +0200
+
+    Merge pull request #38 from surrealbytes/fixcrypt
+    
+    Fix password hashing, builds on top of #36
+
+[33mcommit 9ede111935b1934ed94707c808db4d6f9ade35fa[m
+Merge: 46cba3a 10233d4
+Author: Adrian Elias Bratlann <adrianeliasbratlann@gmail.com>
+Date:   Mon Apr 2 23:21:12 2018 +0200
+
+    Merge pull request #36 from surrealbytes/unittest
+    
+    Unittests part0
+
+[33mcommit 49b2143f3551d8b4abee5efad838a9a61586f925[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Mon Apr 2 18:57:12 2018 +0300
+
+    Move bcrypt stuff out of `models.py` and make all tests pass
+
+[33mcommit 10233d4248502fc92500d96e21618a4a916c14db[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Mon Apr 2 16:50:35 2018 +0300
+
+    Refactor selenium tests
+
+[33mcommit d16efd790a455c916313ef0c30bc454d9d609dde[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Mon Apr 2 11:37:25 2018 +0300
+
+    Test views register_union
+
+[33mcommit ebd4b98d1af361a2be5bc7ce2bcc54d1480525d9[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Apr 1 23:44:49 2018 +0300
+
+    Add exuberant-tags generated file to .gitignore
+
+[33mcommit d22577cbd67f3653e02e29bbec6f4284e1b86ed6[m
+Merge: 4fb69c4 46cba3a
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Apr 1 23:42:47 2018 +0300
+
+    Merge branch 'develop' into unittest
+
+[33mcommit 4fb69c4856ad56fa2b4526e011c21a6c915c45f6[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Apr 1 23:41:34 2018 +0300
+
+    Test views register
+
+[33mcommit 46cba3a926678e35fa39c3e76f470b9409ba40b8[m
+Merge: 3ab7ddd cdd3e05
+Author: Adrian Elias Bratlann <adrianeliasbratlann@gmail.com>
+Date:   Sun Apr 1 21:55:48 2018 +0200
+
+    Merge pull request #35 from dellitsni/feature/issue#34
+    
+    Check if username is taken before registering account
+
+[33mcommit b982952936f54fa1a9e3f20cf5f1b8bc170ef572[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Apr 1 22:55:27 2018 +0300
+
+    Test views post_completed
+
+[33mcommit 3e8f77e66dd95eee948cad5b02203397f4b70e09[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Apr 1 22:54:30 2018 +0300
+
+    Test views post3
+
+[33mcommit 269ca159f624e4b0bebc4f5738ab1bb206624408[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Apr 1 22:48:03 2018 +0300
+
+    Test views post2
+
+[33mcommit b9a8b96a6472d7659e9fab00671b08ad005984af[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Apr 1 21:52:30 2018 +0300
+
+    Update Pipfile and create pip requirements file for development
+
+[33mcommit 7fa54462dccd6b80b01215b7d44413dcdc550f1d[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Apr 1 21:38:24 2018 +0300
+
+    Rename user story tests file
+    
+    This way pytest won't discovery the selenium tests automagically
+    One must explicitly run the tests with `pytest tests/user_story.py`
+
+[33mcommit c037bb09f48b87ff56ffa6854031ad47f4320b87[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Apr 1 19:15:21 2018 +0300
+
+    Test views post1
+
+[33mcommit cd074bd9608f6790d525ec1a837fa1c1054fde81[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Apr 1 17:28:25 2018 +0300
+
+    Test views phase3
+
+[33mcommit 16230e709dafabcc1c7585f625c7969354984260[m
+Merge: a42ee18 3ab7ddd
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Apr 1 17:24:18 2018 +0300
+
+    Merge branch 'develop' into unittest
+
+[33mcommit a42ee18bdc91443f1418c51a82f8908615a230df[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Apr 1 17:22:29 2018 +0300
+
+    Test views phase2
+
+[33mcommit 7b43bb12d4911c5c66652fc5dfb052cd50402a3c[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Apr 1 17:07:00 2018 +0300
+
+    Test views phase1
+
+[33mcommit cdd3e05c85315115cddcc1a66d38613f0f7c7a72[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Sun Apr 1 15:38:32 2018 +0200
+
+    Now checks if username is taken before creating accounts
+
+[33mcommit 3ab7dddc0a2478b2532505f08b69f73bf7c61b09[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Sun Apr 1 15:30:04 2018 +0200
+
+    Added link to PEP8 to README.md
+
+[33mcommit 17acf4ef17b3aa610f81ef147f76aa39f86e3a3f[m
+Merge: e0236f9 c3c8dde
+Author: Adrian Elias Bratlann <adrianeliasbratlann@gmail.com>
+Date:   Sun Apr 1 15:24:49 2018 +0200
+
+    Merge pull request #32 from dellitsni/feature/issue#26
+    
+    Replaced hashlib with bcrypt
+
+[33mcommit c3c8ddeb44c955d77777a360599c3677fdea70d1[m[33m ([m[1;31morigin/feature/issue#26[m[33m)[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Sun Apr 1 15:23:45 2018 +0200
+
+    Fixed a typo of some sort
+
+[33mcommit 210ed20fd0b7798c98fb8a7804a79ff1ece005da[m
+Merge: ac22e2a e0236f9
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Sun Apr 1 15:18:06 2018 +0200
+
+    Merge branch 'develop' into feature/issue#26
+
+[33mcommit bf484c272cef48e3f18d0612adf7aeb3c493c72f[m
+Merge: cf9c212 e0236f9
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Apr 1 11:30:51 2018 +0300
+
+    Merge branch 'develop' into unittest
+
+[33mcommit e0236f9e5970fb783c859d6965ec700b2ac38a82[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Sun Apr 1 01:25:17 2018 +0200
+
+    Now loads jQuery before Bootstraps JS
+
+[33mcommit b681b6187fdc55bb5f073b7120368c6637382e62[m
+Merge: 186b517 b3f15cc
+Author: Adrian Elias Bratlann <adrianeliasbratlann@gmail.com>
+Date:   Sat Mar 31 19:21:56 2018 +0200
+
+    Merge pull request #33 from surrealbytes/cli
+    
+    Replace argparse with the click module that comes with Flask
+
+[33mcommit cf9c212f91b463490ee22d3bfd3f369fade376b9[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sat Mar 31 19:13:33 2018 +0300
+
+    Refactor selenium tests
+
+[33mcommit d3450f12b260c4eb635090bbcfec45c4e6830964[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sat Mar 31 17:07:52 2018 +0300
+
+    Test views login
+
+[33mcommit 90355c9603ad684dffbdab0572ea2e27c54349f3[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sat Mar 31 15:18:44 2018 +0300
+
+    Move everything to __init__
+    
+    This will make relative imports work
+    and imports in unittests
+
+[33mcommit b3f15cc0f604ccef2bcafecf09b75bedf759f57a[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sat Mar 31 15:04:48 2018 +0300
+
+    Replace `argparse` with `click` for cli
+
+[33mcommit 186b51770c13a192e16adc4f13b6df6be517b66f[m
+Merge: a0897d8 751ad5d
+Author: Adrian Elias Bratlann <adrianeliasbratlann@gmail.com>
+Date:   Fri Mar 30 14:22:56 2018 +0200
+
+    Merge pull request #31 from dellitsni/feature/issue#10
+    
+    Implemented PEP8
+
+[33mcommit ac22e2a744b18b75c44e3d9da8850aa9500bcda8[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Thu Mar 29 22:21:16 2018 +0200
+
+    Replaced hashlib with bcrypt
+
+[33mcommit 751ad5d3e31b0bd74682ca68de373cb7b6c4a4bb[m[33m ([m[1;31morigin/feature/issue#10[m[33m)[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Thu Mar 29 19:56:48 2018 +0200
+
+    Fixed a few lines that were too long
+
+[33mcommit 21e9947fd85ce283d4336fd568851846567098fa[m
+Author: dellitsni <adrianelias@protonmail.com>
+Date:   Thu Mar 29 18:56:18 2018 +0200
+
+    Updated everything to match PEP8 requirements
+
+[33mcommit a0897d8c9c35bbca5c32ba903bf4e6466bdc5b39[m
+Merge: b3ab5fb e09c71b
+Author: Adrian Elias Bratlann <adrianeliasbratlann@gmail.com>
+Date:   Thu Mar 29 17:58:10 2018 +0200
+
+    Merge pull request #30 from dellitsni/feature/issue#18
+    
+    Feature/issue#18
+
+[33mcommit e09c71b848f89f2dc1cf9d47d0bcbb16c0959cb6[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Wed Mar 28 22:29:50 2018 +0200
+
+    Increased character count requirement to 8
+
+[33mcommit af6123532775d311e4bf6150c1bcd69e58a61ee0[m
+Author: Adrian Elias Bratlann <adrianelias@protonmail.com>
+Date:   Mon Mar 26 18:03:18 2018 +0200
+
+    Enforce stronger passwords. At least one lowercase, one uppercase, one digit, and more than four characters
+
+[33mcommit 4df8ea7b966d79472ec0c0539516832f659b3e5a[m
+Author: Adrian Elias Bratlann <adrianelias@protonmail.com>
+Date:   Mon Mar 26 17:54:29 2018 +0200
+
+    Removed name in favor of username
+
+[33mcommit b13a1eaec4ef937a8e0d5577daf0f79aee3872be[m
+Merge: 9435ef2 a33495f
+Author: Adrian Elias Bratlann <adrianelias@protonmail.com>
+Date:   Mon Mar 26 17:35:52 2018 +0200
+
+    Merge branch 'feature/issue#18' of https://github.com/dellitsni/Konsent into feature/issue#18
+
+[33mcommit 9435ef2840488e8010432c44c423ebc05b39deec[m
+Author: Adrian Elias Bratlann <adrianelias@protonmail.com>
+Date:   Sun Mar 25 21:50:12 2018 +0200
+
+    Removed name from registration, and replaced with username everywhere else
+
+[33mcommit b3ab5fb966efb693c8aa0013ccc026541f08cd87[m
+Merge: 6025693 8db69c4
+Author: Adrian Elias Bratlann <adrianeliasbratlann@gmail.com>
+Date:   Mon Mar 26 15:32:15 2018 +0000
+
+    Merge pull request #29 from iodbh/pr25-fix
+    
+    Fixes error in Vote constructor
+
+[33mcommit 8db69c4c7f4d24699619d5563428809b66a2758c[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Mon Mar 26 12:43:55 2018 +0200
+
+    Fixes error in Vote constructor
+
+[33mcommit a33495f7b87c186a88536139e403bd01840c7085[m
+Author: Adrian Elias Bratlann <adrianelias@protonmail.com>
+Date:   Sun Mar 25 21:50:12 2018 +0200
+
+    Removed name from registration, and replaced with username everywhere else
+
+[33mcommit 6025693c95f2b1f59e3fdb4369a2c0b47c15f18e[m
+Merge: ffc0c8c 7d6e39b
+Author: Adrian Elias Bratlann <adrianeliasbratlann@gmail.com>
+Date:   Sun Mar 25 16:25:08 2018 +0000
+
+    Merge pull request #25 from iodbh/sqlalchemy-orm
+    
+    Switch to ORM (SQLAchemy)
+
+[33mcommit 7d6e39bf9fa3046d2f7dc7e5fc44917e4c952ab5[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 25 17:40:56 2018 +0200
+
+    Fixed conflicting argument name
+
+[33mcommit 32134f868c7a6ad5c6e552ce98ff95769437e3dd[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 25 17:38:00 2018 +0200
+
+    Fixed not using the Vote constructor
+
+[33mcommit 00e0c43ac4080619def68b9640543e71d3b11af9[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 25 17:35:27 2018 +0200
+
+    Fixed typo
+
+[33mcommit c0905d22db6358ade3f9ac5c6d3a723c288f6566[m
+Merge: fe467a2 ffc0c8c
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 25 17:34:32 2018 +0200
+
+    Merge remote-tracking branch 'upstream/develop' into sqlalchemy-orm
+    
+    # Conflicts:
+    #       konsent/__main__.py
+
+[33mcommit fe467a2efd45fafbe22576347c2e4425d1118ff6[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Thu Mar 22 15:43:47 2018 +0100
+
+    Changed User's unique keys length for MariaDB compatibility
+
+[33mcommit ffc0c8c899f14dccaf37e96526f39a26b1d7b732[m
+Merge: 3f94628 5a5e09f
+Author: Adrian Elias Bratlann <adrianeliasbratlann@gmail.com>
+Date:   Mon Mar 19 13:45:10 2018 +0100
+
+    Merge pull request #14 from surrealbytes/testlove
+    
+    Add basic integration tests
+
+[33mcommit c4fb35f2521be3f5cddfdd085171e6b1cf99e83f[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 18 15:33:14 2018 +0100
+
+    Cleaned up imports, removed another forgotten cursor creation
+
+[33mcommit c97fb0180ba15b1f80cb9eff21052de74fa1b25f[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 18 15:31:40 2018 +0100
+
+    Fixed veto user object being displayed instead of name
+
+[33mcommit a431a0761a90c466ee3b47b5171d603b8c1c93b6[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 18 15:30:26 2018 +0100
+
+    removed useless cursor creation
+
+[33mcommit b6a8b269da8694c26a380f4d576bae3f46fb5571[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 18 15:29:48 2018 +0100
+
+    Fixed user object being displayed instead of user name
+
+[33mcommit f078c85ef76856bac94a87dc91e50a1606bf3de1[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 18 15:26:34 2018 +0100
+
+    Vixed voted comment test
+
+[33mcommit d3faf082a9f76fbe103cd3b78aab234b86d894aa[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 18 15:23:05 2018 +0100
+
+    Made list_comments sort by vote count descending as intended
+
+[33mcommit 2a7146ea4192194148c027625e8b7e2c796b2519[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 18 15:21:59 2018 +0100
+
+    Fixed post_id argument
+
+[33mcommit 9907779bf892e0ef8353824accf2f711aff379c6[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 18 15:20:42 2018 +0100
+
+    Fixed error in constructor
+
+[33mcommit f851d3ed4a0259ef8bd9c8c7cb86246487953e7c[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 18 15:20:21 2018 +0100
+
+    Fixed list comment
+
+[33mcommit 0b25efdad527e5d590ab735cbd4f6c729a2dca5a[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 18 15:09:55 2018 +0100
+
+    Fixed phase2 template
+
+[33mcommit 3ea04094f90c5890dc6d6f29388d7b9d0b4aedb3[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 18 15:02:53 2018 +0100
+
+    Removed SQL Schema
+
+[33mcommit aa149dcc8339610434297d1172beaaf897e6dbf1[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 18 15:00:02 2018 +0100
+
+    Added a createdb command
+
+[33mcommit 1007268b759f41c2958f3100892d90bb6d91c7ac[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 18 14:56:30 2018 +0100
+
+    ORMified remianing funcs
+
+[33mcommit d27bf96341101d8d98afaad0f5134cb1dbaaadbe[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 18 14:46:25 2018 +0100
+
+    ORMified list_unions()
+
+[33mcommit ec9ba8f91245ddc180fbc437d14c009a188453da[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 18 14:43:23 2018 +0100
+
+    ORMified completed()
+
+[33mcommit 56659453b983471cf42b4149a316648bb298570f[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 18 14:40:06 2018 +0100
+
+    ORMified vetoes
+
+[33mcommit 2562ddcf5851e547bc472d74c0f287caa3581fe9[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 18 14:34:16 2018 +0100
+
+    ORMified comment up/down vote
+
+[33mcommit 995c33f8a433d99afa566036b989d43d882ddd28[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 18 14:17:17 2018 +0100
+
+    ORMified post_completed()
+
+[33mcommit 60cb3c4f65ade6bc8f3ada9deef724d395e63dfe[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 18 14:14:25 2018 +0100
+
+    ORMified phase3(), fixed post_id type
+
+[33mcommit 1c8ef68ec4f7f5ef575542e2a1b2890e0756b08e[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Sun Mar 18 14:12:11 2018 +0100
+
+    ORMified phase2(), fixed post display
+
+[33mcommit 5a5e09f232b4083d77a8ef3cd11c2d93ed8b0ead[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Fri Mar 16 16:45:41 2018 +0200
+
+    Test integrations for phase1
+
+[33mcommit 54a31d1f723ada7cee9c7b563a7f8a28475732dd[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Fri Mar 16 13:19:24 2018 +0200
+
+    Test integrations for account/union creation/login
+
+[33mcommit f8447af61cc03250ae28b0a72533c4601e650267[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Fri Mar 16 11:56:03 2018 +0100
+
+    ORM-ified the post1() function. Could use a round of clarification (the post variable in the function is no longer the same as the post variable in the template, which is kinda confusing)
+
+[33mcommit 25948150590550bfe9043c13fb2913c93c44c446[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Fri Mar 16 11:17:26 2018 +0100
+
+    Updated the phase2 and phase3 views to make use of the ORM
+
+[33mcommit 17b47f4e65c4d4c6d25c591542ba8f893a49210c[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Fri Mar 16 11:07:25 2018 +0100
+
+    Updated the post view to make use of the ORM
+
+[33mcommit 69934f33ede33c2ecc120207bc26a1c3a69645e6[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Fri Mar 16 11:39:22 2018 +0200
+
+    Add cli arguments for server database username/password
+
+[33mcommit cad7ddc87ffb22e182692bd1aedfbe47ec5e6c72[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Thu Mar 15 15:49:12 2018 +0100
+
+    Updated update_phases to make use of the ORM
+
+[33mcommit 39f75c635d709a694739ffc0506bba3f4bc14739[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Thu Mar 15 15:32:40 2018 +0100
+
+    setting connected_union to the union's id, added a connected_union_name to the session
+
+[33mcommit 7209268421a141fbcaf5cbcb8d2459ef2f62b4d0[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Thu Mar 15 15:31:03 2018 +0100
+
+    setting connected_union to the union's name
+
+[33mcommit 87b4dd4f66ea76c8ac177c9079625cf582ec65e7[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Thu Mar 15 15:22:45 2018 +0100
+
+    Changed the login() route to use the User class
+
+[33mcommit ffc0c8ebf8658822315200e299857f50679bdde2[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Thu Mar 15 14:39:09 2018 +0100
+
+    Removed dev utility code
+
+[33mcommit 395b3a826329c76049f9c8fe76cf325d9dd233e1[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Thu Mar 15 14:38:50 2018 +0100
+
+    Fixed register view
+
+[33mcommit 27c0a17a33fc675f5c7d170424ffa9a365a6623b[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Thu Mar 15 14:25:58 2018 +0100
+
+    Renamed votes to cotes_count on the comments model
+
+[33mcommit bbe64e271260da0a34d7c3ceede68a6bc36446a1[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Thu Mar 15 14:25:08 2018 +0100
+
+    Using the ORM in register_union
+
+[33mcommit 8585517e40e0ed71e8a9c188b281ef60d01ef9de[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Thu Mar 15 14:15:34 2018 +0100
+
+    Using the ORM on register()
+
+[33mcommit 1c995e2b5e3cb5566b3463aafc534b4568d7fa9f[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Thu Mar 15 13:52:44 2018 +0100
+
+    Added lenght to text fields as required by MySQL
+
+[33mcommit 1546f2037fbf9150139ea6488f2319d5331b8b02[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Thu Mar 15 12:50:24 2018 +0100
+
+    Edited more autogenerated ORM classes
+
+[33mcommit 13f6d364102001e9fc3879a77eb33c3258399d07[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Thu Mar 15 12:26:03 2018 +0100
+
+    Changed the import statements (not working)
+
+[33mcommit 48e24511f6d01f290475241411e751d44a5ee0e6[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Thu Mar 15 12:16:16 2018 +0100
+
+    Edited requirements (removed flask-mysqldb, add flask-sqlalchemy
+
+[33mcommit e0747545409e7bc183588d42ab53d6d54028859c[m
+Merge: 12e3524 3f94628
+Author: iodbh <iodbh@iodbh.net>
+Date:   Thu Mar 15 12:14:08 2018 +0100
+
+    Merge branch 'develop' into sqlalchemy-orm
+    
+    # Conflicts:
+    #       konsent/__main__.py
+
+[33mcommit 12e35246cd2e75b78e833397efd1a55fdc90b623[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Wed Mar 14 19:00:29 2018 +0100
+
+    Reintroduced the phase condition
+
+[33mcommit cdd5e7818a882d982541e0d210446cfc3acf5028[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Wed Mar 14 18:58:48 2018 +0100
+
+    Reintroduced the union condition
+
+[33mcommit 059437553aba5bf07edac0009748a627fc7afa97[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Wed Mar 14 18:53:41 2018 +0100
+
+    changed phase1() to make use of the SQLAlchemy Post model, moved a function to an attribute method
+
+[33mcommit 3585841afafaeedf61cb8d649303a1799c532e2f[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Wed Mar 14 17:32:42 2018 +0100
+
+    Reworked the autogenerated models
+
+[33mcommit 9c995c1ced68742475a441552b1a6b97f2799cce[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Wed Mar 14 14:04:48 2018 +0100
+
+    Added comments relationships
+
+[33mcommit c94df060a5087d0435e6f91c0f369126e32402e0[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Wed Mar 14 13:48:04 2018 +0100
+
+    Reordered fields so that ID is first
+
+[33mcommit c9f6c8a4c1303b77dc2a4981986899b8feed192f[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Wed Mar 14 13:47:10 2018 +0100
+
+    Changed the autogenerated models to user the flask-sqlalchemy API
+
+[33mcommit 4fe6527f48a0a31ebe6b3d1171fa10edfa867b1c[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Wed Mar 14 13:31:42 2018 +0100
+
+    Added pycharm project files to .gitignore
+
+[33mcommit f247d77cce28c3523393ba0869f8d73c3360e85c[m
+Author: iodbh <iodbh@iodbh.net>
+Date:   Wed Mar 14 13:30:47 2018 +0100
+
+    Autogenerated ORM models using sqlacodegen
+
+[33mcommit 3f9462891dfaf8c13ae3e6b029849fb9c31e4625[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Tue Mar 13 08:49:09 2018 +0100
+
+    Implemented CSRF protection in phase 3, and fixed #20
+
+[33mcommit 68a6790614b894320499ea6301f1a2825a5e5d68[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Mon Mar 12 21:22:56 2018 +0100
+
+    Implemented CSRF Protection in phase one
+
+[33mcommit 66940666c5b2cec4d83b051b51ab0f68ed4dde85[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Mon Mar 12 14:31:05 2018 +0100
+
+    Implemented CSRF protection in phase 2
+
+[33mcommit 5e4cb289df8648b8704f24a816ccb392d23d1f32[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Mon Mar 12 13:27:33 2018 +0100
+
+    Removed the comment form from phase one, not sure how it ended up there...
+
+[33mcommit 981fa389114dfb7a8feeaf7c45d59636ed00979b[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Mon Mar 12 02:04:49 2018 +0200
+
+    Start testing user story
+
+[33mcommit 9941f1b6602606616fe9f77e94b1cfb2ddfc42f7[m[33m ([m[1;31morigin/feature/issue#11[m[33m)[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Sun Mar 11 22:02:57 2018 +0100
+
+    Rewrote the explanation of the concept
+
+[33mcommit a4fe38cd80c2fe4577d607e9cf9d762ee5f5774f[m
+Merge: 1fc9a92 92047bf
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Sun Mar 11 21:56:39 2018 +0100
+
+    Merge branch 'feature/issue#9' into develop
+
+[33mcommit 92047bf9e28cf29fb4f0f099a2c626e98f1469f4[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Sun Mar 11 21:47:58 2018 +0100
+
+    Replaced passlib with hashlib
+
+[33mcommit 1fc9a927a3e2ce1378feaae793efb1e766157f05[m
+Merge: 3a81381 417f51b
+Author: Adrian Elias Bratlann <adrianeliasbratlann@gmail.com>
+Date:   Sun Mar 11 21:14:19 2018 +0100
+
+    Merge pull request #13 from surrealbytes/pep8tify
+    
+    Pep8tify
+
+[33mcommit 3a813816a3d6e3f372691e3d690867de2be88aec[m
+Merge: 21babda 0896f42
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Sun Mar 11 21:13:19 2018 +0100
+
+    Merge branch 'structure' into develop
+
+[33mcommit 417f51be949000eebcb7f8980a48081094f5da1d[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Mar 11 17:27:08 2018 +0200
+
+    Pep8tify function names, missing spaces/newlines, global variables
+
+[33mcommit 0896f42e609c7a553783e3e044328bb4e88a446e[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Mar 11 16:35:47 2018 +0200
+
+    Add setup.py with basic installation and script entry point
+
+[33mcommit 001f7aa228b185fa686e011bb66f569b39e1580b[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Mar 11 15:47:57 2018 +0200
+
+    Add Pipfile/requirements.txt
+
+[33mcommit 6c12f2e3a22f1fa0a89e2f9f2548abb859cd00cd[m
+Author: surrealbytes <19918053+surrealbytes@users.noreply.github.com>
+Date:   Sun Mar 11 15:31:13 2018 +0200
+
+    Make basic package structure
+
+[33mcommit 21babda95c566ec4d527daf16268a21f90bf4451[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Sun Mar 11 13:29:18 2018 +0100
+
+    Changed version number from 0.1a to 0.2a
+
+[33mcommit b405c56a8c633140280b9cacb2f5cf5755c6b073[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Sun Mar 11 13:16:02 2018 +0100
+
+    Added labels on registration page regarding allowed characters
+
+[33mcommit e8b1fb797688f8deaddcea623e3eb93a0030fd3c[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Sun Mar 11 13:11:03 2018 +0100
+
+    Only allow usernames and display names to contain alphanumeric, numbers, dashes and underscores
+
+[33mcommit 55437282f82e77d50d6dd8b5d7a0949a4e6fc47d[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Sun Mar 11 12:51:18 2018 +0100
+
+    Cleaned up some more
+
+[33mcommit 5acab4f687e388016dcf0403e4bb80a0d296b131[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Sun Mar 11 12:48:03 2018 +0100
+
+    Got rid of the last traces of the 'authority account' feature
+
+[33mcommit 8ef5a295e4c76059635a6578b360a4934a7cd26f[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Sun Mar 11 12:46:57 2018 +0100
+
+    Got rid of the last traces of the 'authority account' feature
+
+[33mcommit 0490e0fb5bd4b2bfb3be40c1ad378275d2da277e[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Sun Mar 11 12:42:15 2018 +0100
+
+    Removed 'authority' column in 'users' table
+
+[33mcommit 9b22af5cdbe26b5b1e101dc8f5ff595b29b98eb5[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Sat Mar 10 22:36:00 2018 +0100
+
+    Translation from danish to english
+
+[33mcommit e54b2fd2a57ec2256ef03d145c5a7e86070a50e0[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Sat Mar 10 21:57:35 2018 +0100
+
+    Removed all content in the footer
+
+[33mcommit 078bba56447a077c4baf48c5b474dd69a1963e0b[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Sat Mar 10 21:56:00 2018 +0100
+
+    Fixed that the vetoer could be mistaken for being the author
+
+[33mcommit 651faa0a95f74b9c21ff4e6d72758604c34ba977[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Sat Mar 10 21:48:49 2018 +0100
+
+    More translation
+
+[33mcommit 946b123260ddc7e861c374cfd21c0eac934e37ed[m
+Merge: e4fa267 db84f52
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Sat Mar 10 21:44:22 2018 +0100
+
+    Merge branch 'master' of https://github.com/dellitsni/Konsent into develop
+
+[33mcommit e4fa267cd029d5abe59c45dc041efbc16c88e96f[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Sat Mar 10 21:43:40 2018 +0100
+
+    Removed the 'register as authority' option
+
+[33mcommit db84f5244d9d9159a9e144f593bc0757d2ed2bb9[m[33m ([m[1;32mmaster[m[33m)[m
+Merge: c3e7a34 26c2469
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Sat Mar 10 21:21:27 2018 +0100
+
+    Added some details about concept development and discussion to the readme.
+
+[33mcommit 26c2469a9f1a1afce65282ccf2b572ff6aca04af[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Sat Mar 10 21:16:19 2018 +0100
+
+    Added some details about concept development
+
+[33mcommit c3e7a341501f3447529b039860eba5961f21e739[m
+Merge: 8bf83b7 92b5791
+Author: Adrian Elias Bratlann <adrianeliasbratlann@gmail.com>
+Date:   Sat Mar 10 21:05:46 2018 +0100
+
+    Merge pull request #7 from dellitsni/develop
+    
+    Translated some loose ends and cleaned up considerably in flask_app.py
+
+[33mcommit 92b57913fb963a40670809d2fe46e337a8a0c462[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Sat Mar 10 20:58:52 2018 +0100
+
+    Translated some loose ends and cleaned up considerably in flask_app.py
+
+[33mcommit 8bf83b78040a18be90150692dd18a0cc37da5d39[m
+Merge: fe48a71 9ea5fda
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Thu Mar 8 16:09:07 2018 +0100
+
+    Merge branch 'master' of https://github.com/dellitsni/Konsent
+
+[33mcommit fe48a71cb54b8afa7de32f18becb746135c42d37[m
+Merge: 0d48993 971c6fb
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Thu Mar 8 16:03:24 2018 +0100
+
+    Merge branch 'develop' of https://github.com/dellitsni/Konsent into develop
+
+[33mcommit 0d48993affb9a7f85841b56fbc129249a6349c51[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Thu Mar 8 16:02:25 2018 +0100
+
+    MySQL database schema
+
+[33mcommit 9ea5fda0feba120d8af424aacd639dc9a3f137b1[m
+Merge: 3feea33 971c6fb
+Author: Adrian Elias Bratlann <adrianeliasbratlann@gmail.com>
+Date:   Thu Mar 8 15:40:44 2018 +0100
+
+    Merge pull request #2 from dellitsni/develop
+    
+    Clarified the concept and added some technical details
+
+[33mcommit 7be100e5ee175ee0e7cf5ce28d5a5a658c5f8c05[m
+Merge: 3c78936 3feea33
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Thu Mar 8 15:37:21 2018 +0100
+
+    Merge branch 'master' of https://github.com/dellitsni/Konsent into develop
+
+[33mcommit 3c789366104c470263d12117dbb84060c67ab29e[m
+Author: Adrian Elias <adrianelias@protonmail.com>
+Date:   Thu Mar 8 15:31:58 2018 +0100
+
+    Clarified the concept and added some technical details.
+
+[33mcommit 971c6fba11d532a8b936c319e5b3565b38716731[m
+Author: Adrian <adrian@protonmail.com>
+Date:   Thu Mar 8 15:29:07 2018 +0100
+
+    Clarified the concept and added some technical details.
+
+[33mcommit 3feea3387f63bb29cfb1ec41149a35b62946e061[m
+Merge: 7106016 d53fc65
+Author: Adrian Elias Bratlann <adrianeliasbratlann@gmail.com>
+Date:   Thu Mar 8 14:33:15 2018 +0100
+
+    Merge pull request #1 from dellitsni/develop
+    
+    Added an explanation of the concept, originaly posted in a thread on Raddle.
+
+[33mcommit d53fc65a915306e0e0ae4e331ec87f330ebada2e[m[33m ([m[1;31morigin/hotfix[m[33m)[m
+Author: Adrian <adrian@protonmail.com>
+Date:   Thu Mar 8 14:29:37 2018 +0100
+
+    Added an explanation of the concept, originaly posted in a thread on Raddle.
+
+[33mcommit 7106016beb7cf4c383d495ca7ffdd411738f8e8a[m
+Author: Adrian Elias Bratlann <adrianeliasbratlann@gmail.com>
+Date:   Wed Mar 7 19:24:40 2018 +0100
+
+    Initial commit
+
+[33mcommit 28ed29c4a53818b0b50458fdbf4273820bd6fae2[m
+Author: Adrian Elias Bratlann <adrianeliasbratlann@gmail.com>
+Date:   Wed Mar 7 19:22:08 2018 +0100
+
+    Initial commit
