@@ -4,7 +4,14 @@
   <h1 class="heading">Solutions</h1>
   <ul class="list-group">
     {% for post in posts %}
-      <li class="list-group-item"><a href="phase3/post/{{ post.id }}">{{post.title}}</a></li>
+      <li class="list-group-item">
+          <a href="phase3/post/{{ post.id }}">{{post.title}}</a>
+          {% if post.progresses_in_hours %}
+          <span>progresses in {{ post['progresses_in_hours'] }}h</span>
+          {% else %}
+          <span>progresses in {{ post['progresses_in_minutes'] }}m</span>
+          {% endif %}
+      </li>
     {% endfor %}
   </ul>
 {% endblock %}

@@ -90,9 +90,9 @@ def phase2():
 
     if posts:
         for post in posts:
-            post.progresses_in = post.resting_time_minutes - post.time_since_create['minutes']
-            if post.progresses_in > 60:
-                post.progresses_in = post.progresses_in / 60
+            post.progresses_in_minutes = post.resting_time_minutes - post.time_since_create['minutes']
+            if post.progresses_in_minutes > 60:
+                post.progresses_in_hours = post.progresses_in_minutes / 60
         return render_template('phase2.html', posts=posts)
     else:
         return render_template('phase2.html', msg=NO_RESULTS_ERROR)
@@ -115,6 +115,10 @@ def phase3():
 
     if posts:
         return render_template('phase3.html', posts=posts)
+        for post in posts:
+            post.progresses_in_minutes = post.resting_time_minutes - post.time_since_create['minutes']
+            if post.progresses_in_minutes > 60:
+                post.progresses_in_hours = post.progresses_in_minutes / 60
     else:
         return render_template('phase3.html', msg=NO_RESULTS_ERROR)
 

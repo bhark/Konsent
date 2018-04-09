@@ -6,8 +6,12 @@
     {% for post in posts %}
       <li class="list-group-item"><a href="phase2/post/{{post.id}}">
           {{post.title}}</a>
-          <span>progresses in {{ post['progresses_in'] }}</span>
-          <span>by {{ post.author.username }}</span>
+          {% if post.progresses_in_hours %}
+          <span>progresses in {{ post['progresses_in_hours'] }}h</span>
+          {% else %}
+          <span>progresses in {{ post['progresses_in_minutes'] }}m</span>
+          {% endif %}
+          <span>- by {{ post.author.username }}</span>
       </li>
     {% endfor %}
   </ul>
