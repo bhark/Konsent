@@ -418,7 +418,7 @@ def new_post():
 
         # LIGHT THE FUSES, COMRADES!!!
         post = Post(title, body, session[
-                    "connected_union"], session["user_id"])
+                    "connected_union"], session["user_id"], resting_time_minutes)
         db.session.add(post)
         db.session.commit()
 
@@ -523,15 +523,12 @@ def check_password(canditate, stored):
 # move posts on to next phase if ready
 def update_phases():
     # find all posts to be moved
-    posts = Post.query.filter(
-        Post.union_id == session['connected_union']
-    ).filter(
-        Post.create_date < datetime.datetime.now() - Post.resting_time_minutes
-    ).all()
+    posts = Post.query.filter(Post.union_id == session['connected_union']).all()
+
 
     for post in posts:
         # phase 2
-        if post.phase == 2:
+        if post.phase == 2 and post.create_date < datetime.datetime.now() - timedelta(minutes=post.resting_time_minutes):
             solution = Comment.query.filter(
                 Comment.post == post
             ).order_by(
@@ -548,7 +545,7 @@ def update_phases():
             db.session.add(post)
 
         # phase 3
-        elif post.phase == 3:
+        elif post.phase == 3 and post.create_date < datetime.datetime.now() - timedelta(minutes=post.resting_time_minutes):
             post.create_date = datetime.datetime.now()
             post.phase = 4
             db.session.add(post)

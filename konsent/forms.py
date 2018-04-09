@@ -4,6 +4,7 @@ from wtforms.csrf.core import CSRF
 from wtforms.csrf.session import SessionCSRF
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from wtforms import SelectField, HiddenField, SubmitField, BooleanField
+from wtforms import IntegerField
 
 
 class BaseForm(Form):
