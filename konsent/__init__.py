@@ -419,7 +419,7 @@ def unvote_comment(comment_id, post_id):
     return redirect("/phase2/post/{0}".format(post_id))
 
 # new post
-@app.route('/new_post', methods=['GET', 'POST'])
+@app.route('/new-post', methods=['GET', 'POST'])
 @is_logged_in
 def new_post():
     form = ArticleForm(request.form)
@@ -436,7 +436,7 @@ def new_post():
 
         flash('Your post have been published', 'success')
         return redirect(url_for('phase1'))
-    return render_template('new_post.html', form=form)
+    return render_template('new-post.html', form=form)
 
 
 # blocked solutions
