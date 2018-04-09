@@ -7,7 +7,7 @@
       <li class="list-group-item"><a href="phase2/post/{{post.id}}">
           {{post.title}}</a>
           {% if post.progresses_in_hours %}
-          <span>progresses in {{ post['progresses_in_hours'] }}h</span>
+          <span>progresses in about {{ post['progresses_in_hours'] }}h</span>
           {% else %}
           <span>progresses in {{ post['progresses_in_minutes'] }}m</span>
           {% endif %}
