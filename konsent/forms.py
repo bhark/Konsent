@@ -5,6 +5,7 @@ from wtforms.csrf.session import SessionCSRF
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from wtforms import SelectField, HiddenField, SubmitField, BooleanField
 from wtforms import IntegerField
+from wtforms.validators import Optional
 
 
 class BaseForm(Form):
@@ -50,7 +51,7 @@ class ArticleForm(Form):
     title = StringField('Title', [validators.Length(min=1, max=150)])
     body = TextAreaField(
         'Body', [validators.Length(min=20, max=1000, message='Your post body should contain between 20 and 1000 characters.')])
-    resting_time_minutes = IntegerField('Resting time (minutes - default 1440)')
+    resting_time_minutes = IntegerField('Resting time (minutes - default 1440)', [validators.Optional()])
 
 class CommentForm(BaseForm):
     body = TextAreaField('', [validators.length(min=1, max=1000)])

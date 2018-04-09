@@ -87,7 +87,12 @@ def phase2():
             Post.union_id == session['connected_union'],
             Post.phase == 2)).all()
 
+
     if posts:
+        for post in posts:
+            post.progresses_in = post.resting_time_minutes - post.time_since_create['minutes']
+            if post.progresses_in > 60:
+                post.progresses_in = post.progresses_in / 60
         return render_template('phase2.html', posts=posts)
     else:
         return render_template('phase2.html', msg=NO_RESULTS_ERROR)
@@ -208,6 +213,7 @@ def post2(post_id):
     if post.union_id != session['connected_union']:
         post = None
 
+
     return render_template('post.html', post=post, form=form,
         comments=list_comments(post_id, session['username']), phase=2)
 
@@ -304,7 +310,7 @@ def register_union():
         form=form, unions=print_unions())
 
 
-# bruger login
+# user login
 @app.route('/login', methods=['GET', 'POST'])
 @is_not_logged_in
 def login():

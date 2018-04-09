@@ -12,6 +12,11 @@
       {{ render_field(form.vote, type="hidden", class_="form-control") }}
       {{ form.csrf_token }}
       <p><a href="/who-voted/{{ post.id }}">{{ post_data['votes'] }} votes</a></p>
+      {% if post.resting_time_minutes < 60 %}
+      <p>Resting time: <b>{{ post.resting_time_minutes }}</b> minutes</p>
+      {% else %}
+      <p>Resting time: <b>{{ post.resting_time_minutes / 60 }}</b> hours</p>
+      {% endif %}
       <input class="btn btn-primary" type="submit" value={% if post_data['voted'] %}"Cancel vote"{% else %}"Vote up"{% endif %}>
     </div>
   </form>
