@@ -426,7 +426,15 @@ def new_post():
     if request.method == 'POST' and form.validate():
         title = form.title.data
         body = form.body.data
-        resting_time_minutes = form.resting_time_minutes.data
+        if request.form['unit'] == 'minutes':
+            app.logger.info('form data: {0}'.format(form.resting_time_minutes.data))
+            resting_time_minutes = form.resting_time_minutes.data
+        elif request.form['unit'] == 'hours':
+            app.logger.info('form data: {0}'.format(form.resting_time_minutes.data))
+            resting_time_minutes = form.resting_time_minutes.data * 60
+        else:
+            error = 'An error occurred while trying to submit your post...'
+            return render_template('index.html', error=error)
 
         # LIGHT THE FUSES, COMRADES!!!
         post = Post(title, body, session[
