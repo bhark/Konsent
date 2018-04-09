@@ -124,7 +124,8 @@ def test_post1_get(client_logged, orm_mock):
         assert context['post_data']['votes'] == 0
 
 
-def test_post1_post_vote_up(client_logged, orm_mock, forms_mock):
+def test_post1_post_vote_up(client_logged, user_mock, orm_mock, forms_mock):
+    user_mock['User_mock'].query.filter().count.return_value = 1
     orm_mock['Vote_query'].return_value = None
     orm_mock['post_stub'].votes_count = 0
 
@@ -326,7 +327,7 @@ def test_vetoed_post(client_logged, orm_mock, forms_mock):
         assert template.name == 'vetoed.html'
 
 
-def test_members(client_logged):
+def test_members(client_logged, orm_mock):
     with captured_templates(app) as templates:
 
         response = client_logged.get('/members')

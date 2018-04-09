@@ -16,10 +16,11 @@ URL = 'http://127.0.0.1:5000/'
 def rand():
     return str(random.random())[2:]
 
-TEST_USERNAME = 'test_username_' + rand()
-TEST_PASSWORD = 'test_passw0rD_' + rand()
-TEST_UNION_NAME = 'test_union_name_' + rand()
-TEST_UNION_PASSWORD = 'test_union_password_' + rand()
+_suffix = rand()
+TEST_USERNAME = 'test_username_' + _suffix
+TEST_PASSWORD = 'test_passw0rD_' + _suffix
+TEST_UNION_NAME = 'test_union_name_' + _suffix
+TEST_UNION_PASSWORD = 'test_union_password_' + _suffix
 
 # CSS selectors
 HOME_LOGIN_BUTTON = 'a.btn:nth-child(6)'
