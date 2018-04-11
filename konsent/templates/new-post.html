@@ -11,12 +11,12 @@
       {{ render_field(form.body, class_="form-control", id="editor") }}
     </div>
     <div class="form-group" title="Time before progressing from each phase" data-toggle="tooltip">
-        {{ render_field(form.resting_time, class_="form-control") }}
+        {{ render_field(form.resting_time, class_="form-control", value="1") }}
     </div>
     <div class="form-group">
-        <input type="radio" id="days" name="unit" value="days">
+        <input type="radio" id="days" name="unit" value="days" checked="checked">
         <label for="days">Days</label>
-        <input type="radio" id="hours" name="unit" value="hours" checked="checked">
+        <input type="radio" id="hours" name="unit" value="hours">
         <label for="hours">Hours</label>
         <input type="radio" id="minutes" name="unit" value="minutes">
         <label for="minutes">Minutes</label>
