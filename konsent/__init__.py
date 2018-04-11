@@ -218,11 +218,7 @@ def post2(post_id):
     if post.union_id != session['connected_union']:
         post = None
 
-<<<<<<< HEAD
-
-=======
     comments = post.list_comments(session['username'])
->>>>>>> develop
     return render_template('post.html', post=post, form=form,
                            comments=comments, phase=2)
 
