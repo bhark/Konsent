@@ -1,7 +1,8 @@
 # coding: utf-8
 from datetime import datetime
+
 from flask_sqlalchemy import SQLAlchemy
-import bcrypt
+from sqlalchemy import and_
 
 db = SQLAlchemy()
 
@@ -32,6 +33,14 @@ class Comment(db.Model):
             self.author_id = author
             self.author_name = author_name
         self.body = body
+
+    def list_votes(self):
+        votes = Vote.query.filter(Vote.comment_id == self.id).all()
+        result = []
+        for vote in votes:
+            author = User.query.filter(User.id == vote.author_id).one()
+            result.append(author.username)
+        return result
 
 
 class Post(db.Model):
@@ -92,6 +101,37 @@ class Post(db.Model):
         print(self._time_since_create)
         return self._time_since_create
 
+    def list_votes(self):
+        votes = Vote.query.filter(Vote.post_id == self.id).all()
+        result = []
+        for vote in votes:
+            author = User.query.filter(User.id == vote.author_id).one()
+            result.append(author.username)
+        return result
+
+    def list_comments(self, username):
+        user = User.query.filter(User.username == username).one()
+
+        # find all comments in database belonging to this specific post
+        comments = sorted(self.comments, reverse=True, key=lambda x: x.votes_count)
+
+        # make a tuple with the result
+        result = []
+        for c in comments:
+            comment = {
+                'author': c.author.username,
+                'body': c.body,
+                'votes': c.votes_count,
+                'id': c.id}
+            user_voted = Vote.query.filter(and_(
+                Vote.author_id == user.id,
+                Vote.comment_id == c.id
+            )).count()
+            comment['voted'] = user_voted > 0
+            result.append(comment)
+
+        return result
+
 
 class Union(db.Model):
     __tablename__ = 'unions'
@@ -104,6 +144,23 @@ class Union(db.Model):
         db.Integer, primary_key=True, autoincrement=True, unique=True)
     union_name = db.Column(db.Unicode(length=255), nullable=False)
     password = db.Column(db.String(length=255), nullable=False)
+
+    @staticmethod
+    def print():
+        return [union.union_name for union in Union.query.all()]
+
+    @staticmethod
+    def list():
+        unions = Union.query.all()
+
+        result = []
+        for union in unions:
+            result.append((union.union_name, union.union_name))
+        return result
+
+    def list_members(self):
+        members = User.query.filter(User.union_id == self.id).all()
+        return [member.username for member in members]
 
 
 class User(db.Model):

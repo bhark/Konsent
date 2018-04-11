@@ -8,7 +8,7 @@ from sys import argv
 import bcrypt
 import click
 from sqlalchemy import and_
-from flask import Flask, g, render_template, flash, redirect
+from flask import Flask, g, render_template, flash, redirect, abort
 from flask import url_for, session, logging, request
 
 from .models import db, User, Union, Post, Vote, Comment
@@ -172,7 +172,7 @@ def post1(post_id):
             vote = Vote(session['user_id'], post)
             db.session.add(vote)
             # count union members
-            union_members = Union.query.filter(
+            union_members = User.query.filter(
                 User.union_id == session['connected_union']).count()
 
             # update vote count variable
@@ -180,7 +180,6 @@ def post1(post_id):
 
             # if enough union members have voted, move this post to phase 2
             if post_data['votes'] >= union_members / REQUIRED_VOTES_DIVISOR:
-                app.logger.info('Votes: {0}, union_members: {1}, divisor: {2}, result: {3}'.format(post_data['votes'], union_members, REQUIRED_VOTES_DIVISOR, union_members/REQUIRED_VOTES_DIVISOR))
                 # reset create_date
                 post.create_date = datetime.datetime.now()
                 # increment phase value
@@ -219,9 +218,13 @@ def post2(post_id):
     if post.union_id != session['connected_union']:
         post = None
 
+<<<<<<< HEAD
 
+=======
+    comments = post.list_comments(session['username'])
+>>>>>>> develop
     return render_template('post.html', post=post, form=form,
-        comments=list_comments(post_id, session['username']), phase=2)
+                           comments=comments, phase=2)
 
 
 # single post, phase 3
@@ -237,7 +240,7 @@ def post3(post_id):
         post = None
 
     return render_template('post.html', post=post,
-        comments=list_comments(post_id, session['username']), phase=3)
+        comments=post.list_comments(session['username']), phase=3)
 
 
 # view a single solution that's been confirmed (phase 4)
@@ -252,7 +255,7 @@ def post_completed(post_id):
         post = None
 
     return render_template('post.html', post=post,
-        comments=list_comments(post_id, session['username']), phase=4)
+        comments=post.list_comments(session['username']), phase=4)
 
 
 # user registration
@@ -260,7 +263,7 @@ def post_completed(post_id):
 @is_not_logged_in
 def register():
     form = RegisterForm(request.form)
-    form.users_union.choices = list_unions()
+    form.users_union.choices = Union.list()
     if request.method == 'POST' and form.validate():
         username = form.username.data
         users_union = form.users_union.data
@@ -293,7 +296,7 @@ def register():
             error = 'Something mysterious happened.'
             return render_template('register.html', error=error, form=form)
 
-    return render_template('register.html', form=form, unions=list_unions())
+    return render_template('register.html', form=form, unions=Union.list())
 
 
 # register new unions
@@ -313,7 +316,7 @@ def register_union():
         msg = 'Your union is now registered and can be accessed by other users'
         return render_template('index.html', msg=msg)
     return render_template('register-union.html',
-        form=form, unions=print_unions())
+        form=form, unions=Union.print())
 
 
 # user login
@@ -477,7 +480,6 @@ def veto(post_id):
     if request.method == 'POST' and form.validate():
         # find and update post
         post = Post.query.get(post_id)
-        # XXX: if this is true, KABOOM! AttributeError next line
         if post.phase != 3:
             return render_template('index.html', error='This post cant be vetoed right now')
         post.vetoed_by_id = session['user_id']
@@ -519,14 +521,22 @@ def about():
 @app.route('/members')
 @is_logged_in
 def members():
-    union = session['connected_union']
-    return render_template('union-members.html', members=list_members(union))
+    union = Union.query.filter(Union.id == session['connected_union']).one()
+    return render_template('union-members.html', members=union.list_members())
+
 
 # who voted on this post?
-@app.route('/who-voted/<string:type>/<int:id>')
+@app.route('/who-voted/<string:what>/<int:id>')
 @is_logged_in
-def who_voted(type, id):
-    votes = list_who_voted(id, type)
+def who_voted(what, id):
+    if what == 'post':
+        cls = Post
+    elif what == 'comment':
+        cls = Comment
+    else:
+        abort(404)
+    obj = cls.query.filter(cls.id == id).one()
+    votes = obj.list_votes()
     return render_template('who-voted.html', votes=votes)
 
 # FUNCTIONS
@@ -570,76 +580,6 @@ def update_phases():
             post.phase = 4
             db.session.add(post)
     db.session.commit()
-
-
-# list unions for use somewhere else
-def list_unions():
-    # find all unions in database
-    unions = Union.query.all()
-
-    # add unions to tuple
-    result = []
-    for union in unions:
-        result.append((union.union_name, union.union_name))
-    return result
-
-# list who voted on issue
-def list_who_voted(id, type):
-
-    if type == "post":
-        votes = Vote.query.filter(Vote.post_id == id).all()
-    else:
-        votes = Vote.query.filter(Vote.comment_id == id).all()
-
-    # add votes to tuple
-    result = []
-    for vote in votes:
-        author = User.query.filter(User.id == vote.author_id).one()
-        result.append(author.username)
-    return result
-
-# find members of union
-def list_members(union):
-    members = User.query.filter(User.union_id == union).all()
-
-    # add members to tuple
-    result = []
-    for member in members:
-        result.append(member.username)
-    return result
-
-# find solution proposals for a certain post
-def list_comments(post_id, username):
-    post = Post.query.get(int(post_id))
-    user = User.query.filter(User.username == username).one()
-
-    # find all comments in database belonging to this specific post
-    comments = sorted(post.comments, reverse=True, key=lambda x: x.votes_count)
-
-    # make a tuple with the result
-    result = []
-    for c in comments:
-        comment = {
-            'author': c.author.username,
-            'body': c.body,
-            'votes': c.votes_count,
-            'id': c.id}
-        user_voted = Vote.query.filter(and_(
-            Vote.author_id == user.id,
-            Vote.comment_id == c.id
-        )).count()
-        comment['voted'] = user_voted > 0
-        result.append(comment)
-
-    return result
-
-
-# list unions for pretty-printing
-def print_unions():
-    # find all unions in database
-    unions = Union.query.all()
-
-    return [u.union_name for u in unions]
 
 
 @click.command()
