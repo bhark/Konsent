@@ -14,6 +14,8 @@
         {{ render_field(form.resting_time_minutes, class_="form-control") }}
     </div>
     <div class="form-group">
+        <input type="radio" id="days" name="unit" value="days">
+        <label for="days">Days</label>
         <input type="radio" id="hours" name="unit" value="hours" checked="checked">
         <label for="hours">Hours</label>
         <input type="radio" id="minutes" name="unit" value="minutes">

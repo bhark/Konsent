@@ -426,16 +426,18 @@ def new_post():
         title = form.title.data
         body = form.body.data
         if request.form['unit'] == 'minutes':
-            resting_time_minutes = form.resting_time_minutes.data
+            resting_time = form.resting_time_minutes.data * 60
         elif request.form['unit'] == 'hours':
-            resting_time_minutes = form.resting_time_minutes.data * 60
+            resting_time = form.resting_time_minutes.data * 60 * 60
+        elif request.form['unit'] == 'days':
+            resting_time = form.resting_time_minutes.data * 60 * 60 * 24
         else:
-            error = 'An error occurred while trying to submit your post...'
+            error = 'An error occurred while trying to submit your post'
             return render_template('index.html', error=error)
 
         # LIGHT THE FUSES, COMRADES!!!
         post = Post(title, body, session[
-                    "connected_union"], session["user_id"], resting_time_minutes)
+                    "connected_union"], session["user_id"], resting_time)
         db.session.add(post)
         db.session.commit()
 
