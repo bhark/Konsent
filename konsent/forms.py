@@ -51,7 +51,7 @@ class ArticleForm(Form):
     title = StringField('Title', [validators.Length(min=1, max=150)])
     body = TextAreaField(
         'Body', [validators.Length(min=20, max=1000, message='Your post body should contain between 20 and 1000 characters.')])
-    resting_time_minutes = IntegerField('Resting time (defaults to 1 day)', [validators.Optional()])
+    resting_time = IntegerField('Resting time (defaults to 1 day)', [validators.Optional()])
 
 class CommentForm(BaseForm):
     body = TextAreaField('', [validators.length(min=1, max=1000)])
