@@ -70,7 +70,7 @@ class Post(db.Model):
         'User', backref=db.backref('vetoes', lazy=True),
         foreign_keys=[vetoed_by_id])
 
-    def __init__(self, title, body, union, author, resting_time_minutes, create_date=None):
+    def __init__(self, title, body, union, author, resting_time, create_date=None):
         if create_date is None:
             create_date = datetime.now()
         self.title = title
@@ -84,7 +84,7 @@ class Post(db.Model):
         else:
             self.author_id = author
         self.create_date = create_date
-        self.resting_time_minutes = resting_time_minutes
+        self.resting_time = resting_time
 
     @property
     def time_since_create(self):

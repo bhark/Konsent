@@ -90,9 +90,9 @@ def phase2():
 
     if posts:
         for post in posts:
-            post.progresses_in_minutes = post.resting_time_minutes - post.time_since_create['minutes']
+            post.progresses_in_minutes = int((post.resting_time / 60) - post.time_since_create['minutes'])
             if post.progresses_in_minutes > 60:
-                post.progresses_in_hours = post.progresses_in_minutes / 60
+                post.progresses_in_hours = round(post.progresses_in_minutes / 60, 1)
         return render_template('phase2.html', posts=posts)
     else:
         return render_template('phase2.html', msg=NO_RESULTS_ERROR)
@@ -115,7 +115,7 @@ def phase3():
 
     if posts:
         for post in posts:
-            post.progresses_in_minutes = post.resting_time_minutes - post.time_since_create['minutes']
+            post.progresses_in_minutes = int((post.resting_time / 60) - post.time_since_create['minutes'])
             if post.progresses_in_minutes > 60:
                 post.progresses_in_hours = post.progresses_in_minutes / 60
             app.logger.info(post.progresses_in_minutes)
@@ -426,11 +426,11 @@ def new_post():
         title = form.title.data
         body = form.body.data
         if request.form['unit'] == 'minutes':
-            resting_time = form.resting_time_minutes.data * 60
+            resting_time = form.resting_time.data * 60
         elif request.form['unit'] == 'hours':
-            resting_time = form.resting_time_minutes.data * 60 * 60
+            resting_time = form.resting_time.data * 60 * 60
         elif request.form['unit'] == 'days':
-            resting_time = form.resting_time_minutes.data * 60 * 60 * 24
+            resting_time = form.resting_time.data * 60 * 60 * 24
         else:
             error = 'An error occurred while trying to submit your post'
             return render_template('index.html', error=error)
@@ -554,7 +554,7 @@ def update_phases():
 
     for post in posts:
         # phase 2
-        if post.phase == 2 and post.create_date < datetime.datetime.now() - timedelta(minutes=post.resting_time_minutes):
+        if post.phase == 2 and post.create_date < datetime.datetime.now() - timedelta(minutes = (post.resting_time / 60)):
             solution = Comment.query.filter(
                 Comment.post == post
             ).order_by(
@@ -571,7 +571,7 @@ def update_phases():
             db.session.add(post)
 
         # phase 3
-        elif post.phase == 3 and post.create_date < datetime.datetime.now() - timedelta(minutes=post.resting_time_minutes):
+        elif post.phase == 3 and post.create_date < datetime.datetime.now() - timedelta(minutes = (post.resting_time / 60)):
             post.create_date = datetime.datetime.now()
             post.phase = 4
             db.session.add(post)

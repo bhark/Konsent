@@ -13,11 +13,12 @@
       {{ form.csrf_token }}
       <center>
           <p><a href="/who-voted/{{ post.id }}">{{ post_data['votes'] }} votes</a></p>
-          {% if post.resting_time_minutes < 60 %}
-          <p>Resting time: <b>{{ post.resting_time_minutes }}</b> minutes</p>
+          {% if post.resting_time / 60 < 60 %}
+          <p>Resting time: <b>{{ post.resting_time / 60 }}</b> minutes</p>
           {% else %}
-          <p>Resting time: <b>{{ post.resting_time_minutes / 60 }}</b> hours</p>
+          <p>Resting time: <b>{{ post.resting_time / 60 / 60 }}</b> hours</p>
           {% endif %}
+          <p>{{ resting_time }}</p>
           <input class="btn btn-primary" type="submit" value={% if post_data['voted'] %}"Cancel vote"{% else %}"Vote up"{% endif %}>
       </center>
     </div>
