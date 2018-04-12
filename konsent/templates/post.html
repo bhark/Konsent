@@ -56,9 +56,6 @@
             {{ render_field(commentForm.submit_comment, class_="form-control") }}
             {{ commentForm.csrf_token }}
         </div>
-        <input type="hidden" value="add_comment" name="add_comment">
-        <button type="submit" class="btn btn-primary" name="add_comment" value="add_comment">Add comment</button>
-        <br><br>
     </form>
   {% if comments %} <!-- if comments -->
   {% for comment in comments %}
