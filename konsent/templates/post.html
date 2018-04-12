@@ -27,8 +27,20 @@
   {% endif %}
   <br><br>
 
-  {% if phase == 2 %} <!-- if phase 2 -->
-  <p class="lead">External discussion</p>
+    {% if phase == 2 %} <!-- if phase 2 -->
+    <p class="lead">External discussion</p>
+    {% if external_discussions %} <!-- if any urls have been added -->
+    <ul class="list-group">
+    {% for external_discussion in external_discussions %}
+        <li class="list-group-item">
+            <a href="{{ external_discussion.url }}">
+                {{ external_discussion.url }}
+            </a>
+             Added by {{ external_discussion.author }}
+        </li>
+    {% endfor %}
+    </ul>
+    {% endif %} <!-- end if any urls have been added -->
   <form method="POST" action="">
       <div class="form-group">
           {{ render_field(discussionForm.url, class_="form-control") }}

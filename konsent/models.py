@@ -6,6 +6,14 @@ from sqlalchemy import and_
 
 db = SQLAlchemy()
 
+class ExternalDiscussion(db.Model):
+    __tablename__ == 'external_discussions'
+
+    author = db.Column(db.UnicodeText, nullable=False)
+    author_name = db.Column(db.UnicodeText, nullable=False)
+    url = db.Column(db.UnicodeText, nullable=False)
+    post_id = db.Column(db.Integer, nullable=False)
+
 class Comment(db.Model):
     __tablename__ = 'comments'
 
@@ -56,7 +64,6 @@ class Post(db.Model):
     votes_count = db.Column(db.Integer, nullable=False, default=0)
     solution = db.Column(db.UnicodeText)
     resting_time = db.Column(db.Integer, nullable=False, default=86400) # in seconds, 86400 = 1 day
-    external_discussion = db.Column(db.UnicodeText)
     # Relationships
     author_id = db.Column(
         db.Integer, db.ForeignKey('users.id'), nullable=False)
