@@ -117,7 +117,7 @@ def phase3():
         for post in posts:
             post.progresses_in_minutes = int((post.resting_time / 60) - post.time_since_create['minutes'])
             if post.progresses_in_minutes > 60:
-                post.progresses_in_hours = post.progresses_in_minutes / 60
+                post.progresses_in_hours = round(post.progresses_in_minutes / 60, 1)
             app.logger.info(post.progresses_in_minutes)
         return render_template('phase3.html', posts=posts)
 
