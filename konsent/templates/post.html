@@ -29,33 +29,37 @@
 
     {% if phase == 2 %} <!-- if phase 2 -->
     <p class="lead">External discussion</p>
-    {% if external_discussions %} <!-- if any urls have been added -->
+    {% if discussions %} <!-- if any urls have been added -->
     <ul class="list-group">
-    {% for external_discussion in external_discussions %}
+    {% for discussion in discussions %}
         <li class="list-group-item">
-            <a href="{{ external_discussion.url }}">
-                {{ external_discussion.url }}
+            <a href="{{ discussion[0] }}">
+                {{ discussion[0] }}
             </a>
-             Added by {{ external_discussion.author }}
+            added by {{ discussion[1] }}
         </li>
     {% endfor %}
     </ul>
     {% endif %} <!-- end if any urls have been added -->
-  <form method="POST" action="">
-      <div class="form-group">
+    <form method="POST" action="">
+        <div class="form-group">
           {{ render_field(discussionForm.url, class_="form-control") }}
+          {{ render_field(discussionForm.submit_url, class_="form-control") }}
           {{ discussionForm.csrf_token }}
-      </div>
-      <p><input class="btn btn-primary" type="submit" value="Add"></p>
-  </form>
-  <h2>Solution proposals</h2>
-  <form method="POST" action="">
-    <div class="form-group">
-      {{ render_field(commentForm.body, class_="form-control") }}
-      {{ commentForm.csrf_token }}
-    </div>
-    <p><input class="btn btn-primary" type="submit" value="Submit"></p>
-  </form>
+        </div>
+        <br><br>
+    </form>
+    <h2>Solution proposals</h2>
+    <form method="POST" action="">
+        <div class="form-group">
+            {{ render_field(commentForm.body, class_="form-control") }}
+            {{ render_field(commentForm.submit_comment, class_="form-control") }}
+            {{ commentForm.csrf_token }}
+        </div>
+        <input type="hidden" value="add_comment" name="add_comment">
+        <button type="submit" class="btn btn-primary" name="add_comment" value="add_comment">Add comment</button>
+        <br><br>
+    </form>
   {% if comments %} <!-- if comments -->
   {% for comment in comments %}
   <ul class="list-group">

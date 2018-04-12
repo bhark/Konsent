@@ -205,21 +205,20 @@ def post2(post_id):
     discussionForm = DiscussionForm(request.form, meta={'csrf_context': session})
 
     if request.method == 'POST':
-        if commentForm.validate():
+        if commentForm.submit_comment.data and commentForm.validate():
             body = commentForm.body.data
             author = session['user_id']
             comment = Comment(
                 post_id, author, body, author_name=session['username'])
             db.session.add(comment)
             db.session.commit()
-        elif discussionForm.validate():
+        elif discussionForm.submit_url.data and discussionForm.validate():
             url = discussionForm.url.data
             author = session['user_id']
+            author_name = session['username']
             externalDiscussion = ExternalDiscussion(
-                url, author, author_name=session['username'],
-                post_id=post_id
-            )
-            db.session.add(discussion)
+                author, author_name, url, post_id)
+            db.session.add(externalDiscussion)
             db.session.commit()
 
     # find posts
@@ -230,10 +229,10 @@ def post2(post_id):
         post = None
 
     comments = post.list_comments(session['username'])
-    externalDiscussions = post.list_external_discussions()
+    discussions = post.list_external_discussions()
     return render_template('post.html', post=post, commentForm=commentForm,
                            discussionForm=discussionForm, comments=comments,
-                           phase=2, externalDiscussions=externalDiscussions)
+                           phase=2, discussions=discussions)
 
 
 # single post, phase 3

@@ -17,6 +17,12 @@ class ExternalDiscussion(db.Model):
     url = db.Column(db.UnicodeText, nullable=False)
     post_id = db.Column(db.Integer, nullable=False)
 
+    def __init__(self, author, author_name, url, post_id):
+        self.author = author
+        self.author_name = author_name
+        self.url = url
+        self.post_id = post_id
+
 class Comment(db.Model):
     __tablename__ = 'comments'
 
@@ -144,18 +150,12 @@ class Post(db.Model):
         return result
 
     def list_external_discussions(self):
-        external_discussions = ExternalDiscussion.query.filter(
-            ExternalDiscussion.post_id == self.id
-        )
+        discussions = ExternalDiscussion.query.all()
 
-        # make a tuple with the result
-        for e in external_discussions:
-            external_discussion = {
-                'author': e.author,
-                'author_id': e.author_id,
-                'url': e.url,
-                'post_id': e.post_id
-            }
+        result = []
+        for discussion in discussions:
+            result.append((discussion.url, discussion.author_name))
+        return result
 
 class Union(db.Model):
     __tablename__ = 'unions'

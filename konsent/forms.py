@@ -5,7 +5,7 @@ from wtforms.csrf.session import SessionCSRF
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from wtforms import SelectField, HiddenField, SubmitField, BooleanField
 from wtforms import IntegerField
-from wtforms.validators import Optional
+from wtforms.validators import Optional, URL
 
 
 class BaseForm(Form):
@@ -55,6 +55,7 @@ class ArticleForm(Form):
 
 class CommentForm(BaseForm):
     body = TextAreaField('', [validators.length(min=1, max=1000)])
+    submit_comment = SubmitField('Add proposal')
 
 
 class UpvoteForm(BaseForm):
@@ -68,4 +69,6 @@ class VetoForm(BaseForm):
 
 class DiscussionForm(BaseForm):
     url = StringField(
-        'URL', [validators.DataRequired(), validators.Length(min=5, max=50)])
+        '', [validators.DataRequired(), validators.Length(min=5, max=50),
+        validators.URL()])
+    submit_url = SubmitField('Add URL')
