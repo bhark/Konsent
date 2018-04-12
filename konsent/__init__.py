@@ -204,13 +204,22 @@ def post2(post_id):
     commentForm = CommentForm(request.form, meta={'csrf_context': session})
     discussionForm = DiscussionForm(request.form, meta={'csrf_context': session})
 
-    if request.method == 'POST' and commentForm.validate():
-        body = commentForm.body.data
-        author = session['user_id']
-        comment = Comment(
-            post_id, author, body, author_name=session['username'])
-        db.session.add(comment)
-        db.session.commit()
+    if request.method == 'POST':
+        if commentForm.validate():
+            body = commentForm.body.data
+            author = session['user_id']
+            comment = Comment(
+                post_id, author, body, author_name=session['username'])
+            db.session.add(comment)
+            db.session.commit()
+        elif discussionForm.validate():
+            url = discussionForm.url.data
+            author = session['user_id']
+            discussion = Discussion(
+                url, author, author_name=session['username']
+            )
+            db.session.add(discussion)
+            db.session.commit()
 
     # find posts
     post = Post.query.get(post_id)
