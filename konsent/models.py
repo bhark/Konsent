@@ -149,8 +149,10 @@ class Post(db.Model):
 
         return result
 
-    def list_external_discussions(self):
-        discussions = ExternalDiscussion.query.all()
+    def list_external_discussions(self, post_id):
+        discussions = ExternalDiscussion.query.filter(
+            ExternalDiscussion.post_id == post_id
+        )
 
         result = []
         for discussion in discussions:

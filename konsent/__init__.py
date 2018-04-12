@@ -229,7 +229,7 @@ def post2(post_id):
         post = None
 
     comments = post.list_comments(session['username'])
-    discussions = post.list_external_discussions()
+    discussions = post.list_external_discussions(post_id)
     return render_template('post.html', post=post, commentForm=commentForm,
                            discussionForm=discussionForm, comments=comments,
                            phase=2, discussions=discussions)
