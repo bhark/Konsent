@@ -87,7 +87,12 @@ def phase2():
             Post.union_id == session['connected_union'],
             Post.phase == 2)).all()
 
+
     if posts:
+        for post in posts:
+            post.progresses_in_minutes = int((post.resting_time / 60) - post.time_since_create['minutes'])
+            if post.progresses_in_minutes > 60:
+                post.progresses_in_hours = round(post.progresses_in_minutes / 60, 1)
         return render_template('phase2.html', posts=posts)
     else:
         return render_template('phase2.html', msg=NO_RESULTS_ERROR)
@@ -109,7 +114,13 @@ def phase3():
         )).all()
 
     if posts:
+        for post in posts:
+            post.progresses_in_minutes = int((post.resting_time / 60) - post.time_since_create['minutes'])
+            if post.progresses_in_minutes > 60:
+                post.progresses_in_hours = post.progresses_in_minutes / 60
+            app.logger.info(post.progresses_in_minutes)
         return render_template('phase3.html', posts=posts)
+
     else:
         return render_template('phase3.html', msg=NO_RESULTS_ERROR)
 
@@ -304,7 +315,7 @@ def register_union():
         form=form, unions=Union.print())
 
 
-# bruger login
+# user login
 @app.route('/login', methods=['GET', 'POST'])
 @is_not_logged_in
 def login():
@@ -407,23 +418,32 @@ def unvote_comment(comment_id, post_id):
     return redirect("/phase2/post/{0}".format(post_id))
 
 # new post
-@app.route('/new_post', methods=['GET', 'POST'])
+@app.route('/new-post', methods=['GET', 'POST'])
 @is_logged_in
 def new_post():
     form = ArticleForm(request.form)
     if request.method == 'POST' and form.validate():
         title = form.title.data
         body = form.body.data
+        if request.form['unit'] == 'minutes':
+            resting_time = form.resting_time.data * 60
+        elif request.form['unit'] == 'hours':
+            resting_time = form.resting_time.data * 60 * 60
+        elif request.form['unit'] == 'days':
+            resting_time = form.resting_time.data * 60 * 60 * 24
+        else:
+            error = 'An error occurred while trying to submit your post'
+            return render_template('index.html', error=error)
 
-        # FIRE THE CANNONS, COMRADES!!!
+        # LIGHT THE FUSES, COMRADES!!!
         post = Post(title, body, session[
-                    "connected_union"], session["user_id"])
+                    "connected_union"], session["user_id"], resting_time)
         db.session.add(post)
         db.session.commit()
 
         flash('Your post have been published', 'success')
         return redirect(url_for('phase1'))
-    return render_template('new_post.html', form=form)
+    return render_template('new-post.html', form=form)
 
 
 # blocked solutions
@@ -529,16 +549,12 @@ def check_password(canditate, stored):
 # move posts on to next phase if ready
 def update_phases():
     # find all posts to be moved
-    posts = Post.query.filter(
-        Post.union_id == session['connected_union']
-    ).filter(
-        Post.create_date < datetime.datetime.now() - timedelta(
-            minutes=RESTING_TIME)
-    ).all()
+    posts = Post.query.filter(Post.union_id == session['connected_union']).all()
+
 
     for post in posts:
         # phase 2
-        if post.phase == 2:
+        if post.phase == 2 and post.create_date < datetime.datetime.now() - timedelta(minutes = (post.resting_time / 60)):
             solution = Comment.query.filter(
                 Comment.post == post
             ).order_by(
@@ -555,7 +571,7 @@ def update_phases():
             db.session.add(post)
 
         # phase 3
-        elif post.phase == 3:
+        elif post.phase == 3 and post.create_date < datetime.datetime.now() - timedelta(minutes = (post.resting_time / 60)):
             post.create_date = datetime.datetime.now()
             post.phase = 4
             db.session.add(post)

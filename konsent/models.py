@@ -55,6 +55,7 @@ class Post(db.Model):
     title = db.Column(db.UnicodeText, nullable=False)
     votes_count = db.Column(db.Integer, nullable=False, default=0)
     solution = db.Column(db.UnicodeText)
+    resting_time = db.Column(db.Integer, nullable=False, default=86400) # in seconds, 86400 = 1 day
     # Relationships
     author_id = db.Column(
         db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -69,7 +70,7 @@ class Post(db.Model):
         'User', backref=db.backref('vetoes', lazy=True),
         foreign_keys=[vetoed_by_id])
 
-    def __init__(self, title, body, union, author, create_date=None):
+    def __init__(self, title, body, union, author, resting_time, create_date=None):
         if create_date is None:
             create_date = datetime.now()
         self.title = title
@@ -83,6 +84,7 @@ class Post(db.Model):
         else:
             self.author_id = author
         self.create_date = create_date
+        self.resting_time = resting_time
 
     @property
     def time_since_create(self):

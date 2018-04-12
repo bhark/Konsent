@@ -4,7 +4,15 @@
   <h1 class="heading">Solution proposals</h1>
   <ul class="list-group">
     {% for post in posts %}
-      <li class="list-group-item"><a href="phase2/post/{{post.id}}">{{post.title}}</a><span> - {% if post.time_since_create['hours'] > 0 %}{{ post.time_since_create['hours'] }}h {% endif %} {{ post.time_since_create['minutes'] }}m ago</span><span> by {{ post.author.username }}</span></li>
+      <li class="list-group-item"><a href="phase2/post/{{post.id}}">
+          {{post.title}}</a>
+          {% if post.progresses_in_hours %}
+          <span>progresses in about {{ post['progresses_in_hours'] }}h</span>
+          {% else %}
+          <span>progresses in {{ post['progresses_in_minutes'] }}m</span>
+          {% endif %}
+          <span>- by {{ post.author.username }}</span>
+      </li>
     {% endfor %}
   </ul>
 {% endblock %}
