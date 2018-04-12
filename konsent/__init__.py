@@ -11,7 +11,7 @@ from sqlalchemy import and_
 from flask import Flask, g, render_template, flash, redirect, abort
 from flask import url_for, session, logging, request
 
-from .models import db, User, Union, Post, Vote, Comment
+from .models import db, User, Union, Post, Vote, Comment, ExternalDiscussion
 from .forms import (RegisterForm, RegisterUnionForm, ArticleForm,
                     CommentForm, UpvoteForm, VetoForm, DiscussionForm)
 
@@ -216,7 +216,8 @@ def post2(post_id):
             url = discussionForm.url.data
             author = session['user_id']
             externalDiscussion = ExternalDiscussion(
-                url, author, author_name=session['username']
+                url, author, author_name=session['username'],
+                post_id=post_id
             )
             db.session.add(discussion)
             db.session.commit()
@@ -229,9 +230,10 @@ def post2(post_id):
         post = None
 
     comments = post.list_comments(session['username'])
+    externalDiscussions = post.list_external_discussions()
     return render_template('post.html', post=post, commentForm=commentForm,
                            discussionForm=discussionForm, comments=comments,
-                           phase=2)
+                           phase=2, externalDiscussions=externalDiscussions)
 
 
 # single post, phase 3

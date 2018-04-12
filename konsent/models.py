@@ -7,8 +7,11 @@ from sqlalchemy import and_
 db = SQLAlchemy()
 
 class ExternalDiscussion(db.Model):
-    __tablename__ == 'external_discussions'
+    __tablename__ = 'external_discussions'
 
+    id = db.Column(
+        db.Integer, primary_key=True, autoincrement=True, unique=True
+    )
     author = db.Column(db.UnicodeText, nullable=False)
     author_name = db.Column(db.UnicodeText, nullable=False)
     url = db.Column(db.UnicodeText, nullable=False)
@@ -140,6 +143,19 @@ class Post(db.Model):
 
         return result
 
+    def list_external_discussions(self):
+        external_discussions = ExternalDiscussion.query.filter(
+            ExternalDiscussion.post_id == self.id
+        )
+
+        # make a tuple with the result
+        for e in external_discussions:
+            external_discussion = {
+                'author': e.author,
+                'author_id': e.author_id,
+                'url': e.url,
+                'post_id': e.post_id
+            }
 
 class Union(db.Model):
     __tablename__ = 'unions'
