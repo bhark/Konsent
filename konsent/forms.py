@@ -64,3 +64,7 @@ class UpvoteForm(BaseForm):
 
 class VetoForm(BaseForm):
     veto = BooleanField('')  # this field is hidden and is true
+
+
+class DiscussionForm(BaseForm):
+    url = StringField('URL', [validators.DataRequired(), validators.Length(min=5, max=50)])
