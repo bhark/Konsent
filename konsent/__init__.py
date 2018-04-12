@@ -215,7 +215,7 @@ def post2(post_id):
         elif discussionForm.validate():
             url = discussionForm.url.data
             author = session['user_id']
-            discussion = Discussion(
+            externalDiscussion = ExternalDiscussion(
                 url, author, author_name=session['username']
             )
             db.session.add(discussion)
