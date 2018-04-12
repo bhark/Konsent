@@ -28,12 +28,19 @@
   <br><br>
 
   {% if phase == 2 %} <!-- if phase 2 -->
+  <p class="lead">External discussion</p>
+  <form method="POST" action="">
+      <div class="form-group">
+          {{ render_field(discussionForm.url, class_="form-control") }}
+          {{ discussionForm.csrf_token }}
+      </div>
+      <p><input class="btn btn-primary" type="submit" value="Add"></p>
+  </form>
   <h2>Solution proposals</h2>
-  {% from 'includes/_formhelpers.html' import render_field %}
   <form method="POST" action="">
     <div class="form-group">
-      {{ render_field(form.body, class_="form-control") }}
-      {{ form.csrf_token }}
+      {{ render_field(commentForm.body, class_="form-control") }}
+      {{ commentForm.csrf_token }}
     </div>
     <p><input class="btn btn-primary" type="submit" value="Submit"></p>
   </form>

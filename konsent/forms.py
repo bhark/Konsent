@@ -67,4 +67,5 @@ class VetoForm(BaseForm):
 
 
 class DiscussionForm(BaseForm):
-    url = StringField('URL', [validators.DataRequired(), validators.Length(min=5, max=50)])
+    url = StringField(
+        'URL', [validators.DataRequired(), validators.Length(min=5, max=50)])

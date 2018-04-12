@@ -13,7 +13,7 @@ from flask import url_for, session, logging, request
 
 from .models import db, User, Union, Post, Vote, Comment
 from .forms import (RegisterForm, RegisterUnionForm, ArticleForm,
-                    CommentForm, UpvoteForm, VetoForm)
+                    CommentForm, UpvoteForm, VetoForm, DiscussionForm)
 
 
 # CURRENT VERSION: 0.2a
@@ -201,10 +201,11 @@ def post1(post_id):
 @app.route('/phase2/post/<int:post_id>', methods=['GET', 'POST'])
 @is_logged_in
 def post2(post_id):
-    form = CommentForm(request.form, meta={'csrf_context': session})
+    commentForm = CommentForm(request.form, meta={'csrf_context': session})
+    discussionForm = DiscussionForm(request.form, meta={'csrf_context': session})
 
-    if request.method == 'POST' and form.validate():
-        body = form.body.data
+    if request.method == 'POST' and commentForm.validate():
+        body = commentForm.body.data
         author = session['user_id']
         comment = Comment(
             post_id, author, body, author_name=session['username'])
@@ -219,8 +220,9 @@ def post2(post_id):
         post = None
 
     comments = post.list_comments(session['username'])
-    return render_template('post.html', post=post, form=form,
-                           comments=comments, phase=2)
+    return render_template('post.html', post=post, commentForm=commentForm,
+                           discussionForm=discussionForm, comments=comments,
+                           phase=2)
 
 
 # single post, phase 3
