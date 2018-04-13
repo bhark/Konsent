@@ -47,12 +47,19 @@ HOME_NEW_ISSUE_BUTTON = '.btn'
 NEW_ISSUE_TITLE_FIELD = '#title'
 NEW_ISSUE_BODY_FIELD = '#editor'
 NEW_ISSUE_SUBMIT_BUTTON = '.btn'
-TOP_SOLUTION_PROPOSAL_BUTTON = 'ul.navbar-nav:nth-child(1) > li:nth-child(2) > a:nth-child(1)'
 
 
-# PHASE1
+# phase 1
 PHASE1_VOTEUP = '.btn'
 PHASE1_ISSUE = '.list-group-item > a:nth-child(2)'
+NAVLINK_PHASE2 = '#navlink-phase2'
+
+# phase 2
+TOP_SOLUTION_PROPOSAL_BUTTON = 'ul.navbar-nav:nth-child(1) > li:nth-child(2) > a:nth-child(1)'
+ADD_URL_FIELD = '#url'
+ADD_URL_BUTTON = '#submit_url'
+ADD_PROPOSAL_FIELD = '#body'
+ADD_PROPOSAL_BUTTON = '#submit_comment'
 
 @pytest.fixture(scope='module')
 def browser():

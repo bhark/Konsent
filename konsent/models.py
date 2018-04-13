@@ -12,10 +12,12 @@ class ExternalDiscussion(db.Model):
     id = db.Column(
         db.Integer, primary_key=True, autoincrement=True, unique=True
     )
-    author = db.Column(db.UnicodeText, nullable=False)
-    author_name = db.Column(db.UnicodeText, nullable=False)
     url = db.Column(db.UnicodeText, nullable=False)
-    post_id = db.Column(db.Integer, nullable=False)
+    # relationships
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=False)
+    author = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    author_name = db.Column(db.UnicodeText, db.ForeignKey('users.username'), nullable=False)
+
 
     def __init__(self, author, author_name, url, post_id):
         self.author = author
