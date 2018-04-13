@@ -80,6 +80,19 @@
   {% endif %} <!-- end if phase 2 -->
 
   {% if phase == 3 %} <!-- if phase 3 -->
+  {% if discussions %} <!-- if any urls have been added -->
+  <p class="lead">Discussed here</p>
+  <ul class="list-group">
+  {% for discussion in discussions %}
+      <li class="list-group-item">
+          <a href="{{ discussion[0] }}">
+              {{ discussion[0] }}
+          </a>
+          added by {{ discussion[1] }}
+      </li>
+  {% endfor %}
+  </ul>
+  {% endif %} <!-- end if any urls have been added -->
   <div class="jumbotron">
     <h2>Final solution</h2>
     <p class="lead">{{ post.solution }}</p>

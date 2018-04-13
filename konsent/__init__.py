@@ -236,7 +236,6 @@ def post2(post_id):
 
     comments = post.list_comments(session['username'])
     discussions = post.list_external_discussions(post_id)
-    app.logger.info(len(discussions))
     return render_template('post.html', post=post, commentForm=commentForm,
                            discussionForm=discussionForm, comments=comments,
                            phase=2, discussions=discussions,
@@ -255,8 +254,10 @@ def post3(post_id):
     if post.union_id != session['connected_union']:
         post = None
 
+    discussions = post.list_external_discussions(post_id)
     return render_template('post.html', post=post,
-        comments=post.list_comments(session['username']), phase=3)
+                            comments=post.list_comments(session['username']),
+                            phase=3, discussions=discussions)
 
 
 # view a single solution that's been confirmed (phase 4)
