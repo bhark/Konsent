@@ -213,6 +213,12 @@ def post2(post_id):
             db.session.add(comment)
             db.session.commit()
         elif discussionForm.submit_url.data and discussionForm.validate():
+            count = ExternalDiscussion.query.filter(
+                ExternalDiscussion.post_id == post_id
+            ).count()
+            if count > 3:
+                error = 'The maximum amount of discussions have already been added.'
+                return render_template('index.html', error=error)
             url = discussionForm.url.data
             author = session['user_id']
             author_name = session['username']
@@ -230,9 +236,11 @@ def post2(post_id):
 
     comments = post.list_comments(session['username'])
     discussions = post.list_external_discussions(post_id)
+    app.logger.info(len(discussions))
     return render_template('post.html', post=post, commentForm=commentForm,
                            discussionForm=discussionForm, comments=comments,
-                           phase=2, discussions=discussions)
+                           phase=2, discussions=discussions,
+                           discussion_count=len(discussions))
 
 
 # single post, phase 3

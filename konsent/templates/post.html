@@ -41,14 +41,16 @@
     {% endfor %}
     </ul>
     {% endif %} <!-- end if any urls have been added -->
+    {% if discussion_count < 3 %}
     <form method="POST" action="">
         <div class="form-group">
           {{ render_field(discussionForm.url, class_="form-control") }}
           {{ render_field(discussionForm.submit_url, class_="form-control") }}
           {{ discussionForm.csrf_token }}
         </div>
-        <br><br>
     </form>
+    {% endif %}
+    <br><br>
     <h2>Solution proposals</h2>
     <form method="POST" action="">
         <div class="form-group">
