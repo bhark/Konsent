@@ -16,7 +16,7 @@ from .forms import (RegisterForm, RegisterUnionForm, ArticleForm,
                     CommentForm, UpvoteForm, VetoForm)
 
 
-# CURRENT VERSION: 0.2a
+# CURRENT VERSION: 0.3a
 # config
 RESTING_TIME = 666  # resting time in phase 2 and 3 in minutes - 1440 = 2 days
 REQUIRED_VOTES_DIVISOR = 2  # divide by this to progress to stage 2
