@@ -32,7 +32,7 @@
     {% if discussions %} <!-- if any urls have been added -->
     <ul class="list-group">
     {% for discussion in discussions %}
-        <li class="list-group-item">
+        <li class="list-group-item" id="discussions">
             <a href="{{ discussion[0] }}">
                 {{ discussion[0] }}
             </a>
@@ -61,7 +61,7 @@
     </form>
   {% if comments %} <!-- if comments -->
   {% for comment in comments %}
-  <ul class="list-group">
+  <ul class="list-group" id="proposals">
     <li class="list-group-item author">{{ comment['author'] }}</li>
     <li class="list-group-item body">{{ comment['body'] }}</li>
     {% if not comment['voted'] %} <!-- if user already voted on this comment -->
