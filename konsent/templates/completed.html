@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-  <h1 class="heading">Completed solutions</h1>
+  <h1 class="heading">Solved issues</h1>
   <ul class="list-group">
     {% for post in posts %}
       <li class="list-group-item"><a href="completed/post/{{ post.id }}">{{post.title}}</a> - completed {{ post.create_date }}</li>
