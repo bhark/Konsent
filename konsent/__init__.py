@@ -371,7 +371,7 @@ def login():
                 # session['connected_union'] = connected_union
                 # session['connected_union_name'] = connected_union_name
 
-                login_user(user)
+                login_user(user, remember_me = True)
                 flash('Youve been logged in.', 'success')
                 return redirect(url_for('index'))
             else:
