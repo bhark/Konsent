@@ -1,4 +1,5 @@
 argh==0.26.2
+flask_login==0.4.1
 attrs==17.4.0
 bcrypt==3.1.4
 blinker==1.4
