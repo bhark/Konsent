@@ -48,11 +48,28 @@ def phase1():
 
     update_phases()
 
+    # find posts
     posts = Post.query.filter(
-        Post.union_id == current_user.union_id
-    ).filter(
-        Post.phase == 1
-    ).all()
+        and_(
+            Post.union_id == current_user.union_id,
+            Post.phase == 1)).all()
+
+
+    if posts:
+        for post in posts:
+            post.progresses_in_minutes = int((post.resting_time / 60) - post.time_since_create['minutes'])
+            if post.progresses_in_minutes > 60:
+                post.progresses_in_hours = round(post.progresses_in_minutes / 60, 1)
+        return render_template('phase1.html', posts=posts)
+    else:
+        return render_template('phase1.html', msg=NO_RESULTS_ERROR)
+
+
+# phase 2, solution proposals
+@app.route('/phase2')
+@login_required
+def phase2():
+
     update_phases()
 
     # find posts
@@ -431,8 +448,7 @@ def new_post():
             return render_template('index.html', error=error)
 
         # LIGHT THE FUSES, COMRADES!!!
-        post = Post(title, body, session[
-                    "connected_union"], session["user_id"], resting_time)
+        post = Post(title, body, current_user.union_id, current_user.id, resting_time)
         db.session.add(post)
         db.session.commit()
 
