@@ -10,6 +10,7 @@ import click
 from sqlalchemy import and_
 from flask import Flask, g, render_template, flash, redirect, abort
 from flask import url_for, session, logging, request
+from flask_login import LoginManager
 
 from .models import db, User, Union, Post, Vote, Comment, ExternalDiscussion
 from .forms import (RegisterForm, RegisterUnionForm, ArticleForm,
@@ -24,6 +25,15 @@ NO_RESULTS_ERROR = 'Nothing to show.'
 
 app = Flask(__name__)
 
+# user login configuration
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+# load user
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(int(user_id))
 
 # index
 @app.route('/')
