@@ -10,7 +10,7 @@ import click
 from sqlalchemy import and_
 from flask import Flask, g, render_template, flash, redirect, abort
 from flask import url_for, session, logging, request
-from flask_login import LoginManager
+from flask_login import LoginManager, login_user, logout_user
 
 from .models import db, User, Union, Post, Vote, Comment, ExternalDiscussion
 from .forms import (RegisterForm, RegisterUnionForm, ArticleForm,
@@ -33,7 +33,7 @@ login_manager.login_view = 'login'
 # load user
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get(int(user_id))
+    return User.query.get(int(user_id))
 
 # index
 @app.route('/')
@@ -371,7 +371,7 @@ def login():
                 # session['connected_union'] = connected_union
                 # session['connected_union_name'] = connected_union_name
 
-                login_user(user, remember_me = True)
+                login_user(user, remember = True)
                 flash('Youve been logged in.', 'success')
                 return redirect(url_for('index'))
             else:
