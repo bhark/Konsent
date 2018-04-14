@@ -10,7 +10,7 @@ import click
 from sqlalchemy import and_
 from flask import Flask, g, render_template, flash, redirect, abort
 from flask import url_for, session, logging, request
-from flask_login import LoginManager, login_user, logout_user, current_user
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 
 from .models import db, User, Union, Post, Vote, Comment, ExternalDiscussion
 from .forms import (RegisterForm, RegisterUnionForm, ArticleForm,
@@ -41,33 +41,9 @@ def index():
     return render_template('index.html')
 
 
-# check if logged in
-def is_logged_in(func):
-    @wraps(func)
-    def wrap(*args, **kwargs):
-        if 'logged_in' in session:
-            return func(*args, **kwargs)
-        else:
-            flash('You dont have access to this area', 'danger')
-            return redirect(url_for('index'))
-    return wrap
-
-
-# check if not logged in
-def is_not_logged_in(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if 'logged_in' not in session:
-            return f(*args, **kwargs)
-        else:
-            flash('Youre already logged in', 'danger')
-            return redirect(url_for('index'))
-    return wrap
-
-
 # phase 1, issues
 @app.route('/phase1')
-@is_logged_in
+@login_required
 def phase1():
 
     update_phases()
@@ -86,7 +62,7 @@ def phase1():
 
 # phase 2, solution proposals
 @app.route('/phase2')
-@is_logged_in
+@login_required
 def phase2():
 
     update_phases()
@@ -110,7 +86,7 @@ def phase2():
 
 # phase 3, solutions
 @app.route('/phase3')
-@is_logged_in
+@login_required
 def phase3():
 
     update_phases()
@@ -137,7 +113,7 @@ def phase3():
 
 # single post, phase 1
 @app.route('/phase1/post/<int:post_id>', methods=['GET', 'POST'])
-@is_logged_in
+@login_required
 def post1(post_id):
     form = UpvoteForm(request.form, meta={'csrf_context': session})
     post_data = {}
@@ -209,7 +185,7 @@ def post1(post_id):
 
 # single post, phase 2
 @app.route('/phase2/post/<int:post_id>', methods=['GET', 'POST'])
-@is_logged_in
+@login_required
 def post2(post_id):
     commentForm = CommentForm(request.form, meta={'csrf_context': session})
     discussionForm = DiscussionForm(request.form, meta={'csrf_context': session})
@@ -254,7 +230,7 @@ def post2(post_id):
 
 # single post, phase 3
 @app.route('/phase3/post/<int:post_id>')
-@is_logged_in
+@login_required
 def post3(post_id):
 
     # find issues
@@ -272,7 +248,7 @@ def post3(post_id):
 
 # view a single solution that's been confirmed (phase 4)
 @app.route('/completed/post/<int:post_id>', methods=['GET'])
-@is_logged_in
+@login_required
 def post_completed(post_id):
     # find posts
     post = Post.query.get(post_id)
@@ -396,7 +372,7 @@ def logout():
 
 # vote on comment
 @app.route('/post/vote/<int:comment_id>/<int:post_id>')
-@is_logged_in
+@login_required
 def vote_comment(comment_id, post_id):
 
     # check if user already voted
@@ -423,7 +399,7 @@ def vote_comment(comment_id, post_id):
 
 # remove vote on comments
 @app.route('/post/unvote/<int:comment_id>/<int:post_id>')
-@is_logged_in
+@login_required
 def unvote_comment(comment_id, post_id):
     # check if user already voted
     result = Vote.query.filter(
@@ -453,7 +429,7 @@ def unvote_comment(comment_id, post_id):
 
 # new post
 @app.route('/new-post', methods=['GET', 'POST'])
-@is_logged_in
+@login_required
 def new_post():
     form = ArticleForm(request.form)
     if request.method == 'POST' and form.validate():
@@ -482,7 +458,7 @@ def new_post():
 
 # blocked solutions
 @app.route('/vetoed')
-@is_logged_in
+@login_required
 def vetoed():
 
     update_phases()
@@ -502,7 +478,7 @@ def vetoed():
 
 # veto a solution
 @app.route('/veto/<int:post_id>', methods=['GET', 'POST'])
-@is_logged_in
+@login_required
 def veto(post_id):
 
     form = VetoForm(request.form, meta={'csrf_context': session})
@@ -526,7 +502,7 @@ def veto(post_id):
 
 # finished solutions
 @app.route('/completed')
-@is_logged_in
+@login_required
 def completed():
     # Find posts
     posts = Post.query.filter(
@@ -549,7 +525,7 @@ def about():
 
 
 @app.route('/members')
-@is_logged_in
+@login_required
 def members():
     union = Union.query.filter(Union.id == session['connected_union']).one()
     return render_template('union-members.html', members=union.list_members())
@@ -557,7 +533,7 @@ def members():
 
 # who voted on this post?
 @app.route('/who-voted/<string:what>/<int:id>')
-@is_logged_in
+@login_required
 def who_voted(what, id):
     if what == 'post':
         cls = Post
