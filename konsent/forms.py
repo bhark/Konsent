@@ -30,6 +30,13 @@ class RegisterUnionForm(Form):
     confirm = PasswordField('Enter your password again')
 
 
+class LoginForm(Form):
+    username = StringField('Username', [validators.DataRequired()])
+    password = PasswordField('Password', [validators.DataRequired()])
+    remember_me = BooleanField('Remember me')
+    submit = SubmitField('Login')
+
+
 class RegisterForm(Form):
     username = StringField('Username', [validators.Length(min=4, max=50),
         validators.Regexp(
@@ -45,6 +52,7 @@ class RegisterForm(Form):
         'Union', choices=[('kristensamfundet', 'Kristensamfundet')])
     union_password = PasswordField(
         'Password for union', [validators.DataRequired()])
+    submit = SubmitField('Register')
 
 
 class ArticleForm(Form):

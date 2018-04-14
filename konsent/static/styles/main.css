@@ -154,4 +154,6 @@ label[for="submit_comment"] {
     display:none;
 } label[for="submit_url"] {
     display:none;
+} label[for="submit"] {
+    display:none;
 }
