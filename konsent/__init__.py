@@ -365,11 +365,13 @@ def login():
             # compare password to hash
             if check_password(password_candidate, user.password):
                 # that's a match, set session variables
-                session['logged_in'] = True
-                session['username'] = username
-                session['user_id'] = user.id
-                session['connected_union'] = connected_union
-                session['connected_union_name'] = connected_union_name
+                # session['logged_in'] = True
+                # session['username'] = username
+                # session['user_id'] = user.id
+                # session['connected_union'] = connected_union
+                # session['connected_union_name'] = connected_union_name
+
+                login_user(user)
                 flash('Youve been logged in.', 'success')
                 return redirect(url_for('index'))
             else:
