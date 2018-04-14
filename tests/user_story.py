@@ -63,6 +63,8 @@ ADD_PROPOSAL_FIELD = '#body'
 ADD_PROPOSAL_BUTTON = '#submit_comment'
 FIRST_URL = '#discussions > a'
 FIRST_PROPOSAL_BODY = '#proposals > li.body'
+FIRST_PROPOSAL_VOTE_UP = '.vote-up'
+FIRST_PROPOSAL_CANCEL_VOTE = '.cancel-vote'
 
 @pytest.fixture(scope='module')
 def browser():
@@ -166,3 +168,9 @@ def test_user_story_issue(browser):
     # she makes sure that her URL and proposal was added
     assert 'https://raddle.me' in find(FIRST_URL).text
     assert 'This is a test proposal, BEEP BOOP' in find(FIRST_PROPOSAL_BODY).text
+
+    # she votes for her proposal, because it's just that good
+    find(FIRST_PROPOSAL_VOTE_UP).click()
+
+    # she realizes it's not that good, and cancels her vote
+    find(FIRST_PROPOSAL_CANCEL_VOTE).click()
