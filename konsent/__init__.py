@@ -295,7 +295,8 @@ def register():
                 db.session.commit()
                 # redirect user
                 msg = 'Youre now signed up and can login.'
-                return render_template('login.html', msg=msg)
+                return redirect(url_for('login'))
+
             else:
                 error = 'Wrong password for union.'
                 return render_template('register.html', error=error, form=form)
