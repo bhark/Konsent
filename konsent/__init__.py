@@ -342,13 +342,6 @@ def login():
 
             # compare password to hash
             if check_password(password_candidate, user.password):
-                # that's a match, set session variables
-                # session['logged_in'] = True
-                # current_user.username = username
-                # current_user.id = user.id
-                # current_user.union_id = connected_union
-                # session['connected_union_name'] = connected_union_name
-
                 login_user(user, remember = True)
                 flash('Youve been logged in.', 'success')
                 return redirect(url_for('index'))
@@ -365,7 +358,6 @@ def login():
 # sign user out
 @app.route('/logout')
 def logout():
-    # session.clear()
     logout_user()
     flash('Youve been logged out', 'success')
     return redirect(url_for('login'))
