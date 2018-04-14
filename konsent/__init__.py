@@ -387,8 +387,9 @@ def login():
 # sign user out
 @app.route('/logout')
 def logout():
-    session.clear()
-    flash('Du er logget ud', 'success')
+    # session.clear()
+    logout_user()
+    flash('Youve been logged out', 'success')
     return redirect(url_for('login'))
 
 
