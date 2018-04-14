@@ -47,12 +47,24 @@ HOME_NEW_ISSUE_BUTTON = '.btn'
 NEW_ISSUE_TITLE_FIELD = '#title'
 NEW_ISSUE_BODY_FIELD = '#editor'
 NEW_ISSUE_SUBMIT_BUTTON = '.btn'
-TOP_SOLUTION_PROPOSAL_BUTTON = 'ul.navbar-nav:nth-child(1) > li:nth-child(2) > a:nth-child(1)'
 
 
-# PHASE1
+# phase 1
 PHASE1_VOTEUP = '.btn'
 PHASE1_ISSUE = '.list-group-item > a:nth-child(2)'
+NAVLINK_PHASE2 = '#navlink-phase2'
+TOP_SOLUTION_PROPOSAL_BUTTON = 'ul.navbar-nav:nth-child(1) > li:nth-child(2) > a:nth-child(1)'
+
+# phase 2
+PHASE2_ISSUE = '.list-group-item > a:nth-child(1)'
+ADD_URL_FIELD = '#url'
+ADD_URL_BUTTON = '#submit_url'
+ADD_PROPOSAL_FIELD = '#body'
+ADD_PROPOSAL_BUTTON = '#submit_comment'
+FIRST_URL = '#discussions > a'
+FIRST_PROPOSAL_BODY = '#proposals > li.body'
+FIRST_PROPOSAL_VOTE_UP = '.vote-up'
+FIRST_PROPOSAL_CANCEL_VOTE = '.cancel-vote'
 
 @pytest.fixture(scope='module')
 def browser():
@@ -138,3 +150,27 @@ def test_user_story_issue(browser):
 
     # she votes for the issue
     find(PHASE1_VOTEUP).click()
+
+    # she goes on to phase 2
+    find(NAVLINK_PHASE2).click()
+
+    # she chooses her issue
+    find(PHASE2_ISSUE).click()
+
+    # she adds a link to external discussion
+    find(ADD_URL_FIELD).send_keys('https://raddle.me')
+    find(ADD_URL_BUTTON).click()
+
+    # she adds a proposal
+    find(ADD_PROPOSAL_FIELD).send_keys('This is a test proposal, BEEP BOOP')
+    find(ADD_PROPOSAL_BUTTON).click()
+
+    # she makes sure that her URL and proposal was added
+    assert 'https://raddle.me' in find(FIRST_URL).text
+    assert 'This is a test proposal, BEEP BOOP' in find(FIRST_PROPOSAL_BODY).text
+
+    # she votes for her proposal, because it's just that good
+    find(FIRST_PROPOSAL_VOTE_UP).click()
+
+    # she realizes it's not that good, and cancels her vote
+    find(FIRST_PROPOSAL_CANCEL_VOTE).click()

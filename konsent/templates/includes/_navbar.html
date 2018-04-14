@@ -7,19 +7,19 @@
         <ul class="navbar-nav mr-auto">
             {% if session['username'] %}
             <li class="nav-item">
-                <a class="nav-link" href="/phase1">Issues (phase 1)</a>
+                <a class="nav-link" href="/phase1" id="navlink-phase1">Issues (phase 1)</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/phase2">Solution proposals (phase 2)</a>
+                <a class="nav-link" href="/phase2" id="navlink-phase2">Solution proposals (phase 2)</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/phase3">Solutions (phase 3)</a>
+                <a class="nav-link" href="/phase3" id="navlink-phase3">Solutions (phase 3)</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/completed">Completed solutions</a>
+                <a class="nav-link" href="/completed" id="navlink-completed">Completed solutions</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/vetoed">Vetoed solutions</a>
+                <a class="nav-link" href="/vetoed" id="navlink-vetoed">Vetoed solutions</a>
             </li>
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Management <span class="caret"></span></a>

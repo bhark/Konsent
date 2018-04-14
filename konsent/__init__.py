@@ -11,9 +11,9 @@ from sqlalchemy import and_
 from flask import Flask, g, render_template, flash, redirect, abort
 from flask import url_for, session, logging, request
 
-from .models import db, User, Union, Post, Vote, Comment
+from .models import db, User, Union, Post, Vote, Comment, ExternalDiscussion
 from .forms import (RegisterForm, RegisterUnionForm, ArticleForm,
-                    CommentForm, UpvoteForm, VetoForm)
+                    CommentForm, UpvoteForm, VetoForm, DiscussionForm)
 
 
 # CURRENT VERSION: 0.3a
@@ -201,15 +201,31 @@ def post1(post_id):
 @app.route('/phase2/post/<int:post_id>', methods=['GET', 'POST'])
 @is_logged_in
 def post2(post_id):
-    form = CommentForm(request.form, meta={'csrf_context': session})
+    commentForm = CommentForm(request.form, meta={'csrf_context': session})
+    discussionForm = DiscussionForm(request.form, meta={'csrf_context': session})
 
-    if request.method == 'POST' and form.validate():
-        body = form.body.data
-        author = session['user_id']
-        comment = Comment(
-            post_id, author, body, author_name=session['username'])
-        db.session.add(comment)
-        db.session.commit()
+    if request.method == 'POST':
+        if commentForm.submit_comment.data and commentForm.validate():
+            body = commentForm.body.data
+            author = session['user_id']
+            comment = Comment(
+                post_id, author, body, author_name=session['username'])
+            db.session.add(comment)
+            db.session.commit()
+        elif discussionForm.submit_url.data and discussionForm.validate():
+            count = ExternalDiscussion.query.filter(
+                ExternalDiscussion.post_id == post_id
+            ).count()
+            if count > 3:
+                error = 'The maximum amount of discussions have already been added.'
+                return render_template('index.html', error=error)
+            url = discussionForm.url.data
+            author = session['user_id']
+            author_name = session['username']
+            externalDiscussion = ExternalDiscussion(
+                author, author_name, url, post_id)
+            db.session.add(externalDiscussion)
+            db.session.commit()
 
     # find posts
     post = Post.query.get(post_id)
@@ -219,8 +235,11 @@ def post2(post_id):
         post = None
 
     comments = post.list_comments(session['username'])
-    return render_template('post.html', post=post, form=form,
-                           comments=comments, phase=2)
+    discussions = post.list_external_discussions(post_id)
+    return render_template('post.html', post=post, commentForm=commentForm,
+                           discussionForm=discussionForm, comments=comments,
+                           phase=2, discussions=discussions,
+                           discussion_count=len(discussions))
 
 
 # single post, phase 3
@@ -235,8 +254,10 @@ def post3(post_id):
     if post.union_id != session['connected_union']:
         post = None
 
+    discussions = post.list_external_discussions(post_id)
     return render_template('post.html', post=post,
-        comments=post.list_comments(session['username']), phase=3)
+                            comments=post.list_comments(session['username']),
+                            phase=3, discussions=discussions)
 
 
 # view a single solution that's been confirmed (phase 4)

@@ -6,6 +6,25 @@ from sqlalchemy import and_
 
 db = SQLAlchemy()
 
+class ExternalDiscussion(db.Model):
+    __tablename__ = 'external_discussions'
+
+    id = db.Column(
+        db.Integer, primary_key=True, autoincrement=True, unique=True
+    )
+    url = db.Column(db.UnicodeText, nullable=False)
+    # relationships
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=False)
+    author = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    author_name = db.Column(db.UnicodeText, db.ForeignKey('users.username'), nullable=False)
+
+
+    def __init__(self, author, author_name, url, post_id):
+        self.author = author
+        self.author_name = author_name
+        self.url = url
+        self.post_id = post_id
+
 class Comment(db.Model):
     __tablename__ = 'comments'
 
@@ -132,6 +151,15 @@ class Post(db.Model):
 
         return result
 
+    def list_external_discussions(self, post_id):
+        discussions = ExternalDiscussion.query.filter(
+            ExternalDiscussion.post_id == post_id
+        )
+
+        result = []
+        for discussion in discussions:
+            result.append((discussion.url, discussion.author_name))
+        return result
 
 class Union(db.Model):
     __tablename__ = 'unions'
