@@ -294,7 +294,7 @@ def register():
                 db.session.add(user)
                 db.session.commit()
                 # redirect user
-                msg = 'Youre now signed up and can login.'
+                flash('You\'ve been registered and can now log in.', 'success')
                 return redirect(url_for('login'))
 
             else:
