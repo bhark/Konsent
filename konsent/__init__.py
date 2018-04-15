@@ -10,9 +10,10 @@ import click
 from sqlalchemy import and_
 from flask import Flask, g, render_template, flash, redirect, abort
 from flask import url_for, session, logging, request
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 
 from .models import db, User, Union, Post, Vote, Comment, ExternalDiscussion
-from .forms import (RegisterForm, RegisterUnionForm, ArticleForm,
+from .forms import (RegisterForm, RegisterUnionForm, ArticleForm, LoginForm,
                     CommentForm, UpvoteForm, VetoForm, DiscussionForm)
 
 
@@ -24,6 +25,15 @@ NO_RESULTS_ERROR = 'Nothing to show.'
 
 app = Flask(__name__)
 
+# user login configuration
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+# load user
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 # index
 @app.route('/')
@@ -31,44 +41,25 @@ def index():
     return render_template('index.html')
 
 
-# check if logged in
-def is_logged_in(func):
-    @wraps(func)
-    def wrap(*args, **kwargs):
-        if 'logged_in' in session:
-            return func(*args, **kwargs)
-        else:
-            flash('You dont have access to this area', 'danger')
-            return redirect(url_for('index'))
-    return wrap
-
-
-# check if not logged in
-def is_not_logged_in(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if 'logged_in' not in session:
-            return f(*args, **kwargs)
-        else:
-            flash('Youre already logged in', 'danger')
-            return redirect(url_for('index'))
-    return wrap
-
-
 # phase 1, issues
 @app.route('/phase1')
-@is_logged_in
+@login_required
 def phase1():
 
     update_phases()
 
+    # find posts
     posts = Post.query.filter(
-        Post.union_id == session['connected_union']
-    ).filter(
-        Post.phase == 1
-    ).all()
+        and_(
+            Post.union_id == current_user.union_id,
+            Post.phase == 1)).all()
+
 
     if posts:
+        for post in posts:
+            post.progresses_in_minutes = int((post.resting_time / 60) - post.time_since_create['minutes'])
+            if post.progresses_in_minutes > 60:
+                post.progresses_in_hours = round(post.progresses_in_minutes / 60, 1)
         return render_template('phase1.html', posts=posts)
     else:
         return render_template('phase1.html', msg=NO_RESULTS_ERROR)
@@ -76,7 +67,7 @@ def phase1():
 
 # phase 2, solution proposals
 @app.route('/phase2')
-@is_logged_in
+@login_required
 def phase2():
 
     update_phases()
@@ -84,7 +75,7 @@ def phase2():
     # find posts
     posts = Post.query.filter(
         and_(
-            Post.union_id == session['connected_union'],
+            Post.union_id == current_user.union_id,
             Post.phase == 2)).all()
 
 
@@ -100,7 +91,7 @@ def phase2():
 
 # phase 3, solutions
 @app.route('/phase3')
-@is_logged_in
+@login_required
 def phase3():
 
     update_phases()
@@ -108,7 +99,7 @@ def phase3():
     # find posts
     posts = Post.query.filter(
         and_(
-            Post.union_id == session['connected_union'],
+            Post.union_id == current_user.union_id,
             Post.phase == 3,
             Post.vetoed_by == None
         )).all()
@@ -127,7 +118,7 @@ def phase3():
 
 # single post, phase 1
 @app.route('/phase1/post/<int:post_id>', methods=['GET', 'POST'])
-@is_logged_in
+@login_required
 def post1(post_id):
     form = UpvoteForm(request.form, meta={'csrf_context': session})
     post_data = {}
@@ -169,11 +160,11 @@ def post1(post_id):
             # increment vote value
             post.votes_count += 1
             # count that this user has now voted
-            vote = Vote(session['user_id'], post)
+            vote = Vote(current_user.id, post)
             db.session.add(vote)
             # count union members
             union_members = User.query.filter(
-                User.union_id == session['connected_union']).count()
+                User.union_id == current_user.union_id).count()
 
             # update vote count variable
             post_data['votes'] = len(post.votes)
@@ -199,7 +190,7 @@ def post1(post_id):
 
 # single post, phase 2
 @app.route('/phase2/post/<int:post_id>', methods=['GET', 'POST'])
-@is_logged_in
+@login_required
 def post2(post_id):
     commentForm = CommentForm(request.form, meta={'csrf_context': session})
     discussionForm = DiscussionForm(request.form, meta={'csrf_context': session})
@@ -207,9 +198,9 @@ def post2(post_id):
     if request.method == 'POST':
         if commentForm.submit_comment.data and commentForm.validate():
             body = commentForm.body.data
-            author = session['user_id']
+            author = current_user.id
             comment = Comment(
-                post_id, author, body, author_name=session['username'])
+                post_id, author, body, author_name=current_user.username)
             db.session.add(comment)
             db.session.commit()
         elif discussionForm.submit_url.data and discussionForm.validate():
@@ -220,8 +211,8 @@ def post2(post_id):
                 error = 'The maximum amount of discussions have already been added.'
                 return render_template('index.html', error=error)
             url = discussionForm.url.data
-            author = session['user_id']
-            author_name = session['username']
+            author = current_user.id
+            author_name = current_user.username
             externalDiscussion = ExternalDiscussion(
                 author, author_name, url, post_id)
             db.session.add(externalDiscussion)
@@ -231,10 +222,10 @@ def post2(post_id):
     post = Post.query.get(post_id)
     # TODO: Check that the post is in the correct Union, return a
     # proper error if not
-    if post.union_id != session['connected_union']:
+    if post.union_id != current_user.union_id:
         post = None
 
-    comments = post.list_comments(session['username'])
+    comments = post.list_comments(current_user.username)
     discussions = post.list_external_discussions(post_id)
     return render_template('post.html', post=post, commentForm=commentForm,
                            discussionForm=discussionForm, comments=comments,
@@ -244,40 +235,39 @@ def post2(post_id):
 
 # single post, phase 3
 @app.route('/phase3/post/<int:post_id>')
-@is_logged_in
+@login_required
 def post3(post_id):
 
     # find issues
     post = Post.query.get(post_id)
     # TODO: Check that the post is in the correct Union, return a
     # proper error if not
-    if post.union_id != session['connected_union']:
+    if post.union_id != current_user.union_id:
         post = None
 
     discussions = post.list_external_discussions(post_id)
     return render_template('post.html', post=post,
-                            comments=post.list_comments(session['username']),
+                            comments=post.list_comments(current_user.username),
                             phase=3, discussions=discussions)
 
 
 # view a single solution that's been confirmed (phase 4)
 @app.route('/completed/post/<int:post_id>', methods=['GET'])
-@is_logged_in
+@login_required
 def post_completed(post_id):
     # find posts
     post = Post.query.get(post_id)
     # TODO: Check that the post is in the correct Union, return a
     # proper error if not
-    if post.union_id != session['connected_union']:
+    if post.union_id != current_user.union_id:
         post = None
 
     return render_template('post.html', post=post,
-        comments=post.list_comments(session['username']), phase=4)
+        comments=post.list_comments(current_user.username), phase=4)
 
 
 # user registration
 @app.route('/register', methods=['GET', 'POST'])
-@is_not_logged_in
 def register():
     form = RegisterForm(request.form)
     form.users_union.choices = Union.list()
@@ -304,8 +294,9 @@ def register():
                 db.session.add(user)
                 db.session.commit()
                 # redirect user
-                msg = 'Youre now signed up and can login.'
-                return render_template('login.html', msg=msg)
+                flash('You\'ve been registered and can now log in.', 'success')
+                return redirect(url_for('login'))
+
             else:
                 error = 'Wrong password for union.'
                 return render_template('register.html', error=error, form=form)
@@ -318,7 +309,6 @@ def register():
 
 # register new unions
 @app.route('/register-union', methods=['GET', 'POST'])
-@is_not_logged_in
 def register_union():
     form = RegisterUnionForm(request.form)
     if request.method == 'POST':
@@ -338,12 +328,13 @@ def register_union():
 
 # user login
 @app.route('/login', methods=['GET', 'POST'])
-@is_not_logged_in
 def login():
+    form = LoginForm(request.form)
     if request.method == 'POST':
         # save form data
-        username = request.form['username']
-        password_candidate = request.form['password']
+        username = form.username.data
+        password_candidate = form.password.data
+        remember_me = form.remember_me.data
 
         # find user in database using submitted username
         user = User.query.filter(User.username == username).first()
@@ -354,43 +345,38 @@ def login():
 
             # compare password to hash
             if check_password(password_candidate, user.password):
-                # that's a match, set session variables
-                session['logged_in'] = True
-                session['username'] = username
-                session['user_id'] = user.id
-                session['connected_union'] = connected_union
-                session['connected_union_name'] = connected_union_name
+                login_user(user, remember = remember_me)
                 flash('Youve been logged in.', 'success')
                 return redirect(url_for('index'))
             else:
                 error = 'Wrong password'
-                return render_template('login.html', error=error)
+                return render_template('login.html', error=error, form=form)
         else:
             error = 'This user doesnt exist'
-            return render_template('login.html', error=error)
+            return render_template('login.html', error=error, form=form)
 
-    return render_template('login.html')
+    return render_template('login.html', form=form)
 
 
 # sign user out
 @app.route('/logout')
 def logout():
-    session.clear()
-    flash('Du er logget ud', 'success')
+    logout_user()
+    flash('Youve been logged out', 'success')
     return redirect(url_for('login'))
 
 
 
 # vote on comment
 @app.route('/post/vote/<int:comment_id>/<int:post_id>')
-@is_logged_in
+@login_required
 def vote_comment(comment_id, post_id):
 
     # check if user already voted
     result = Vote.query.filter(
         and_(
             Vote.comment_id == comment_id,
-            Vote.author_id == session['user_id'],
+            Vote.author_id == current_user.id,
         )
     ).first()
 
@@ -401,7 +387,7 @@ def vote_comment(comment_id, post_id):
         comment = Comment.query.get(comment_id)
         comment.votes_count += 1
         db.session.add(comment)
-        vote = Vote(session['user_id'], comment)
+        vote = Vote(current_user.id, comment)
         db.session.add(vote)
         db.session.commit()
 
@@ -410,13 +396,13 @@ def vote_comment(comment_id, post_id):
 
 # remove vote on comments
 @app.route('/post/unvote/<int:comment_id>/<int:post_id>')
-@is_logged_in
+@login_required
 def unvote_comment(comment_id, post_id):
     # check if user already voted
     result = Vote.query.filter(
         and_(
             Vote.comment_id == comment_id,
-            Vote.author_id == session['user_id'],
+            Vote.author_id == current_user.id,
         )
     ).first()
 
@@ -426,7 +412,7 @@ def unvote_comment(comment_id, post_id):
         db.session.add(comment)
         vote = Vote.query.filter(
             and_(
-                Vote.author_id == session['user_id'],
+                Vote.author_id == current_user.id,
                 Vote.comment_id == comment_id
             )
         ).first()
@@ -440,7 +426,7 @@ def unvote_comment(comment_id, post_id):
 
 # new post
 @app.route('/new-post', methods=['GET', 'POST'])
-@is_logged_in
+@login_required
 def new_post():
     form = ArticleForm(request.form)
     if request.method == 'POST' and form.validate():
@@ -457,8 +443,7 @@ def new_post():
             return render_template('index.html', error=error)
 
         # LIGHT THE FUSES, COMRADES!!!
-        post = Post(title, body, session[
-                    "connected_union"], session["user_id"], resting_time)
+        post = Post(title, body, current_user.union_id, current_user.id, resting_time)
         db.session.add(post)
         db.session.commit()
 
@@ -469,14 +454,14 @@ def new_post():
 
 # blocked solutions
 @app.route('/vetoed')
-@is_logged_in
+@login_required
 def vetoed():
 
     update_phases()
 
     posts = Post.query.filter(
         and_(
-            Post.union_id == session['connected_union'],
+            Post.union_id == current_user.union_id,
             Post.vetoed_by_id != None
         )
     ).all()
@@ -489,7 +474,7 @@ def vetoed():
 
 # veto a solution
 @app.route('/veto/<int:post_id>', methods=['GET', 'POST'])
-@is_logged_in
+@login_required
 def veto(post_id):
 
     form = VetoForm(request.form, meta={'csrf_context': session})
@@ -499,7 +484,7 @@ def veto(post_id):
         post = Post.query.get(post_id)
         if post.phase != 3:
             return render_template('index.html', error='This post cant be vetoed right now')
-        post.vetoed_by_id = session['user_id']
+        post.vetoed_by_id = current_user.id
 
         # commit to database and close connection
         db.session.add(post)
@@ -513,13 +498,13 @@ def veto(post_id):
 
 # finished solutions
 @app.route('/completed')
-@is_logged_in
+@login_required
 def completed():
     # Find posts
     posts = Post.query.filter(
         and_(
             Post.phase == 4,
-            Post.union_id == session['connected_union'],
+            Post.union_id == current_user.union_id,
             Post.vetoed_by_id == None
         )
     ).all()
@@ -536,15 +521,15 @@ def about():
 
 
 @app.route('/members')
-@is_logged_in
+@login_required
 def members():
-    union = Union.query.filter(Union.id == session['connected_union']).one()
+    union = Union.query.filter(Union.id == current_user.union_id).one()
     return render_template('union-members.html', members=union.list_members())
 
 
 # who voted on this post?
 @app.route('/who-voted/<string:what>/<int:id>')
-@is_logged_in
+@login_required
 def who_voted(what, id):
     if what == 'post':
         cls = Post
@@ -570,7 +555,7 @@ def check_password(canditate, stored):
 # move posts on to next phase if ready
 def update_phases():
     # find all posts to be moved
-    posts = Post.query.filter(Post.union_id == session['connected_union']).all()
+    posts = Post.query.filter(Post.union_id == current_user.union_id).all()
 
 
     for post in posts:

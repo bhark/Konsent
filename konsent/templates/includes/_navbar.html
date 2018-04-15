@@ -5,7 +5,7 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-            {% if session['username'] %}
+            {% if current_user.username %}
             <li class="nav-item">
                 <a class="nav-link" href="/phase1" id="navlink-phase1">Issues (phase 1)</a>
             </li>
@@ -30,20 +30,20 @@
             {% endif %}
         </ul>
         <ul class="nav navbar-nav navbar-right">
-            {% if session['username'] %}
+            {% if current_user.username %}
             <li class="nav-item">
-                <a class="nav-link" href="/logout">Log out</a>
+                <a class="nav-link" href="/logout" id="navlink-logout">Log out</a>
             </li>
             {% else %}
             <li class="nav-item">
-                <a class="nav-link" href="/register">Register new account</a>
+                <a class="nav-link" href="/register" id="navlink-register">Register new account</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/login">Log in</a>
+                <a class="nav-link" href="/login" id="navlink-login">Log in</a>
             </li>
             {% endif %}
             <li class="nav-item">
-                <a class="nav-link" href="/about">About Konsent</a>
+                <a class="nav-link" href="/about" id="navlink-about">About Konsent</a>
             </li>
         </ul>
     </div>

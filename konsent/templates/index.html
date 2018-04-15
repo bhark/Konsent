@@ -5,8 +5,8 @@
 
     <h1 class="heading">Konsent</h1>
     <h2 id="version">v. 0.3a</h2>
-    {% if session %}
-    <h2 class="subheading">Welcome {{session.username}}, member of {{session.connected_union_name}}</h2>
+    {% if current_user.username %}
+    <h2 class="subheading">Welcome {{ current_user.username }}</h2>
     {% endif %}
     <p class="lead">Decisions without hierarchy.</p>
     <br><br>
