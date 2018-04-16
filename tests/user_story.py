@@ -25,12 +25,12 @@ TEST_UNION_PASSWORD = 'test_union_password_' + _suffix
 # CSS selectors
 HOME_LOGIN_BUTTON = 'a.btn:nth-child(6)'
 HOME_NEW_ACCOUNT_BUTTON = 'a.btn:nth-child(7)'
-LOGIN_USER_FIELD = 'div.form-group:nth-child(1) > input:nth-child(2)'
-LOGIN_PASS_FIELD = 'div.form-group:nth-child(2) > input:nth-child(2)'
-LOGIN_CONFIG_BUTTON = '.btn'
+LOGIN_USER_FIELD = 'input[name="username"]'
+LOGIN_PASS_FIELD = 'input[name="password"]'
+LOGIN_CONFIG_BUTTON = '.form-submit'
 ALERT = '.alert'
 TOP_NEW_ACCOUNT = 'li.nav-item:nth-child(1) > a:nth-child(1)'
-REGISTER_SUBMIT_BUTTON = 'input.btn'
+REGISTER_SUBMIT_BUTTON = '.form-submit'
 REGISTER_CREATE_NEW_UNION_BUTTON = 'a.btn'
 REGISTER_USERNAME = '#username'
 REGISTER_PASSWORD = '#password'
@@ -41,6 +41,7 @@ UNION_REGISTER_NAME = '#union_name'
 UNION_REGISTER_PASSWORD = '#password'
 UNION_REGISTER_PASSWORD_CONFIRM = '#confirm'
 UNION_REGISTER_SUBMIT_BUTTON = '.btn'
+NAVLINK_LOGIN = '#navlink-login'
 
 # after login
 HOME_NEW_ISSUE_BUTTON = '.btn'
@@ -120,11 +121,10 @@ def test_user_story_account(browser):
     find(REGISTER_UNION_PASSWORD).send_keys(TEST_UNION_PASSWORD)
     # she sumbits the information
     find(REGISTER_SUBMIT_BUTTON).click()
-    assert 'signed up' in find(ALERT).text
+    assert 'and can now log in' in find(ALERT).text
 
-    # XXX: there is an error here, the code doesn't redirect correctly
-    browser.get(URL+'login')
     # she logins with the correct credentials
+    find(NAVLINK_LOGIN).click()
     find(LOGIN_USER_FIELD).send_keys(TEST_USERNAME)
     find(LOGIN_PASS_FIELD).send_keys(TEST_PASSWORD)
     find(LOGIN_CONFIG_BUTTON).click()
@@ -133,6 +133,8 @@ def test_user_story_account(browser):
 
 def test_user_story_issue(browser):
     find = browser.find_element_by_css_selector
+
+    ## PHASE 1
 
     # user starts a new issue
     find(HOME_NEW_ISSUE_BUTTON).click()
@@ -150,6 +152,8 @@ def test_user_story_issue(browser):
 
     # she votes for the issue
     find(PHASE1_VOTEUP).click()
+
+    ## PHASE 2
 
     # she goes on to phase 2
     find(NAVLINK_PHASE2).click()

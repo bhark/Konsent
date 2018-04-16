@@ -13,7 +13,7 @@ from flask import url_for, session, logging, request
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 
 from .models import db, User, Union, Post, Vote, Comment, ExternalDiscussion
-from .forms import (RegisterForm, RegisterUnionForm, ArticleForm,
+from .forms import (RegisterForm, RegisterUnionForm, ArticleForm, LoginForm,
                     CommentForm, UpvoteForm, VetoForm, DiscussionForm)
 
 
@@ -48,18 +48,11 @@ def phase1():
 
     update_phases()
 
-    posts = Post.query.filter(
-        Post.union_id == current_user.union_id
-    ).filter(
-        Post.phase == 1
-    ).all()
-    update_phases()
-
     # find posts
     posts = Post.query.filter(
         and_(
             Post.union_id == current_user.union_id,
-            Post.phase == 2)).all()
+            Post.phase == 1)).all()
 
 
     if posts:
@@ -67,14 +60,14 @@ def phase1():
             post.progresses_in_minutes = int((post.resting_time / 60) - post.time_since_create['minutes'])
             if post.progresses_in_minutes > 60:
                 post.progresses_in_hours = round(post.progresses_in_minutes / 60, 1)
-        return render_template('phase2.html', posts=posts)
+        return render_template('phase1.html', posts=posts)
     else:
         return render_template('phase2.html', msg=NO_RESULTS_ERROR)
 
 
 # phase 2, solution proposals
 @app.route('/phase2')
-@is_logged_in
+@login_required
 def phase2():
 
     update_phases()
@@ -82,7 +75,7 @@ def phase2():
     # find posts
     posts = Post.query.filter(
         and_(
-            Post.union_id == session['connected_union'],
+            Post.union_id == current_user.union_id,
             Post.phase == 2)).all()
 
 
@@ -301,8 +294,9 @@ def register():
                 db.session.add(user)
                 db.session.commit()
                 # redirect user
-                msg = 'Youre now signed up and can login.'
-                return render_template('login.html', msg=msg)
+                flash('You\'ve been registered and can now log in.', 'success')
+                return redirect(url_for('login'))
+
             else:
                 error = 'Wrong password for union.'
                 return render_template('register.html', error=error, form=form)
@@ -335,10 +329,12 @@ def register_union():
 # user login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    form = LoginForm(request.form)
     if request.method == 'POST':
         # save form data
-        username = request.form['username']
-        password_candidate = request.form['password']
+        username = form.username.data
+        password_candidate = form.password.data
+        remember_me = form.remember_me.data
 
         # find user in database using submitted username
         user = User.query.filter(User.username == username).first()
@@ -349,30 +345,22 @@ def login():
 
             # compare password to hash
             if check_password(password_candidate, user.password):
-                # that's a match, set session variables
-                # session['logged_in'] = True
-                # current_user.username = username
-                # current_user.id = user.id
-                # current_user.union_id = connected_union
-                # session['connected_union_name'] = connected_union_name
-
-                login_user(user, remember = True)
+                login_user(user, remember = remember_me)
                 flash('Youve been logged in.', 'success')
                 return redirect(url_for('index'))
             else:
                 error = 'Wrong password'
-                return render_template('login.html', error=error)
+                return render_template('login.html', error=error, form=form)
         else:
             error = 'This user doesnt exist'
-            return render_template('login.html', error=error)
+            return render_template('login.html', error=error, form=form)
 
-    return render_template('login.html')
+    return render_template('login.html', form=form)
 
 
 # sign user out
 @app.route('/logout')
 def logout():
-    # session.clear()
     logout_user()
     flash('Youve been logged out', 'success')
     return redirect(url_for('login'))
@@ -455,8 +443,7 @@ def new_post():
             return render_template('index.html', error=error)
 
         # LIGHT THE FUSES, COMRADES!!!
-        post = Post(title, body, session[
-                    "connected_union"], session["user_id"], resting_time)
+        post = Post(title, body, current_user.union_id, current_user.id, resting_time)
         db.session.add(post)
         db.session.commit()
 
