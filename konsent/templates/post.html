@@ -12,7 +12,7 @@
       {{ render_field(form.vote, type="hidden", class_="form-control") }}
       {{ form.csrf_token }}
       <center>
-          <p><a href="/who-voted/{{ post.id }}">{{ post_data['votes'] }} votes</a></p>
+          <p><a href="/who-voted/post/{{ post.id }}">{{ post_data['votes'] }} votes</a></p>
           {% if post.resting_time / 60 < 60 %}
           <p>Resting time: <b>{{ post.resting_time / 60 }}</b> minutes</p>
           {% else %}
