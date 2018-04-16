@@ -86,7 +86,7 @@ def phase2():
                 post.progresses_in_hours = round(post.progresses_in_minutes / 60, 1)
         return render_template('phase2.html', posts=posts)
     else:
-return render_template('phase2.html', msg=NO_RESULTS_ERROR)
+        return render_template('phase2.html', msg=NO_RESULTS_ERROR)
 
 
 # phase 3, solutions
