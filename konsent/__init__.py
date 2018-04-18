@@ -7,6 +7,7 @@ from sys import argv
 
 import bcrypt
 import click
+from apscheduler.schedulers.background import BackgroundScheduler
 from sqlalchemy import and_
 from flask import Flask, g, render_template, flash, redirect, abort
 from flask import url_for, session, logging, request
@@ -46,7 +47,6 @@ def index():
 @login_required
 def phase1():
 
-    update_phases()
 
     # find posts
     posts = Post.query.filter(
@@ -70,8 +70,6 @@ def phase1():
 @login_required
 def phase2():
 
-    update_phases()
-
     # find posts
     posts = Post.query.filter(
         and_(
@@ -94,7 +92,6 @@ def phase2():
 @login_required
 def phase3():
 
-    update_phases()
 
     # find posts
     posts = Post.query.filter(
@@ -109,7 +106,6 @@ def phase3():
             post.progresses_in_minutes = int((post.resting_time / 60) - post.time_since_create['minutes'])
             if post.progresses_in_minutes > 60:
                 post.progresses_in_hours = round(post.progresses_in_minutes / 60, 1)
-            app.logger.info(post.progresses_in_minutes)
         return render_template('phase3.html', posts=posts)
 
     else:
@@ -457,7 +453,6 @@ def new_post():
 @login_required
 def vetoed():
 
-    update_phases()
 
     posts = Post.query.filter(
         and_(
@@ -554,35 +549,35 @@ def check_password(canditate, stored):
 
 # move posts on to next phase if ready
 def update_phases():
-    # find all posts to be moved
-    posts = Post.query.filter(Post.union_id == current_user.union_id).all()
+    with app.app_context():
 
+        # find all posts to be moved
+        posts = Post.query.all()
 
-    for post in posts:
-        # phase 2
-        if post.phase == 2 and post.create_date < datetime.datetime.now() - timedelta(minutes = (post.resting_time / 60)):
-            solution = Comment.query.filter(
-                Comment.post == post
-            ).order_by(
-                Comment.votes_count.desc()
-            ).first()
-            # update the post
-            if solution is not None:
-                post.solution = solution.body
-                post.phase = 3
-            else:
-                app.logger.info(
-                    'Post id:{0} didnt find a solution'.format(post.id))
-            post.create_date = datetime.datetime.now()
-            db.session.add(post)
+        for post in posts:
+            # phase 2
+            if post.phase == 2 and post.create_date < datetime.datetime.now() - timedelta(minutes = (post.resting_time / 60)):
+                solution = Comment.query.filter(
+                    Comment.post == post
+                ).order_by(
+                    Comment.votes_count.desc()
+                ).first()
+                # update the post
+                if solution is not None:
+                    post.solution = solution.body
+                    post.phase = 3
+                else:
+                    app.logger.info(
+                        'Post id:{0} didnt find a solution'.format(post.id))
+                post.create_date = datetime.datetime.now()
+                db.session.add(post)
 
-        # phase 3
-        elif post.phase == 3 and post.create_date < datetime.datetime.now() - timedelta(minutes = (post.resting_time / 60)):
-            post.create_date = datetime.datetime.now()
-            post.phase = 4
-            db.session.add(post)
-    db.session.commit()
-
+            # phase 3
+            elif post.phase == 3 and post.create_date < datetime.datetime.now() - timedelta(minutes = (post.resting_time / 60)):
+                post.create_date = datetime.datetime.now()
+                post.phase = 4
+                db.session.add(post)
+        db.session.commit()
 
 @click.command()
 @click.argument('action', type=click.Choice(['runserver', 'createdb']))
@@ -612,6 +607,11 @@ def main(action,
     db.init_app(app)
 
     if action == 'runserver':
+        # start the scheduler
+        apsched = BackgroundScheduler()
+        apsched.add_job(update_phases, 'interval', seconds=30)
+        apsched.start()
+        # start the app
         app.run(debug=True)
     elif action == 'createdb':
         app.app_context().push()
