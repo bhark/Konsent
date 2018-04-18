@@ -438,6 +438,10 @@ def new_post():
             error = 'An error occurred while trying to submit your post'
             return render_template('index.html', error=error)
 
+        if resting_time < 3000:
+            flash('Resting time cannot be less than 50 minutes', 'error')
+            return redirect(url_for('new_post'))
+
         # LIGHT THE FUSES, COMRADES!!!
         post = Post(title, body, current_user.union_id, current_user.id, resting_time)
         db.session.add(post)
