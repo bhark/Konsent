@@ -551,8 +551,6 @@ def check_password(canditate, stored):
 def update_phases():
     with app.app_context():
 
-        app.logger.info('Updating...')
-
         # find all posts to be moved
         posts = Post.query.all()
 
