@@ -12,6 +12,7 @@
     </div>
     <div class="form-group" title="Time before progressing from each phase" data-toggle="tooltip">
         {{ render_field(form.resting_time, class_="form-control", value="1") }}
+        <span class="requirements">Cannot be less than 50 minutes</span>
     </div>
     <div class="form-group">
         <input type="radio" id="days" name="unit" value="days" checked="checked">
