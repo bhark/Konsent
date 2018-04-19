@@ -27,7 +27,7 @@
                     <li><a href="/members">Union members</a></li>
                 </ul>
             </li>
-            {% elif not current_user.union_id %}
+            {% elif session and not current_user.union_id %}
             <li class="nav-item">
               <a class="nav-link" href="connect-union" id="navlink-connect-union">Connect to union</a>
             </li>
