@@ -42,6 +42,7 @@ UNION_REGISTER_PASSWORD = '#password'
 UNION_REGISTER_PASSWORD_CONFIRM = '#confirm'
 UNION_REGISTER_SUBMIT_BUTTON = '.btn'
 NAVLINK_LOGIN = '#navlink-login'
+NAVLINK_CONNECT_UNION = '#navlink-connect-union'
 
 # after login
 HOME_NEW_ISSUE_BUTTON = '.btn'
@@ -97,30 +98,10 @@ def test_user_story_account(browser):
     # she clicks a button for creating a new account on top bar
     find(TOP_NEW_ACCOUNT).click()
 
-    # she creates a new union
-    find(REGISTER_CREATE_NEW_UNION_BUTTON).click()
-
-    # she fills the required field and sumbits
-    find(UNION_REGISTER_NAME).send_keys(TEST_UNION_NAME)
-    find(UNION_REGISTER_PASSWORD).send_keys(TEST_UNION_PASSWORD)
-    find(UNION_REGISTER_PASSWORD_CONFIRM).send_keys(TEST_UNION_PASSWORD)
-    find(UNION_REGISTER_SUBMIT_BUTTON).click()
-    assert "Your union is now registered" in find(ALERT).text
-
-    # she goes back to register a new account
-    find(HOME_NEW_ACCOUNT_BUTTON).click()
     # she fills the required fields
     find(REGISTER_USERNAME).send_keys(TEST_USERNAME)
     find(REGISTER_PASSWORD).send_keys(TEST_PASSWORD)
     find(REGISTER_CONFIRM_PASSWORD).send_keys(TEST_PASSWORD)
-    # she selects her new union
-    options = find(REGISTER_UNION).find_elements_by_tag_name('option')
-    test_union_option = next(opt for opt in options
-                             if opt.get_property('value') == TEST_UNION_NAME)
-    test_union_option.click()
-    find(REGISTER_UNION_PASSWORD).send_keys(TEST_UNION_PASSWORD)
-    # she sumbits the information
-    find(REGISTER_SUBMIT_BUTTON).click()
     assert 'and can now log in' in find(ALERT).text
 
     # she logins with the correct credentials
@@ -129,6 +110,26 @@ def test_user_story_account(browser):
     find(LOGIN_PASS_FIELD).send_keys(TEST_PASSWORD)
     find(LOGIN_CONFIG_BUTTON).click()
     assert 'Youve been logged in' in find(ALERT).text
+
+    # she creates a new union
+    find(NAVLINK_CONNECT_UNION).click()
+    find(CREATE_NEW_UNION).click()
+    # she fills the required field and sumbits
+    find(UNION_REGISTER_NAME).send_keys(TEST_UNION_NAME)
+    find(UNION_REGISTER_PASSWORD).send_keys(TEST_UNION_PASSWORD)
+    find(UNION_REGISTER_PASSWORD_CONFIRM).send_keys(TEST_UNION_PASSWORD)
+    find(UNION_REGISTER_SUBMIT_BUTTON).click()
+    assert "Your union is now registered" in find(ALERT).text
+
+    # she connects to her newly created union
+    find(NAVLINK_CONNECT_UNION).click()
+    options = find(REGISTER_UNION).find_elements_by_tag_name('option')
+    test_union_option = next(opt for opt in options
+                             if opt.get_property('value') == TEST_UNION_NAME)
+    test_union_option.click()
+    find(REGISTER_UNION_PASSWORD).send_keys(TEST_UNION_PASSWORD)
+    find(REGISTER_SUBMIT_BUTTON).click()
+    assert "You've been connected to this union" in find(ALERT).text
 
 
 def test_user_story_issue(browser):
