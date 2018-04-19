@@ -20,7 +20,6 @@ from .forms import (RegisterForm, RegisterUnionForm, ArticleForm, LoginForm,
 
 # CURRENT VERSION: 0.3a
 # config
-RESTING_TIME = 666  # resting time in phase 2 and 3 in minutes - 1440 = 2 days
 REQUIRED_VOTES_DIVISOR = 2  # divide by this to progress to stage 2
 NO_RESULTS_ERROR = 'Nothing to show.'
 
@@ -437,6 +436,10 @@ def new_post():
         else:
             error = 'An error occurred while trying to submit your post'
             return render_template('index.html', error=error)
+
+        if resting_time < 3000:
+            flash('Resting time cannot be less than 50 minutes', 'error')
+            return redirect(url_for('new_post'))
 
         # LIGHT THE FUSES, COMRADES!!!
         post = Post(title, body, current_user.union_id, current_user.id, resting_time)
