@@ -15,10 +15,11 @@ from flask_login import LoginManager, login_user, logout_user, current_user, log
 
 from .models import db, User, Union, Post, Vote, Comment, ExternalDiscussion
 from .forms import (RegisterForm, RegisterUnionForm, ArticleForm, LoginForm,
-                    CommentForm, UpvoteForm, VetoForm, DiscussionForm)
+                    CommentForm, UpvoteForm, VetoForm, DiscussionForm,
+                    ConnectUnionForm)
 
 
-# CURRENT VERSION: 0.3a
+# CURRENT VERSION: 0.3b
 # config
 REQUIRED_VOTES_DIVISOR = 2  # divide by this to progress to stage 2
 NO_RESULTS_ERROR = 'Nothing to show.'
@@ -261,45 +262,59 @@ def post_completed(post_id):
         comments=post.list_comments(current_user.username), phase=4)
 
 
+# connect to union
+@app.route('/connect-union', methods=['GET', 'POST'])
+def connect_union():
+    form = ConnectUnionForm(request.form)
+    form.union.choices = Union.list()
+
+    if request.method == 'POST' and form.validate():
+        union = form.union.data
+        union_password_candidate = form.union_password.data
+
+        # find union
+        target_union = Union.query.filter(Union.union_name == union).first()
+        # find user in db
+        user = User.query.filter(User.username == current_user.username).first()
+
+        if target_union is not None:
+            if check_password(union_password_candidate, target_union.password):
+                # password matches
+                user.union_id = target_union.id
+                db.session.commit()
+                flash('You\'ve been connected to this union', 'success')
+                return redirect(url_for('index'))
+            else:
+                flash('Wrong union password', 'error')
+                return redirect(url_for('connect_union'))
+
+    return render_template('connect-union.html', form=form)
+
+
 # user registration
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm(request.form)
-    form.users_union.choices = Union.list()
     if request.method == 'POST' and form.validate():
         username = form.username.data
-        users_union = form.users_union.data
         password = form.password.data
-        union_password_candidate = form.union_password.data
 
         # check if username exists
         user_exists = User.query.filter(User.username == username).first()
         if user_exists is not None:
             error = 'This username has already been taken'
             return render_template('register.html', error=error, form=form)
-
-        # find union
-        union = Union.query.filter(Union.union_name == users_union).first()
-
-        if union is not None:
-            if check_password(union_password_candidate, union.password):
-                # password matches hash
-                user = User(username, hash_password(password), union)
-                # send to database
-                db.session.add(user)
-                db.session.commit()
-                # redirect user
-                flash('You\'ve been registered and can now log in.', 'success')
-                return redirect(url_for('login'))
-
-            else:
-                error = 'Wrong password for union.'
-                return render_template('register.html', error=error, form=form)
         else:
-            error = 'Something mysterious happened.'
-            return render_template('register.html', error=error, form=form)
+            # password matches hash
+            user = User(username, hash_password(password), union=None)
+            # send to database
+            db.session.add(user)
+            db.session.commit()
+            # redirect user
+            flash('You\'ve been registered and can now log in.', 'success')
+            return redirect(url_for('login'))
 
-    return render_template('register.html', form=form, unions=Union.list())
+    return render_template('register.html', form=form)
 
 
 # register new unions
@@ -335,8 +350,6 @@ def login():
         user = User.query.filter(User.username == username).first()
 
         if user is not None:
-            connected_union_name = user.union.union_name
-            connected_union = user.union.id
 
             # compare password to hash
             if check_password(password_candidate, user.password):

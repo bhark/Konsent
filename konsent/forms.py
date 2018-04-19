@@ -48,11 +48,16 @@ class RegisterForm(Form):
             "^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,666}$", message="Your password does not live up to the requirements")
     ])
     confirm = PasswordField('Confirm password')
-    users_union = SelectField(
+    submit = SubmitField('Register')
+
+
+class ConnectUnionForm(Form):
+    union = SelectField(
         'Union', choices=[('kristensamfundet', 'Kristensamfundet')])
     union_password = PasswordField(
         'Password for union', [validators.DataRequired()])
-    submit = SubmitField('Register')
+    submit = SubmitField('Connect')
+
 
 
 class ArticleForm(Form):

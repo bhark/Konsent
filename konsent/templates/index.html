@@ -4,14 +4,16 @@
   <div class="jumbotron text-center lonely">
 
     <h1 class="heading">Konsent</h1>
-    <h2 id="version">v. 0.3a</h2>
+    <h2 id="version">v. 0.3b</h2>
     {% if current_user.username %}
     <h2 class="subheading">Welcome {{ current_user.username }}</h2>
     {% endif %}
     <p class="lead">Decisions without hierarchy.</p>
     <br><br>
-    {% if session %}
+    {% if session and current_user.union_id %}
     <a href="/new-post" class="btn btn-success">Post a new issue</a>
+    {% elif not current_user.union_id %}
+    <p class="lead"><a href="connect-union">Connect to a union</a> to start posting</p>
     {% elif not session %}
     <a href="/login" class="btn btn-success">Login</a>
     <a href="/register" class="btn btn-info">New Account</a>
