@@ -36,6 +36,16 @@ login_manager.login_view = 'login'
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+# connected union required decorator
+def union_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if current_user.union_id is None:
+            error = 'It\'s dangeours to go alone! Connect to a union before wandering off.'
+            return render_template('index.html', error=error)
+        return f(*args, **kwargs)
+    return decorated_function
+
 # index
 @app.route('/')
 def index():
@@ -45,6 +55,7 @@ def index():
 # phase 1, issues
 @app.route('/phase1')
 @login_required
+@union_required
 def phase1():
 
 
@@ -68,6 +79,7 @@ def phase1():
 # phase 2, solution proposals
 @app.route('/phase2')
 @login_required
+@union_required
 def phase2():
 
     # find posts
@@ -90,6 +102,7 @@ def phase2():
 # phase 3, solutions
 @app.route('/phase3')
 @login_required
+@union_required
 def phase3():
 
 
@@ -115,6 +128,7 @@ def phase3():
 # single post, phase 1
 @app.route('/phase1/post/<int:post_id>', methods=['GET', 'POST'])
 @login_required
+@union_required
 def post1(post_id):
     form = UpvoteForm(request.form, meta={'csrf_context': session})
     post_data = {}
@@ -187,6 +201,7 @@ def post1(post_id):
 # single post, phase 2
 @app.route('/phase2/post/<int:post_id>', methods=['GET', 'POST'])
 @login_required
+@union_required
 def post2(post_id):
     commentForm = CommentForm(request.form, meta={'csrf_context': session})
     discussionForm = DiscussionForm(request.form, meta={'csrf_context': session})
@@ -232,6 +247,7 @@ def post2(post_id):
 # single post, phase 3
 @app.route('/phase3/post/<int:post_id>')
 @login_required
+@union_required
 def post3(post_id):
 
     # find issues
@@ -250,6 +266,7 @@ def post3(post_id):
 # view a single solution that's been confirmed (phase 4)
 @app.route('/completed/post/<int:post_id>', methods=['GET'])
 @login_required
+@union_required
 def post_completed(post_id):
     # find posts
     post = Post.query.get(post_id)
@@ -319,6 +336,7 @@ def register():
 
 # register new unions
 @app.route('/register-union', methods=['GET', 'POST'])
+@login_required
 def register_union():
     form = RegisterUnionForm(request.form)
     if request.method == 'POST':
@@ -378,6 +396,7 @@ def logout():
 # vote on comment
 @app.route('/post/vote/<int:comment_id>/<int:post_id>')
 @login_required
+@union_required
 def vote_comment(comment_id, post_id):
 
     # check if user already voted
@@ -405,6 +424,7 @@ def vote_comment(comment_id, post_id):
 # remove vote on comments
 @app.route('/post/unvote/<int:comment_id>/<int:post_id>')
 @login_required
+@union_required
 def unvote_comment(comment_id, post_id):
     # check if user already voted
     result = Vote.query.filter(
@@ -435,6 +455,7 @@ def unvote_comment(comment_id, post_id):
 # new post
 @app.route('/new-post', methods=['GET', 'POST'])
 @login_required
+@union_required
 def new_post():
     form = ArticleForm(request.form)
     if request.method == 'POST' and form.validate():
@@ -467,6 +488,7 @@ def new_post():
 # blocked solutions
 @app.route('/vetoed')
 @login_required
+@union_required
 def vetoed():
 
 
@@ -486,6 +508,7 @@ def vetoed():
 # veto a solution
 @app.route('/veto/<int:post_id>', methods=['GET', 'POST'])
 @login_required
+@union_required
 def veto(post_id):
 
     form = VetoForm(request.form, meta={'csrf_context': session})
@@ -510,6 +533,7 @@ def veto(post_id):
 # finished solutions
 @app.route('/completed')
 @login_required
+@union_required
 def completed():
     # Find posts
     posts = Post.query.filter(
@@ -533,6 +557,7 @@ def about():
 
 @app.route('/members')
 @login_required
+@union_required
 def members():
     union = Union.query.filter(Union.id == current_user.union_id).one()
     return render_template('union-members.html', members=union.list_members())
@@ -541,6 +566,7 @@ def members():
 # who voted on this post?
 @app.route('/who-voted/<string:what>/<int:id>')
 @login_required
+@union_required
 def who_voted(what, id):
     if what == 'post':
         cls = Post
