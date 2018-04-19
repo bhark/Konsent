@@ -5,7 +5,7 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-            {% if current_user.username %}
+            {% if current_user.username and current_user.union_id %}
             <li class="nav-item">
                 <a class="nav-link" href="/phase1" id="navlink-phase1">Issues (phase 1)</a>
             </li>
@@ -26,6 +26,10 @@
                 <ul class="dropdown-menu">
                     <li><a href="/members">Union members</a></li>
                 </ul>
+            </li>
+            {% elif not current_user.union_id %}
+            <li class="nav-item">
+              <a class="nav-link">Connect to union</a>
             </li>
             {% endif %}
         </ul>
