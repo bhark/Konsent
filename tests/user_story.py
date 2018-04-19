@@ -102,6 +102,7 @@ def test_user_story_account(browser):
     find(REGISTER_USERNAME).send_keys(TEST_USERNAME)
     find(REGISTER_PASSWORD).send_keys(TEST_PASSWORD)
     find(REGISTER_CONFIRM_PASSWORD).send_keys(TEST_PASSWORD)
+    find(REGISTER_SUBMIT_BUTTON).click()
     assert 'and can now log in' in find(ALERT).text
 
     # she logins with the correct credentials
@@ -111,10 +112,13 @@ def test_user_story_account(browser):
     find(LOGIN_CONFIG_BUTTON).click()
     assert 'Youve been logged in' in find(ALERT).text
 
+
+def test_user_story_union(browser):
+    find = browser.find_element_by_css_selector
+    
     # she creates a new union
     find(NAVLINK_CONNECT_UNION).click()
     find(CREATE_NEW_UNION).click()
-    # she fills the required field and sumbits
     find(UNION_REGISTER_NAME).send_keys(TEST_UNION_NAME)
     find(UNION_REGISTER_PASSWORD).send_keys(TEST_UNION_PASSWORD)
     find(UNION_REGISTER_PASSWORD_CONFIRM).send_keys(TEST_UNION_PASSWORD)
@@ -130,6 +134,7 @@ def test_user_story_account(browser):
     find(REGISTER_UNION_PASSWORD).send_keys(TEST_UNION_PASSWORD)
     find(REGISTER_SUBMIT_BUTTON).click()
     assert "You've been connected to this union" in find(ALERT).text
+
 
 
 def test_user_story_issue(browser):
