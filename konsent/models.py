@@ -205,7 +205,7 @@ class User(db.Model):
     authority = db.Column(db.Integer, default=0)
     # relationships
     union_id = db.Column(
-        db.Integer, db.ForeignKey('unions.id'), nullable=False)
+        db.Integer, db.ForeignKey('unions.id'), nullable=True)
     union = db.relationship('Union', backref=db.backref('users', lazy=True))
 
     def is_authenticated(self):

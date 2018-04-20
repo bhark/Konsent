@@ -15,10 +15,11 @@ from flask_login import LoginManager, login_user, logout_user, current_user, log
 
 from .models import db, User, Union, Post, Vote, Comment, ExternalDiscussion
 from .forms import (RegisterForm, RegisterUnionForm, ArticleForm, LoginForm,
-                    CommentForm, UpvoteForm, VetoForm, DiscussionForm)
+                    CommentForm, UpvoteForm, VetoForm, DiscussionForm,
+                    ConnectUnionForm)
 
 
-# CURRENT VERSION: 0.3a
+# CURRENT VERSION: 0.3b
 # config
 REQUIRED_VOTES_DIVISOR = 2  # divide by this to progress to stage 2
 NO_RESULTS_ERROR = 'Nothing to show.'
@@ -35,6 +36,16 @@ login_manager.login_view = 'login'
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+# connected union required decorator
+def union_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if current_user.union_id is None:
+            error = 'It\'s dangeours to go alone! Connect to a union before wandering off.'
+            return render_template('index.html', error=error)
+        return f(*args, **kwargs)
+    return decorated_function
+
 # index
 @app.route('/')
 def index():
@@ -44,6 +55,7 @@ def index():
 # phase 1, issues
 @app.route('/phase1')
 @login_required
+@union_required
 def phase1():
 
 
@@ -67,6 +79,7 @@ def phase1():
 # phase 2, solution proposals
 @app.route('/phase2')
 @login_required
+@union_required
 def phase2():
 
     # find posts
@@ -89,6 +102,7 @@ def phase2():
 # phase 3, solutions
 @app.route('/phase3')
 @login_required
+@union_required
 def phase3():
 
 
@@ -114,6 +128,7 @@ def phase3():
 # single post, phase 1
 @app.route('/phase1/post/<int:post_id>', methods=['GET', 'POST'])
 @login_required
+@union_required
 def post1(post_id):
     form = UpvoteForm(request.form, meta={'csrf_context': session})
     post_data = {}
@@ -186,6 +201,7 @@ def post1(post_id):
 # single post, phase 2
 @app.route('/phase2/post/<int:post_id>', methods=['GET', 'POST'])
 @login_required
+@union_required
 def post2(post_id):
     commentForm = CommentForm(request.form, meta={'csrf_context': session})
     discussionForm = DiscussionForm(request.form, meta={'csrf_context': session})
@@ -231,6 +247,7 @@ def post2(post_id):
 # single post, phase 3
 @app.route('/phase3/post/<int:post_id>')
 @login_required
+@union_required
 def post3(post_id):
 
     # find issues
@@ -249,6 +266,7 @@ def post3(post_id):
 # view a single solution that's been confirmed (phase 4)
 @app.route('/completed/post/<int:post_id>', methods=['GET'])
 @login_required
+@union_required
 def post_completed(post_id):
     # find posts
     post = Post.query.get(post_id)
@@ -261,49 +279,64 @@ def post_completed(post_id):
         comments=post.list_comments(current_user.username), phase=4)
 
 
+# connect to union
+@app.route('/connect-union', methods=['GET', 'POST'])
+def connect_union():
+    form = ConnectUnionForm(request.form)
+    form.union.choices = Union.list()
+
+    if request.method == 'POST' and form.validate():
+        union = form.union.data
+        union_password_candidate = form.union_password.data
+
+        # find union
+        target_union = Union.query.filter(Union.union_name == union).first()
+        # find user in db
+        user = User.query.filter(User.username == current_user.username).first()
+
+        if target_union is not None:
+            if check_password(union_password_candidate, target_union.password):
+                # password matches
+                user.union_id = target_union.id
+                db.session.commit()
+                flash('You\'ve been connected to this union', 'success')
+                return redirect(url_for('index'))
+            else:
+                flash('Wrong union password', 'error')
+                return redirect(url_for('connect_union'))
+
+    return render_template('connect-union.html', form=form)
+
+
 # user registration
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm(request.form)
-    form.users_union.choices = Union.list()
     if request.method == 'POST' and form.validate():
         username = form.username.data
-        users_union = form.users_union.data
         password = form.password.data
-        union_password_candidate = form.union_password.data
 
         # check if username exists
         user_exists = User.query.filter(User.username == username).first()
         if user_exists is not None:
             error = 'This username has already been taken'
             return render_template('register.html', error=error, form=form)
-
-        # find union
-        union = Union.query.filter(Union.union_name == users_union).first()
-
-        if union is not None:
-            if check_password(union_password_candidate, union.password):
-                # password matches hash
-                user = User(username, hash_password(password), union)
-                # send to database
-                db.session.add(user)
-                db.session.commit()
-                # redirect user
-                flash('You\'ve been registered and can now log in.', 'success')
-                return redirect(url_for('login'))
-
-            else:
-                error = 'Wrong password for union.'
-                return render_template('register.html', error=error, form=form)
         else:
-            error = 'Something mysterious happened.'
-            return render_template('register.html', error=error, form=form)
+            # password matches hash
+            user = User(username, hash_password(password), union=None)
+            # send to database
+            db.session.add(user)
+            db.session.commit()
+            # redirect user
+            flash('You\'ve been registered and can now log in.', 'success')
+            return redirect(url_for('login'))
 
-    return render_template('register.html', form=form, unions=Union.list())
+    return render_template('register.html', form=form)
 
 
 # register new unions
 @app.route('/register-union', methods=['GET', 'POST'])
+@login_required
 def register_union():
     form = RegisterUnionForm(request.form)
     if request.method == 'POST':
@@ -335,8 +368,6 @@ def login():
         user = User.query.filter(User.username == username).first()
 
         if user is not None:
-            connected_union_name = user.union.union_name
-            connected_union = user.union.id
 
             # compare password to hash
             if check_password(password_candidate, user.password):
@@ -365,6 +396,7 @@ def logout():
 # vote on comment
 @app.route('/post/vote/<int:comment_id>/<int:post_id>')
 @login_required
+@union_required
 def vote_comment(comment_id, post_id):
 
     # check if user already voted
@@ -392,6 +424,7 @@ def vote_comment(comment_id, post_id):
 # remove vote on comments
 @app.route('/post/unvote/<int:comment_id>/<int:post_id>')
 @login_required
+@union_required
 def unvote_comment(comment_id, post_id):
     # check if user already voted
     result = Vote.query.filter(
@@ -422,6 +455,7 @@ def unvote_comment(comment_id, post_id):
 # new post
 @app.route('/new-post', methods=['GET', 'POST'])
 @login_required
+@union_required
 def new_post():
     form = ArticleForm(request.form)
     if request.method == 'POST' and form.validate():
@@ -454,6 +488,7 @@ def new_post():
 # blocked solutions
 @app.route('/vetoed')
 @login_required
+@union_required
 def vetoed():
 
 
@@ -473,6 +508,7 @@ def vetoed():
 # veto a solution
 @app.route('/veto/<int:post_id>', methods=['GET', 'POST'])
 @login_required
+@union_required
 def veto(post_id):
 
     form = VetoForm(request.form, meta={'csrf_context': session})
@@ -497,6 +533,7 @@ def veto(post_id):
 # finished solutions
 @app.route('/completed')
 @login_required
+@union_required
 def completed():
     # Find posts
     posts = Post.query.filter(
@@ -520,6 +557,7 @@ def about():
 
 @app.route('/members')
 @login_required
+@union_required
 def members():
     union = Union.query.filter(Union.id == current_user.union_id).one()
     return render_template('union-members.html', members=union.list_members())
@@ -528,6 +566,7 @@ def members():
 # who voted on this post?
 @app.route('/who-voted/<string:what>/<int:id>')
 @login_required
+@union_required
 def who_voted(what, id):
     if what == 'post':
         cls = Post
