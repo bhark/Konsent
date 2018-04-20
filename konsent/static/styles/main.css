@@ -1,7 +1,7 @@
 /* FONTS */
 @font-face {
-  font-family: 'Arvo';
-  src: url("../fonts/Arvo-Regular.ttf");
+  font-family: 'AM';
+  src: url("../fonts/ArcaMajora3-Bold.otf");
 }
 @font-face {
   font-family: 'Merriweather';
@@ -9,8 +9,12 @@
 }
 
 /* BASE STYLING */
+body {
+  font-family: 'Merriweather', serif;
+}
+
 p {
-  font-family: 'Arvo', cursive;
+  font-family: 'Merriweather', serif;
 }
 
 a {
@@ -81,15 +85,14 @@ a.btn:hover {
 
 .heading {
   padding:30px;
-  font-family: 'Merriweather', cursive;
+  font-family: 'AM', serif;
   text-transform:uppercase;
   text-align:center;
-  text-decoration:underline;
 }
 
 .subheading {
   text-align:center;
-  font-family: 'Merriweather', cursive;
+  font-family: 'Merriweather', serif;
   font-size:1.5em;
 }
 
