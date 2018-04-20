@@ -13,7 +13,7 @@
     {% if session and current_user.union_id %}
     <a href="/new-post" class="btn btn-success">Post a new issue</a>
     {% elif session and not current_user.union_id %}
-    <p class="lead"><a href="connect-union">Connect to a union</a> to start posting</p>
+    <p class="lead"><a href="connect-union">Connect to a union</a> to start using Konsent</p>
     {% elif not session %}
     <a href="/login" class="btn btn-success">Login</a>
     <a href="/register" class="btn btn-info">New Account</a>
