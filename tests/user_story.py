@@ -9,6 +9,7 @@ import random
 
 import pytest
 from selenium import webdriver
+from selenium.webdriver.support.ui import Select
 
 
 URL = 'http://127.0.0.1:5000/'
@@ -37,6 +38,7 @@ REGISTER_PASSWORD = '#password'
 REGISTER_CONFIRM_PASSWORD = '#confirm'
 REGISTER_UNION = '#users_union'
 REGISTER_UNION_PASSWORD = '#union_password'
+UNION_LIST_DROPDOWN = '#union'
 UNION_REGISTER_NAME = '#union_name'
 UNION_REGISTER_PASSWORD = '#password'
 UNION_REGISTER_PASSWORD_CONFIRM = '#confirm'
@@ -52,13 +54,14 @@ NEW_ISSUE_SUBMIT_BUTTON = '.btn'
 
 
 # phase 1
+NAVLINK_PHASE1 = '#navlink-phase1'
 PHASE1_VOTEUP = '.btn'
 PHASE1_ISSUE = '.list-group-item > a:nth-child(2)'
-NAVLINK_PHASE2 = '#navlink-phase2'
 TOP_SOLUTION_PROPOSAL_BUTTON = 'ul.navbar-nav:nth-child(1) > li:nth-child(2) > a:nth-child(1)'
 
 # phase 2
-PHASE2_ISSUE = '.list-group-item > a:nth-child(1)'
+NAVLINK_PHASE2 = '#navlink-phase2'
+PHASE2_ISSUE = '.list-group-item > a'
 ADD_URL_FIELD = '#url'
 ADD_URL_BUTTON = '#submit_url'
 ADD_PROPOSAL_FIELD = '#body'
@@ -105,7 +108,7 @@ def test_user_story_account(browser):
     find(REGISTER_SUBMIT_BUTTON).click()
     assert 'and can now log in' in find(ALERT).text
 
-    # she logins with the correct credentials
+    # she logs in with the correct credentials
     find(NAVLINK_LOGIN).click()
     find(LOGIN_USER_FIELD).send_keys(TEST_USERNAME)
     find(LOGIN_PASS_FIELD).send_keys(TEST_PASSWORD)
@@ -115,10 +118,12 @@ def test_user_story_account(browser):
 
 def test_user_story_union(browser):
     find = browser.find_element_by_css_selector
-    
+
     # she creates a new union
-    find(NAVLINK_CONNECT_UNION).click()
-    find(CREATE_NEW_UNION).click()
+    browser.get(URL + 'register-union')
+
+    # she fills out the form
+    print(TEST_UNION_NAME)
     find(UNION_REGISTER_NAME).send_keys(TEST_UNION_NAME)
     find(UNION_REGISTER_PASSWORD).send_keys(TEST_UNION_PASSWORD)
     find(UNION_REGISTER_PASSWORD_CONFIRM).send_keys(TEST_UNION_PASSWORD)
@@ -127,10 +132,8 @@ def test_user_story_union(browser):
 
     # she connects to her newly created union
     find(NAVLINK_CONNECT_UNION).click()
-    options = find(REGISTER_UNION).find_elements_by_tag_name('option')
-    test_union_option = next(opt for opt in options
-                             if opt.get_property('value') == TEST_UNION_NAME)
-    test_union_option.click()
+    dropdown = Select(find(UNION_LIST_DROPDOWN))
+    dropdown.select_by_visible_text(TEST_UNION_NAME)
     find(REGISTER_UNION_PASSWORD).send_keys(TEST_UNION_PASSWORD)
     find(REGISTER_SUBMIT_BUTTON).click()
     assert "You've been connected to this union" in find(ALERT).text
@@ -152,6 +155,9 @@ def test_user_story_issue(browser):
     # she submits the issue
     find(NEW_ISSUE_SUBMIT_BUTTON).click()
     assert 'Your post have been published' in find(ALERT).text
+
+    # she goes to phase 1
+    find(NAVLINK_PHASE1).click()
 
     # she chooses her issue
     find(PHASE1_ISSUE).click()
