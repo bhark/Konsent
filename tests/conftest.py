@@ -21,11 +21,13 @@ def user_mock(mocker):
 
     user_stab = MagicMock()
     user_stab.union.union_name = 'test_union'
-    user_stab.union.id = '1'
+    user_stab.union_id = '1'
     user_stab.id = '1'
 
+    User_mock.query.get.return_value = user_stab
     query = User_mock.query.filter().first
     query.return_value = user_stab
+    query().get_id.return_value = 1
 
     return locals()
 
@@ -46,6 +48,7 @@ def orm_mock(mocker):
     post_stub = MagicMock()
     post_stub.time_since_create = {'hours': 0}
     post_stub.union_id = '1'
+    post_stub.resting_time = 1
 
     Post_mock.query.filter().all.return_value = [post_stub]
 
@@ -87,6 +90,7 @@ def forms_mock(mocker):
     article_stub = MagicMock()
     ArticleForm_mock.return_value = article_stub
     ArticleForm_mock().validate.return_value = True
+    ArticleForm_mock().resting_time.data = 1
 
     VetoForm_mock = mocker.patch('konsent.VetoForm')
     VetoForm_mock().validate.return_value = True
