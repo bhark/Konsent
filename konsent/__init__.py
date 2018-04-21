@@ -85,7 +85,6 @@ def phase2():
             Post.phase == 2)).all()
 
 
-    app.logger.debug('TIMELEFT:{}'.format(posts[0].time_left))
     if posts:
         return render_template('phase2.html', posts=posts)
     else:
