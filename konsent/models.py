@@ -16,7 +16,7 @@ class ExternalDiscussion(db.Model):
     # relationships
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=False)
     author = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    author_name = db.Column(db.String(255), db.ForeignKey('users.username'), nullable=False)
+    author_name = db.Column(db.Unicode(191), db.ForeignKey('users.username'), nullable=False)
 
 
     def __init__(self, author, author_name, url, post_id):
