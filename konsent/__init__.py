@@ -586,7 +586,7 @@ def update_phases():
 
         for post in posts:
             # phase 2
-            if post.phase == 2 and self.end_date < datetime.datetime.now():
+            if post.phase == 2 and post.end_date < datetime.datetime.now():
                 solution = Comment.query.filter(
                     Comment.post == post
                 ).order_by(
