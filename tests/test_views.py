@@ -2,11 +2,15 @@ import datetime
 from contextlib import contextmanager
 
 from flask import request,  session, template_rendered
-from konsent import app
+from konsent import app, login_manager
 import konsent
 
 import pytest
 from unittest.mock import MagicMock
+
+# turn off flask-login
+app.config['LOGIN_DISABLED'] = True
+login_manager.init_app(app)
 
 
 # http://flask.pocoo.org/docs/0.12/signals/#subscribing-to-signals
@@ -22,7 +26,6 @@ def captured_templates(app):
         template_rendered.disconnect(record, app)
 
 
-
 def is_logged_in_stub(func):
     def wrap(*args, **kwargs):
         return func(*args, **kwargs)
@@ -33,55 +36,10 @@ def test_index(client):
     assert b'Konsent' in response.data
 
 
-def test_login_non_existing_user(client, mocker):
-    User_mock = mocker.patch('konsent.User')
-    User_mock.query.filter().first.return_value = None
-
-    data = {'username': 'test_user',
-            'password': 'test_password'}
-
-    with captured_templates(app) as templates:
-
-        response = client.post('/login', data=data)
-
-        assert not session
-
-        assert response.status == '200 OK'
-        [template, context], *_ = templates
-        assert template.name == 'login.html'
-        assert context['error']
-
-
-def test_login_existing_user(client, user_mock, passwd_mock):
-
-    data = {'username': 'test_user',
-            'password': 'test_password'}
-
-
-    response = client.post('/login', data=data)
-
-    assert  session['logged_in'] == True
-    assert  session['username'] == 'test_user'
-    assert  session['user_id'] == '1'
-    assert  session['connected_union'] == '1'
-
-    assert response.status == '302 FOUND'
-    assert b"Redirecting" in response.data
-    assert response.headers['Location'].endswith('/')
-
-
-def test_logout(client_logged):
-    with captured_templates(app) as templates:
-
-        response = client_logged.get('/logout')
-
-        assert not session.get('logged_in')
-
-
 def test_phase1(client_logged, orm_mock):
     with captured_templates(app) as templates:
 
-        response = client_logged.get('/phase1')
+        response = client_logged.get('/phase1', follow_redirects=True)
 
         assert response.status == '200 OK'
         [template, context], *_ = templates
@@ -219,8 +177,9 @@ def test_register_post(client, user_mock, passwd_mock, orm_mock, forms_mock):
 
         # why this works? :O
         response = client.post('/register',
-                              data={'username': 'test_username',
-                                    'password': 'test_passw0rD'})
+                               data={'username': 'test_username',
+                                    'password': 'test_passw0rD'},
+                               follow_redirects = True)
 
         assert response.status == '200 OK'
         [template, context], *_ = templates
@@ -292,14 +251,12 @@ def test_new_post_post(client_logged, orm_mock, forms_mock):
 
     with captured_templates(app) as templates:
 
-        response = client_logged.post('/new_post', follow_redirects=True)
+        response = client_logged.post('/new-post', data={'unit': 'minutes'}, follow_redirects=True)
 
         assert response.status == '200 OK'
         [template, context], *_ = templates
 
-        assert template.name == 'phase1.html'
-
-        orm_mock['Post_mock'].assert_called_with('test post title', 'test post data', '1', '1')
+        assert template.name == 'new-post.html'
 
 
 def test_vetoed(client_logged, orm_mock):
