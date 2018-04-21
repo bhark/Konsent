@@ -85,6 +85,7 @@ def phase2():
             Post.phase == 2)).all()
 
 
+    app.logger.debug('TIMELEFT:{}'.format(posts[0].time_left))
     if posts:
         return render_template('phase2.html', posts=posts)
     else:
@@ -585,11 +586,8 @@ def update_phases():
         posts = Post.query.all()
 
         for post in posts:
-            post.progresses_in_minutes = int((post.resting_time / 60) - post.time_since_create['minutes'])
-            if post.progresses_in_minutes > 60:
-                post.progresses_in_hours = round(post.progresses_in_minutes / 60, 1)
             # phase 2
-            if post.phase == 2 and post.create_date < datetime.datetime.now() - timedelta(minutes = (post.resting_time / 60)):
+            if post.phase == 2 and self.end_date < datetime.datetime.now():
                 solution = Comment.query.filter(
                     Comment.post == post
                 ).order_by(
@@ -606,7 +604,7 @@ def update_phases():
                 db.session.add(post)
 
             # phase 3
-            elif post.phase == 3 and post.create_date < datetime.datetime.now() - timedelta(minutes = (post.resting_time / 60)):
+            elif post.phase == 3 and post.end_date < datetime.datetime.now():
                 post.create_date = datetime.datetime.now()
                 post.phase = 4
                 db.session.add(post)

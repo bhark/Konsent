@@ -1,5 +1,5 @@
 # coding: utf-8
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_
@@ -106,19 +106,32 @@ class Post(db.Model):
         self.resting_time = resting_time
 
     @property
-    def time_since_create(self):
-        """
-        assign "posted x minutes/hours ago" values
-        """
-        if not hasattr(self, '_time_since_create'):
-            now = datetime.now()
-            create_date = self.create_date
-            time_since = now - create_date
-            hours, minutes = time_since.seconds // 3600, (
-                time_since.seconds // 60) % 60
-            self._time_since_create = {'hours': hours, 'minutes': minutes}
-        print(self._time_since_create)
-        return self._time_since_create
+    def end_date(self):
+        return self.create_date + timedelta(seconds=self.resting_time)
+
+    @property
+    def time_passed(self):
+        time_since = datetime.now() - self.create_date
+        hours = time_since.seconds // 3600
+        minutes =  (time_since.seconds // 60) % 60
+        time_format = ''
+        if hours:
+            time_format += '{}h '.format(hours)
+        if minutes:
+            time_format += '{}m'.format(minutes)
+        return time_format
+
+    @property
+    def time_left(self):
+        time_until = self.end_date - datetime.now()
+        hours = time_until.seconds // 3600
+        minutes =  (time_until.seconds // 60) % 60
+        time_format = ''
+        if hours:
+            time_format += '{}h '.format(hours)
+        if minutes:
+            time_format += '{}m'.format(minutes)
+        return time_format
 
     def list_votes(self):
         votes = Vote.query.filter(Vote.post_id == self.id).all()
