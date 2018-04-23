@@ -11,7 +11,7 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def test_app(user_mock, orm_mock, forms_mock):
-    app = make_app()
+    app = make_app(db_uri=None)
     app.config['TESTING'] = True
     app.secret_key = 'test_views'
     # turn off flask-login
