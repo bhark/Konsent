@@ -1,12 +1,9 @@
 [[source]]
-
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
-
 [packages]
-
 flask = "==0.12.2"
 wtforms = "==2.1"
 click = "==6.7"
@@ -19,12 +16,12 @@ werkzeug = "==0.14.1"
 bcrypt = "==3.1.4"
 flask-login = "==0.4.1"
 apscheduler = "*"
-
+mysqlclient = "*"
 
 [dev-packages]
-
 pytest-watch = "*"
 pytest-mock = "*"
 blinker = "*"
 coverage = "*"
 pytest-cov = "*"
+selenium = "*"
