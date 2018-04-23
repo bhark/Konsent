@@ -40,11 +40,9 @@ If you want to give Konsent a try on your local machine, here's how it's done. T
 
 - Clone Konsent using git, `git clone https://github.com/dellitsni/Konsent/` or download and unzip somewhere safe.
 
-<<<<<<< HEAD
-- Use `pip` to install the dependencies: `pip install flask flask-mysqldb flask-sqlalchemy wtforms bcrypt flask-login`. 
-=======
+- Use `pip` to install the dependencies: `pip install flask flask-mysqldb flask-sqlalchemy wtforms bcrypt flask-login`.
+
 - Use `pip` to install the dependencies: `pip install flask flask-mysqldb flaks-sqlalchemy wtforms bcrypt flask-login`. 
->>>>>>> 85955ed4e7ee9476b1cb81ea78899642e86e9ab9
 
 - Install `konsent` as a module by running `pip install konsent` in Konsent's parent folder. If you want to develop on Konsent, add the `-e` flag.
 
