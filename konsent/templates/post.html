@@ -11,33 +11,63 @@
     <div class="form-group">
       {{ render_field(form.vote, type="hidden", class_="form-control") }}
       {{ form.csrf_token }}
-      <p>{{ post_data['votes'] }} votes</p>
-      <input class="btn btn-primary" type="submit" value={% if post_data['voted'] %}"Cancel vote"{% else %}"Vote up"{% endif %}>
+      <center>
+          <p><a href="/who-voted/post/{{ post.id }}">{{ post_data['votes'] }} votes</a></p>
+          {% if post.resting_time / 60 < 60 %}
+          <p>Resting time: <b>{{ post.resting_time / 60 }}</b> minutes</p>
+          {% else %}
+          <p>Resting time: <b>{{ post.resting_time / 60 / 60 }}</b> hours</p>
+          {% endif %}
+          <p>{{ resting_time }}</p>
+          <input class="btn btn-primary" type="submit" id="vote" value={% if post_data['voted'] %}"Cancel vote"{% else %}"Vote up"{% endif %}>
+      </center>
     </div>
   </form>
 
   {% endif %}
   <br><br>
 
-  {% if phase == 2 %} <!-- if phase 2 -->
-  <h2>Solution proposals</h2>
-  {% from 'includes/_formhelpers.html' import render_field %}
-  <form method="POST" action="">
-    <div class="form-group">
-      {{ render_field(form.body, class_="form-control") }}
-      {{ form.csrf_token }}
-    </div>
-    <p><input class="btn btn-primary" type="submit" value="Submit"></p>
-  </form>
+    {% if phase == 2 %} <!-- if phase 2 -->
+    <p class="lead">External discussion</p>
+    {% if discussions %} <!-- if any urls have been added -->
+    <ul class="list-group">
+    {% for discussion in discussions %}
+        <li class="list-group-item" id="discussions">
+            <a href="{{ discussion[0] }}">
+                {{ discussion[0] }}
+            </a>
+            added by {{ discussion[1] }}
+        </li>
+    {% endfor %}
+    </ul>
+    {% endif %} <!-- end if any urls have been added -->
+    {% if discussion_count < 3 %}
+    <form method="POST" action="">
+        <div class="form-group">
+          {{ render_field(discussionForm.url, class_="form-control") }}
+          {{ render_field(discussionForm.submit_url, class_="form-control") }}
+          {{ discussionForm.csrf_token }}
+        </div>
+    </form>
+    {% endif %}
+    <br><br>
+    <p class="lead">Solution proposals</p>
+    <form method="POST" action="">
+        <div class="form-group">
+            {{ render_field(commentForm.body, class_="form-control") }}
+            {{ render_field(commentForm.submit_comment, class_="form-control") }}
+            {{ commentForm.csrf_token }}
+        </div>
+    </form>
   {% if comments %} <!-- if comments -->
   {% for comment in comments %}
-  <ul class="list-group">
+  <ul class="list-group" id="proposals">
     <li class="list-group-item author">{{ comment['author'] }}</li>
     <li class="list-group-item body">{{ comment['body'] }}</li>
     {% if not comment['voted'] %} <!-- if user already voted on this comment -->
-    <li class="list-group-item vote">{{ comment['votes'] }} votes - <a href="/post/vote/{{ comment['id'] }}/{{ post.id }}">Vote up</a></li>
+    <li class="list-group-item vote"><a href="/who-voted/comment/{{ comment.id }}">{{ comment['votes'] }} votes</a> - <a class="vote-up" href="/post/vote/{{ comment['id'] }}/{{ post.id }}">Vote up</a></li>
     {% else %}
-    <li class="list-group-item unvote">{{ comment['votes'] }} votes - <a href="/post/unvote/{{ comment['id'] }}/{{ post.id }}">Cancel vote</a>
+    <li class="list-group-item unvote"><a href="/who-voted/comment/{{ comment.id }}">{{ comment['votes'] }} votes</a> - <a class="cancel-vote" href="/post/unvote/{{ comment['id'] }}/{{ post.id }}">Cancel vote</a>
     {% endif %} <!-- end if user already voted on this comment -->
   </ul>
   <br>
@@ -50,6 +80,19 @@
   {% endif %} <!-- end if phase 2 -->
 
   {% if phase == 3 %} <!-- if phase 3 -->
+  {% if discussions %} <!-- if any urls have been added -->
+  <p class="lead">Discussed here</p>
+  <ul class="list-group">
+  {% for discussion in discussions %}
+      <li class="list-group-item">
+          <a href="{{ discussion[0] }}">
+              {{ discussion[0] }}
+          </a>
+          added by {{ discussion[1] }}
+      </li>
+  {% endfor %}
+  </ul>
+  {% endif %} <!-- end if any urls have been added -->
   <div class="jumbotron">
     <h2>Final solution</h2>
     <p class="lead">{{ post.solution }}</p>

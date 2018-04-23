@@ -2,8 +2,24 @@
 
 {% block body %}
 
+{% from 'includes/_formhelpers.html' import render_field %}
+
   <h1 class="heading">Login</h1>
-  <form action="" method="POST">
+  <form method="POST" action="">
+      <div class="form-group">
+          {{ render_field(form.username, class_="form-control") }}
+      </div>
+      <div class="form-group">
+          {{ render_field(form.password, class_="form-control") }}
+      </div>
+      <div class="form-group">
+          {{ render_field(form.remember_me) }}
+      </div>
+      <div class="form-group">
+          {{ render_field(form.submit, class_="form-control form-submit") }}
+      </div>
+  </form>
+  <!--<form action="" method="POST">
     <div class="form-group">
       <label>Username</label>
       <input type="text" name="username" class="form-control" value={{request.form.username}}>
@@ -13,6 +29,6 @@
       <input type="password" name="password" class="form-control" value={{request.form.password}}>
     </div>
     <button type="submit" class="btn btn-primary">Login</button>
-  </form>
+</form>-->
 
 {% endblock %}

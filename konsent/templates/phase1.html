@@ -4,7 +4,7 @@
   <h1 class="heading">Issues</h1>
   <ul class="list-group">
     {% for post in posts %}
-      <li class="list-group-item">{{post.votes | length }} votes - <a href="phase1/post/{{post.id}}">{{post.title}}</a><span> - {% if post.time_since_create['hours'] > 0 %}{{ post.time_since_create['hours'] }}h {% endif %} {{ post.time_since_create['minutes'] }} ago</span><span> by {{ post.author.username }}</span></li>
+    <li class="list-group-item"><a href="/who-voted/post/{{ post.id }}">{{post.votes | length }} votes</a> - <a href="phase1/post/{{post.id}}">{{post.title}}</a><span> - {{ post.time_passed }} ago</span><span> by {{ post.author.username }}</span></li>
     {% endfor %}
   </ul>
 {% endblock %}

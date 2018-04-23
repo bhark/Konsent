@@ -1,7 +1,7 @@
 /* FONTS */
 @font-face {
-  font-family: 'Arvo';
-  src: url("../fonts/Arvo-Regular.ttf");
+  font-family: 'AM';
+  src: url("../fonts/ArcaMajora3-Bold.otf");
 }
 @font-face {
   font-family: 'Merriweather';
@@ -9,14 +9,18 @@
 }
 
 /* BASE STYLING */
+body {
+  font-family: 'Merriweather', serif;
+}
+
 p {
-  font-family: 'Arvo', cursive;
+  font-family: 'Merriweather', serif;
 }
 
 a {
   color:#000;
   padding:3px;
-}a:hover {
+}body a:hover {
   color:#000;
   text-decoration:none;
   border-bottom:solid 2px red;
@@ -49,6 +53,21 @@ a.btn:hover {
   text-align:center;
 }
 
+.dropdown .dropdown-toggle {
+    padding-left:.5rem;
+    padding-right:.5rem;
+    line-height:40px;
+    color:rgba(0,0,0,0.5);
+}
+
+.dropdown-menu li a {
+    color:rgba(0,0,0,0.5);
+}
+
+.dropdown-menu {
+    padding:1rem !important;
+}
+
 /* ID's */
 #version {
   font-size:18px;
@@ -66,15 +85,14 @@ a.btn:hover {
 
 .heading {
   padding:30px;
-  font-family: 'Merriweather', cursive;
+  font-family: 'AM', serif;
   text-transform:uppercase;
   text-align:center;
-  text-decoration:underline;
 }
 
 .subheading {
   text-align:center;
-  font-family: 'Merriweather', cursive;
+  font-family: 'Merriweather', serif;
   font-size:1.5em;
 }
 
@@ -133,4 +151,12 @@ a.btn:hover {
 
 .requirements {
   color:grey;
+}
+
+label[for="submit_comment"] {
+    display:none;
+} label[for="submit_url"] {
+    display:none;
+} label[for="submit"] {
+    display:none;
 }

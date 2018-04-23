@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    <h1 class="heading">Members of your union</h1>
+
+    {% if members %}
+
+    <ul class="list-group">
+        {% for member in members %}
+        <li class="list-group-item">{{ member }}</li>
+        {% endfor %}
+    </ul>
+
+    {% else %}
+
+    <p class="lead">An error occured.</p>
+
+    {% endif %}
+
+    </div>
+
+{% endblock %}
