@@ -28,8 +28,3 @@ pytest-mock = "*"
 blinker = "*"
 coverage = "*"
 pytest-cov = "*"
-
-
-[requires]
-
-python_version = "3.5"

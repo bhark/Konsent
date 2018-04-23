@@ -1,23 +1,60 @@
 import datetime
 
+import konsent
+from konsent import make_app, login_manager
+
 from flask import template_rendered
-from konsent import app
 
 from unittest.mock import MagicMock
 import pytest
 
 
-@pytest.fixture()
-def client():
+@pytest.fixture(autouse=True)
+def test_app(user_mock, orm_mock, forms_mock):
+    app = make_app()
     app.config['TESTING'] = True
     app.secret_key = 'test_views'
-    with app.test_client() as client:
+    # turn off flask-login
+    app.config['LOGIN_DISABLED'] = True
+    login_manager.init_app(app)
+    return app
+
+
+# http://flask.pocoo.org/docs/0.12/signals/#subscribing-to-signals
+@pytest.fixture()
+def context(test_app):
+    recorded = []
+    def record(sender, template, context, **extra):
+        recorded.append((template, context))
+    template_rendered.connect(record, test_app)
+    try:
+        yield recorded
+    finally:
+        template_rendered.disconnect(record, test_app)
+
+
+@pytest.fixture()
+def client(test_app):
+    with test_app.test_client() as client:
         yield client
 
 
-@pytest.fixture
+@pytest.fixture()
+def client_logged(test_app):
+
+    data = {'username': 'test_user',
+            'password': 'test_password'}
+
+    with test_app.test_client() as client:
+        client.post('/login', data=data)
+        yield client
+
+
+@pytest.fixture()
 def user_mock(mocker):
     User_mock = mocker.patch('konsent.User')
+    mocker.patch('konsent.views.phase1.User', User_mock)
+    mocker.patch('konsent.views.authentication.User', User_mock)
 
     user_stab = MagicMock()
     user_stab.union.union_name = 'test_union'
@@ -28,27 +65,33 @@ def user_mock(mocker):
     query = User_mock.query.filter().first
     query.return_value = user_stab
     query().get_id.return_value = 1
+    User_mock.query.filter().count.return_value = 1
+
+    check_password = mocker.patch('konsent.views.authentication.check_password')
+    check_password.return_value = True
+    mocker.patch('konsent.views.authentication.hash_password')
 
     return locals()
 
 
-@pytest.fixture
-def passwd_mock(mocker):
-    check_password = mocker.patch('konsent.check_password')
-    check_password.return_value = True
-    mocker.patch('konsent.hash_password')
+@pytest.fixture()
+def orm_mock(mocker, request):
+    db = MagicMock()
+    mocker.patch('konsent.views.phase1.db', db)
+    mocker.patch('konsent.views.phase2.db', db)
+    mocker.patch('konsent.views.authentication.db', db)
+    mocker.patch('konsent.views.other.db', db)
 
-
-@pytest.fixture
-def orm_mock(mocker):
-    db = mocker.patch('konsent.db')
-
-    Post_mock = mocker.patch('konsent.Post')
+    Post_mock = MagicMock()
+    mocker.patch('konsent.views.phase1.Post', Post_mock)
+    mocker.patch('konsent.views.phase2.Post', Post_mock)
+    mocker.patch('konsent.views.phase3.Post', Post_mock)
+    mocker.patch('konsent.views.other.Post', Post_mock)
 
     post_stub = MagicMock()
-    post_stub.time_since_create = {'hours': 0}
     post_stub.union_id = '1'
     post_stub.resting_time = 1
+    post_stub.votes_count = 1000
 
     Post_mock.query.filter().all.return_value = [post_stub]
 
@@ -57,14 +100,18 @@ def orm_mock(mocker):
 
     Post_mock.query.get.return_value = post_stub
 
-    Union_mock = mocker.patch('konsent.Union')
-    Union_mock.query.filter().count.return_value = 1
+    Union_mock = mocker.patch('konsent.views.other.Union')
+    mocker.patch('konsent.views.authentication.Union', Union_mock)
     union_stub = Union_mock.query.filter().first()
 
-    Vote_mock = mocker.patch('konsent.Vote')
+    Vote_mock = MagicMock()
+    mocker.patch('konsent.views.phase1.Vote', Vote_mock)
+    mocker.patch('konsent.views.other.Vote', Vote_mock)
     Vote_query = Vote_mock.query.filter().first
 
-    Comment_mock = mocker.patch('konsent.Comment')
+    Comment_mock = MagicMock()
+    mocker.patch('konsent.views.phase2.Comment', Comment_mock)
+    mocker.patch('konsent.views.other.Comment', Comment_mock)
     comment_stub = MagicMock()
     Comment_mock.return_value = comment_stub
     Comment_mock.query.get.return_value = comment_stub
@@ -72,40 +119,27 @@ def orm_mock(mocker):
     return locals()
 
 
-@pytest.fixture
+@pytest.fixture()
 def forms_mock(mocker):
-    UpvoteForm_mock = mocker.patch('konsent.UpvoteForm')
+    UpvoteForm_mock = mocker.patch('konsent.views.phase1.UpvoteForm')
     UpvoteForm_mock().validate.return_value = True
 
-    CommentForm_mock = mocker.patch('konsent.CommentForm')
+    CommentForm_mock = mocker.patch('konsent.views.phase2.CommentForm')
     CommentForm_mock().validate.return_value = True
 
-    RegisterForm_mock = mocker.patch('konsent.RegisterForm')
+    RegisterForm_mock = mocker.patch('konsent.views.authentication.RegisterForm')
     RegisterForm_mock().validate.return_value = True
 
-    RegisterUnionForm_mock = mocker.patch('konsent.RegisterUnionForm')
+    RegisterUnionForm_mock = mocker.patch('konsent.views.authentication.RegisterUnionForm')
     RegisterUnionForm_mock().validate.return_value = True
 
-    ArticleForm_mock = mocker.patch('konsent.ArticleForm')
+    ArticleForm_mock = mocker.patch('konsent.views.other.ArticleForm')
     article_stub = MagicMock()
     ArticleForm_mock.return_value = article_stub
     ArticleForm_mock().validate.return_value = True
     ArticleForm_mock().resting_time.data = 1
 
-    VetoForm_mock = mocker.patch('konsent.VetoForm')
+    VetoForm_mock = mocker.patch('konsent.views.other.VetoForm')
     VetoForm_mock().validate.return_value = True
 
     return locals()
-
-
-@pytest.fixture()
-def client_logged(user_mock, passwd_mock):
-    app.config['TESTING'] = True
-    app.secret_key = 'test_views'
-
-    data = {'username': 'test_user',
-            'password': 'test_password'}
-
-    with app.test_client() as client:
-        client.post('/login', data=data)
-        yield client
