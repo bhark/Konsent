@@ -31,7 +31,7 @@ def make_app():
     return app
 
 
-# CURRENT VERSION: 0.3b
+# CURRENT VERSION: 0.4b
 # config
 REQUIRED_VOTES_DIVISOR = 2  # divide by this to progress to stage 2
 NO_RESULTS_ERROR = 'Nothing to show.'
