@@ -1,3 +1,6 @@
+"""Use the power of the mock with discipline, and remember:
+Mock always where you use the object, not where it comes from.
+"""
 import datetime
 
 import konsent
