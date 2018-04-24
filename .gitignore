@@ -103,4 +103,9 @@ ENV/
 # mypy
 .mypy_cache/
 .pytest_cache
+
+# ctags exuberant
 tags
+
+# firefox driver
+geckodriver

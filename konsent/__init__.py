@@ -1,16 +1,14 @@
 # coding=iso-8859-1
 import datetime
-from functools import wraps, partial
+from functools import wraps
 
-import click
-from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, render_template, Blueprint
 from flask_login import LoginManager, current_user
 
 from .models import db, User, Post, Comment
 
 
-def make_app():
+def make_app(secret_key='Ka,SkqNs//', db_uri=None):
     from .views.phase1 import view as phase1_blueprint
     from .views.phase2 import view as phase2_blueprint
     from .views.phase3 import view as phase3_blueprint
@@ -18,6 +16,7 @@ def make_app():
     from .views.authentication import view as register_blueprint
 
     app = Flask(__name__)
+    app.secret_key = secret_key 
 
     app.register_blueprint(home)
     app.register_blueprint(phase1_blueprint)
@@ -27,6 +26,11 @@ def make_app():
     app.register_blueprint(register_blueprint)
 
     login_manager.init_app(app)
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+
+    if db_uri is not None:
+        db.init_app(app)
 
     return app
 
@@ -99,48 +103,3 @@ def update_phases(app):
                 post.phase = 4
                 db.session.add(post)
         db.session.commit()
-
-
-@click.command()
-@click.argument('action', type=click.Choice(['runserver', 'createdb']))
-@click.option('-d', '--database-name', default='konsent',
-              help='Database name')
-@click.option('-H', '--database-host', default='127.0.0.1',
-              help='Database host')
-@click.option('-u', '--database-user', default='root',
-              help='Database username')
-@click.option('-p', '--database-password', default='',
-              help='Database password')
-def main(action,
-         database_name,
-         database_host,
-         database_user,
-         database_password):
-
-    app = make_app()
-
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://{username}{sep}{password}@{host}/{database}'.format(
-        host=database_host,
-        username=database_user,
-        sep=':' if len(database_password) else '',
-        password=database_password,
-        database=database_name
-    )
-
-    app.secret_key = 'Ka,SkqNs//'
-    db.init_app(app)
-
-    if action == 'runserver':
-        # start the scheduler
-        apsched = BackgroundScheduler()
-        apsched.add_job(partial(update_phases, app), 'interval', seconds=30)
-        apsched.start()
-        # start the app
-        app.run(debug=True)
-    elif action == 'createdb':
-        app.app_context().push()
-        db.create_all()
-
-
-if __name__ == '__main__':
-    main()
