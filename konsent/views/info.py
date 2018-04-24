@@ -6,7 +6,7 @@ from flask import (Blueprint, render_template, flash, session,
 from konsent import union_required, REQUIRED_VOTES_DIVISOR
 from konsent.models import db, Union, Post, Vote, Comment
 
-view = Blueprint('other', __name__)
+view = Blueprint('info', __name__)
 
 
 # view a single solution that's been confirmed (phase 4)

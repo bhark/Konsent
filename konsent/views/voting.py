@@ -90,8 +90,6 @@ def veto(post_id):
         db.session.commit()
 
         msg = 'Youve successfully blocked the solution'
-        return redirect(url_for("other.vetoed"))
+        return redirect(url_for("info.vetoed"))
 
     return render_template('veto.html', id=post_id, form=form)
-
-
