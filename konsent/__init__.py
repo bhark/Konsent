@@ -15,7 +15,7 @@ def make_app(secret_key='Ka,SkqNs//', db_uri=None):
     from .views.phase2 import view as phase2_blueprint
     from .views.phase3 import view as phase3_blueprint
     from .views.voting import view as voting_blueprint
-    from .views.other import view as other_blueprint
+    from .views.info import view as info_blueprint
 
     app = Flask(__name__)
     app.secret_key = secret_key 
@@ -26,7 +26,7 @@ def make_app(secret_key='Ka,SkqNs//', db_uri=None):
     app.register_blueprint(phase2_blueprint)
     app.register_blueprint(phase3_blueprint)
     app.register_blueprint(voting_blueprint)
-    app.register_blueprint(other_blueprint)
+    app.register_blueprint(info_blueprint)
     app.register_blueprint(register_blueprint)
 
     login_manager.init_app(app)

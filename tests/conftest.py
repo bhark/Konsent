@@ -81,7 +81,7 @@ def user_mock(mocker):
 def orm_mock(mocker, request):
     db = MagicMock()
     mocker.patch('konsent.views.authentication.db', db)
-    mocker.patch('konsent.views.other.db', db)
+    mocker.patch('konsent.views.info.db', db)
     mocker.patch('konsent.views.issue.db', db)
     mocker.patch('konsent.views.phase1.db', db)
     mocker.patch('konsent.views.phase2.db', db)
@@ -93,7 +93,7 @@ def orm_mock(mocker, request):
     mocker.patch('konsent.views.phase2.Post', Post_mock)
     mocker.patch('konsent.views.phase3.Post', Post_mock)
     mocker.patch('konsent.views.voting.Post', Post_mock)
-    mocker.patch('konsent.views.other.Post', Post_mock)
+    mocker.patch('konsent.views.info.Post', Post_mock)
 
     post_stub = MagicMock()
     post_stub.union_id = '1'
@@ -107,7 +107,7 @@ def orm_mock(mocker, request):
 
     Post_mock.query.get.return_value = post_stub
 
-    Union_mock = mocker.patch('konsent.views.other.Union')
+    Union_mock = mocker.patch('konsent.views.info.Union')
     mocker.patch('konsent.views.authentication.Union', Union_mock)
     union_stub = Union_mock.query.filter().first()
 
