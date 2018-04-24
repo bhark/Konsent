@@ -83,12 +83,14 @@ def orm_mock(mocker, request):
     mocker.patch('konsent.views.phase1.db', db)
     mocker.patch('konsent.views.phase2.db', db)
     mocker.patch('konsent.views.authentication.db', db)
+    mocker.patch('konsent.views.voting.db', db)
     mocker.patch('konsent.views.other.db', db)
 
     Post_mock = MagicMock()
     mocker.patch('konsent.views.phase1.Post', Post_mock)
     mocker.patch('konsent.views.phase2.Post', Post_mock)
     mocker.patch('konsent.views.phase3.Post', Post_mock)
+    mocker.patch('konsent.views.voting.Post', Post_mock)
     mocker.patch('konsent.views.other.Post', Post_mock)
 
     post_stub = MagicMock()
@@ -109,12 +111,13 @@ def orm_mock(mocker, request):
 
     Vote_mock = MagicMock()
     mocker.patch('konsent.views.phase1.Vote', Vote_mock)
-    mocker.patch('konsent.views.other.Vote', Vote_mock)
+    mocker.patch('konsent.views.voting.Vote', Vote_mock)
     Vote_query = Vote_mock.query.filter().first
 
     Comment_mock = MagicMock()
     mocker.patch('konsent.views.phase2.Comment', Comment_mock)
-    mocker.patch('konsent.views.other.Comment', Comment_mock)
+    mocker.patch('konsent.views.voting.Comment', Comment_mock)
+
     comment_stub = MagicMock()
     Comment_mock.return_value = comment_stub
     Comment_mock.query.get.return_value = comment_stub
@@ -142,7 +145,7 @@ def forms_mock(mocker):
     ArticleForm_mock().validate.return_value = True
     ArticleForm_mock().resting_time.data = 1
 
-    VetoForm_mock = mocker.patch('konsent.views.other.VetoForm')
+    VetoForm_mock = mocker.patch('konsent.views.voting.VetoForm')
     VetoForm_mock().validate.return_value = True
 
     return locals()

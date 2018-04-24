@@ -101,5 +101,3 @@ def post(post_id):
     return render_template(
         'post.html', post_data=post_data, post=post, phase=1, form=form
     )
-
-

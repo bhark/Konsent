@@ -12,6 +12,7 @@ def make_app(secret_key='Ka,SkqNs//', db_uri=None):
     from .views.phase1 import view as phase1_blueprint
     from .views.phase2 import view as phase2_blueprint
     from .views.phase3 import view as phase3_blueprint
+    from .views.voting import view as voting_blueprint
     from .views.other import view as other_blueprint
     from .views.authentication import view as register_blueprint
 
@@ -22,6 +23,7 @@ def make_app(secret_key='Ka,SkqNs//', db_uri=None):
     app.register_blueprint(phase1_blueprint)
     app.register_blueprint(phase2_blueprint)
     app.register_blueprint(phase3_blueprint)
+    app.register_blueprint(voting_blueprint)
     app.register_blueprint(other_blueprint)
     app.register_blueprint(register_blueprint)
 

@@ -13,36 +13,6 @@ def test_post_completed(client_logged, orm_mock, context):
     assert context['post'] == orm_mock['post_stub']
 
 
-def test_vote_comment(client_logged, orm_mock, context):
-    orm_mock['Vote_query'].return_value = None
-    orm_mock['comment_stub'].votes_count = 0
-
-
-    response = client_logged.get('/post/vote/1/1', follow_redirects=True)
-
-    assert response.status == '200 OK'
-    [template, context], *_ = context
-
-    assert template.name == 'post.html'
-
-    assert orm_mock['comment_stub'].votes_count == 1
-
-
-def test_unvote_comment(client_logged, orm_mock, context):
-    orm_mock['Vote_query'].return_value = 'A Vote'
-    orm_mock['comment_stub'].votes_count = 1
-
-
-    response = client_logged.get('/post/unvote/1/1', follow_redirects=True)
-
-    assert response.status == '200 OK'
-    [template, context], *_ = context
-
-    assert template.name == 'post.html'
-
-    assert orm_mock['comment_stub'].votes_count == 0
-
-
 def test_new_post_post(client_logged, forms_mock, context):
     forms_mock['article_stub'].title.data = 'test post title'
     forms_mock['article_stub'].body.data = 'test post data'
