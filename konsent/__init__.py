@@ -9,17 +9,19 @@ from .models import db, User, Post, Comment
 
 
 def make_app(secret_key='Ka,SkqNs//', db_uri=None):
+    from .views.authentication import view as register_blueprint
+    from .views.issue import view as issue_blueprint
     from .views.phase1 import view as phase1_blueprint
     from .views.phase2 import view as phase2_blueprint
     from .views.phase3 import view as phase3_blueprint
     from .views.voting import view as voting_blueprint
     from .views.other import view as other_blueprint
-    from .views.authentication import view as register_blueprint
 
     app = Flask(__name__)
     app.secret_key = secret_key 
 
     app.register_blueprint(home)
+    app.register_blueprint(issue_blueprint)
     app.register_blueprint(phase1_blueprint)
     app.register_blueprint(phase2_blueprint)
     app.register_blueprint(phase3_blueprint)

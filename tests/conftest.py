@@ -80,13 +80,15 @@ def user_mock(mocker):
 @pytest.fixture()
 def orm_mock(mocker, request):
     db = MagicMock()
+    mocker.patch('konsent.views.authentication.db', db)
+    mocker.patch('konsent.views.other.db', db)
+    mocker.patch('konsent.views.issue.db', db)
     mocker.patch('konsent.views.phase1.db', db)
     mocker.patch('konsent.views.phase2.db', db)
-    mocker.patch('konsent.views.authentication.db', db)
     mocker.patch('konsent.views.voting.db', db)
-    mocker.patch('konsent.views.other.db', db)
 
     Post_mock = MagicMock()
+    mocker.patch('konsent.views.issue.Post', Post_mock)
     mocker.patch('konsent.views.phase1.Post', Post_mock)
     mocker.patch('konsent.views.phase2.Post', Post_mock)
     mocker.patch('konsent.views.phase3.Post', Post_mock)
@@ -139,7 +141,7 @@ def forms_mock(mocker):
     RegisterUnionForm_mock = mocker.patch('konsent.views.authentication.RegisterUnionForm')
     RegisterUnionForm_mock().validate.return_value = True
 
-    ArticleForm_mock = mocker.patch('konsent.views.other.ArticleForm')
+    ArticleForm_mock = mocker.patch('konsent.views.issue.ArticleForm')
     article_stub = MagicMock()
     ArticleForm_mock.return_value = article_stub
     ArticleForm_mock().validate.return_value = True
