@@ -112,7 +112,7 @@ class Post(db.Model):
     @property
     def time_passed(self):
         now = datetime.now()
-        if now.second == self.create_date.second:
+        if int(now.timestamp()) == int(self.create_date.timestamp()):
             return 'just now'
         time_since = now - self.create_date
         hours = time_since.seconds // 3600
