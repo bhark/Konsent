@@ -1,3 +1,6 @@
+"""Use the power of the mock with discipline, and remember:
+Mock always where you use the object, not where it comes from.
+"""
 import datetime
 
 import konsent
@@ -77,16 +80,20 @@ def user_mock(mocker):
 @pytest.fixture()
 def orm_mock(mocker, request):
     db = MagicMock()
+    mocker.patch('konsent.views.authentication.db', db)
+    mocker.patch('konsent.views.info.db', db)
+    mocker.patch('konsent.views.issue.db', db)
     mocker.patch('konsent.views.phase1.db', db)
     mocker.patch('konsent.views.phase2.db', db)
-    mocker.patch('konsent.views.authentication.db', db)
-    mocker.patch('konsent.views.other.db', db)
+    mocker.patch('konsent.views.voting.db', db)
 
     Post_mock = MagicMock()
+    mocker.patch('konsent.views.issue.Post', Post_mock)
     mocker.patch('konsent.views.phase1.Post', Post_mock)
     mocker.patch('konsent.views.phase2.Post', Post_mock)
     mocker.patch('konsent.views.phase3.Post', Post_mock)
-    mocker.patch('konsent.views.other.Post', Post_mock)
+    mocker.patch('konsent.views.voting.Post', Post_mock)
+    mocker.patch('konsent.views.info.Post', Post_mock)
 
     post_stub = MagicMock()
     post_stub.union_id = '1'
@@ -100,18 +107,19 @@ def orm_mock(mocker, request):
 
     Post_mock.query.get.return_value = post_stub
 
-    Union_mock = mocker.patch('konsent.views.other.Union')
+    Union_mock = mocker.patch('konsent.views.info.Union')
     mocker.patch('konsent.views.authentication.Union', Union_mock)
     union_stub = Union_mock.query.filter().first()
 
     Vote_mock = MagicMock()
     mocker.patch('konsent.views.phase1.Vote', Vote_mock)
-    mocker.patch('konsent.views.other.Vote', Vote_mock)
+    mocker.patch('konsent.views.voting.Vote', Vote_mock)
     Vote_query = Vote_mock.query.filter().first
 
     Comment_mock = MagicMock()
     mocker.patch('konsent.views.phase2.Comment', Comment_mock)
-    mocker.patch('konsent.views.other.Comment', Comment_mock)
+    mocker.patch('konsent.views.voting.Comment', Comment_mock)
+
     comment_stub = MagicMock()
     Comment_mock.return_value = comment_stub
     Comment_mock.query.get.return_value = comment_stub
@@ -133,13 +141,13 @@ def forms_mock(mocker):
     RegisterUnionForm_mock = mocker.patch('konsent.views.authentication.RegisterUnionForm')
     RegisterUnionForm_mock().validate.return_value = True
 
-    ArticleForm_mock = mocker.patch('konsent.views.other.ArticleForm')
+    ArticleForm_mock = mocker.patch('konsent.views.issue.ArticleForm')
     article_stub = MagicMock()
     ArticleForm_mock.return_value = article_stub
     ArticleForm_mock().validate.return_value = True
     ArticleForm_mock().resting_time.data = 1
 
-    VetoForm_mock = mocker.patch('konsent.views.other.VetoForm')
+    VetoForm_mock = mocker.patch('konsent.views.voting.VetoForm')
     VetoForm_mock().validate.return_value = True
 
     return locals()
