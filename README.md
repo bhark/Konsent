@@ -1,5 +1,9 @@
 # Konsent
 
+## Important note on security updates
+
+Konsent hasn't had its dependencies updated for a while, which means that it is not safe to use unless you update them yourself. I know of two vulnerabilities in the dependencies currently used by Konsent: a severe vulnerability in pyyaml, and a moderate vulnerability in flask. Patches have been released for both of these dependencies, it's just about updating them before deploying Konsent.
+
 ## About
 
 > It's about time that we rethink the way we make decisions collectively. Konsent is my suggestion for an alternative to moderation, an alternative to hierarchy and unequal freedom. Konsent is a platform designed to help groups make decisions without hierarchy and representatives, built on anarchist values.
