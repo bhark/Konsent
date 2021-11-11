@@ -1,8 +1,8 @@
 # Konsent
 
-## Important note on security updates
+## Important note on the state of Konsent
 
-Konsent hasn't had its dependencies updated for a while, which means that it is not safe to use unless you update them yourself. I know of two vulnerabilities in the dependencies currently used by Konsent: a severe vulnerability in pyyaml, and a moderate vulnerability in flask. Patches have been released for both of these dependencies, it's just about updating them before deploying Konsent.
+Konsent is no longer being maintained or developed upon. The project was put in the grave after stumbling into some deeper misconceptions in the model. A new application and model is slowly making its way into existence, and is under active development as of November 2021. 
 
 ## About
 
