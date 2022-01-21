@@ -2,7 +2,15 @@
 
 ## Important note on the state of Konsent
 
-Konsent is no longer being maintained or developed upon. The project was put in the grave after stumbling into some deeper misconceptions in the model. A new application and model is slowly making its way into existence, and is under active development as of November 2021. 
+Konsent is no longer being maintained or developed upon. The project was put in the grave after stumbling into some deeper misconceptions in the model. **Konsent is not in a usable state!** A new application and model is slowly making its way into existence, and is under slow development as of November 2021. 
+
+### ...but all is not lost
+
+As of mid-january 2022, the outlines of a development team (more like a mutual aid network, really) is beginning to take form. Revamping Konsent will be a primary goal.
+
+Step one is designing a decision-making flow on the basis of what we learned from Konsent so far. There's talk of integrating communication and planning tools as well, to turn Konsent into an organizational tool in itself. Development-wise, it looks like we'll be working with Svelte, Sveltekit and Python Flask, real hip SPA/SSR-style. 
+
+Write an email to adrianelias@protonmail.com if you're interested in participating. 
 
 ## About
 
