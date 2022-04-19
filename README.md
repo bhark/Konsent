@@ -8,7 +8,7 @@ Konsent is no longer being maintained or developed upon. The project was put in 
 
 As of mid-january 2022, the outlines of a development team (more like a mutual aid network, really) is beginning to take form. Revamping Konsent will be a primary goal.
 
-Step one is designing a decision-making flow on the basis of what we learned from Konsent so far. There's talk of integrating communication and planning tools as well, to turn Konsent into an organizational tool in itself. Development-wise, it looks like we'll be working with Svelte, Sveltekit and Python Flask, real hip SPA/SSR-style. 
+Step one is designing a decision-making flow on the basis of what we learned from Konsent so far. There's talk of integrating communication and planning tools as well, to turn Konsent into an organizational tool in itself. Development-wise, it looks like we'll be working with Svelte, Sveltekit and ~Python Flask~ Supabase, real hip SPA/SSR-style. 
 
 Write an email to adrianelias@protonmail.com if you're interested in participating. 
 
